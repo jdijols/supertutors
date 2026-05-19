@@ -59,14 +59,14 @@ export function LessonView() {
             pose="facing_student"
             gesture="ok"
             mouth={showGreetingBubble || showResponseBubble ? "open" : "closed"}
-            className="h-[80vh] md:h-[92vh] w-auto"
+            className="h-[88vh] md:h-[100vh] w-auto"
           />
         </div>
       </RestaurantScene>
 
       {/* Speech bubbles — z-30 to render ABOVE the counter mask.
           Positioned at Freddy's head height (above the counter line). */}
-      <div className="absolute left-[28%] md:left-[32%] bottom-[55vh] md:bottom-[68vh] max-w-md z-30">
+      <div className="absolute left-[28%] md:left-[34%] bottom-[60vh] md:bottom-[72vh] max-w-md z-30">
         <SpeechBubble
           open={showGreetingBubble}
           speaker="Freddy"
