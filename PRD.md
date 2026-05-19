@@ -150,7 +150,7 @@ No parent flow, no audio check, no presence gate, no dashboard. Personalization 
 | Styling | **Tailwind CSS** | Fast prototyping, easy Superbuilders design token application, utility-first matches iteration speed |
 | Animation | **Framer Motion** | Drag/snap/gesture primitives built-in, React-first, declarative |
 | Manipulative rendering | **SVG + Framer Motion** | Accessible (ARIA), scalable, easy proximity hit-detection, easy to animate |
-| Tutor brain | **XState** | Literally a finite state machine — our scripted tutor architecture *is* an XState machine. Defensible. State diagrams generate from the same source code. |
+| Tutor brain | **XState v5** | Literally a finite state machine — our scripted tutor architecture *is* an XState machine. Defensible. Authored visually in Stately Editor (see §5), exported to TS, and dropped into the repo. |
 | App state | **Zustand** | Lightweight, no boilerplate, easy to integrate with XState |
 | Routing | **React Router DOM** | Two URL routes (landing `/` and lesson `/lesson`); standard, ~10KB; supports deep-linking and browser back button — important for shareable URLs and natural navigation between SuperTutors portal and the lesson world |
 | Sound effects | **Howler.js** | Reliable cross-browser audio, supports sequential playback for stitched name-audio |
@@ -341,7 +341,17 @@ graph TB
 
 ## 5. State Machine & Branching
 
-The full XState machine is a hierarchical state chart with one top-level state per beat. Below is the state diagram for **Beat 5 (the AHA)** — the most architecturally interesting beat because of branching and the cinematic trigger.
+### Canonical source: Stately Editor
+
+The full lesson — every beat, every branch (correct / wrong / stuck / timeout), every Freddy dialogue line — is authored visually in **Stately Editor** (by the XState team). The machine exports directly to XState v5 TypeScript, which IS the production tutor brain.
+
+**Live machine:** https://stately.ai/registry/editor/embed/ce0f4ea4-b58e-44d6-9305-afb270205f0a?machineId=2e541cb9-eef4-4c18-8720-0f4719b24692&mode=design
+
+- **For reviewers and the hiring partner:** click the link. You can pan/zoom the entire lesson interactively, click states to see Freddy's dialogue notes, and trace any path from splash → conclusion.
+- **For development:** Stately exports → drop into `src/modules/tutor/tutorMachine.ts`. Single source of truth.
+- **Mermaid diagrams in this PRD** (Beat 5 below) are rendered snapshots for offline reading; the live Stately machine is canonical and will evolve as the lesson is authored.
+
+Below is the snapshot for **Beat 5 (the AHA)** — the most architecturally interesting beat because of branching and the cinematic trigger.
 
 ### 5.1 Beat 5 (AHA) State Diagram
 
@@ -453,16 +463,41 @@ This pattern *is* the intent map. The visual diagram (above for Beat 5) is gener
 
 **Living document:** state diagrams update as we iterate. Final visual versions go into the demo video + interview presentation as architectural artifacts.
 
-### 5.3 Remaining Beats (intent maps to be authored in upcoming rounds)
+### 5.3 Remaining Beats (to be authored in Stately)
 
-- **Beat 1: Splash** — trivial (linear)
-- **Beat 1.5: Welcome Tour (Count the Pepperoni)** — counting sub-machine: `setup → count_pepperoni → count_total → reveal_vocab → variation_1 → variation_2 → exit`. Tap events drive transitions. Wrong-count and stuck branches.
-- **Beat 2: Sandbox** — most complex (free-form, many possible student actions, many fraction-toast triggers)
-- **Beat 3: First Guest** — linear with one wrong-amount branch
-- **Beat 4: Two Guests, Equal Share** — linear with proportional-wrong branches
-- **Beat 5: AHA** — diagrammed above
-- **Beat 6: Check for Understanding** — 2–3 short sub-machines, drag-to-compare driven
-- **Beat 7: Win** — linear celebration
+Author order, per vertical-slice-first strategy (see §5.4):
+1. **Beat 5: AHA** — already sketched (above); first to be authored fully in Stately and wired end-to-end through code → voice → iPad as the vertical slice
+2. **Beat 1: Splash** — trivial (linear)
+3. **Beat 1.5: Welcome Tour (Count the Pepperoni)** — counting sub-machine: `setup → count_pepperoni → count_total → reveal_vocab → variation_1 → variation_2 → exit`. Tap events drive transitions. Wrong-count and stuck branches.
+4. **Beat 2: Sandbox** — most complex (free-form, many possible student actions, many fraction-toast triggers)
+5. **Beat 3: First Guest** — linear with one wrong-amount branch
+6. **Beat 4: Two Guests, Equal Share** — linear with proportional-wrong branches
+7. **Beat 6: Check for Understanding** — 2–3 short sub-machines, drag-to-compare driven
+8. **Beat 7: Win** — linear celebration
+
+### 5.4 Authoring Workflow
+
+**Vertical-slice-first (locked).** Stately + scaffold + voice pipeline proven on Beat 5 before scaling out.
+
+```mermaid
+flowchart LR
+    A[Author in Stately Editor<br/>states + branches + dialogue notes] -->|export XState v5 TS| B[tutorMachine.ts<br/>in repo]
+    A -->|extract dialogue text| C[dialogue.json]
+    C -->|scripts/generate-voice.ts| D[ElevenLabs API]
+    D -->|MP3 files| E[/public/audio/]
+    B -->|runs in| F[React app<br/>Vite + Vercel]
+    E -->|loaded by| F
+```
+
+**Steps per beat:**
+1. Author the beat in Stately (states, transitions, dialogue text in state/transition descriptions)
+2. Export XState v5 TS via Stately's export button
+3. Replace the corresponding beat config in `src/modules/lesson/beats/*.ts`
+4. Run `npm run extract-dialogue` (small build script that scans the machine for dialogue text and updates `dialogue.json`)
+5. Run `npm run generate-voice` to (re-)generate ElevenLabs MP3s for any new/changed dialogue
+6. `git push` → Vercel preview URL updates → iPad-test
+
+**Round trip = minutes.** Author in Stately, see it on iPad shortly after.
 
 ---
 
@@ -560,6 +595,7 @@ Anticipated "why did you build it this way?" questions and crisp answers:
 | Beat 1.5 (Welcome Tour for vocab) | "Synthesis teaches numerator/denominator as a separate ~10-min lesson before equivalence. We integrated the same pattern into our restaurant narrative — 60–90s 'welcome tour' counting pepperoni slices — so kids enter the AHA beat with vocabulary in hand, without breaking the single-lesson scope or the continuous story." |
 | Demo mode | "`?demo=true` lets us jump to any beat with keyboard shortcuts — essential for recording the demo video without retakes through 8 beats. Also lets the hiring partner skip around when reviewing." |
 | Visual + animation direction | "AI-assisted asset pipeline (Midjourney for illustration, LottieFiles + lottie-react for character animation, tsparticles for slice/confetti, Framer Motion throughout) lets one developer ship Duolingo-adjacent polish in 5 days. Hero moments (slice, snap, AHA, win) are deliberately over-invested; secondary surfaces are deliberately minimal. Inspired by Fruit Ninja (slice feel) and Angry Birds (character expressiveness)." |
+| Stately Editor as authoring source | "The entire lesson — every beat, every branch, every dialogue line — is authored visually in Stately Editor and exported to XState v5 TypeScript. The machine you click through in the live editor IS the code running in production. Reviewers (and you) can trace any path from splash to conclusion interactively, not just read about it." |
 
 ---
 
@@ -664,6 +700,8 @@ How we're specifically investing in each of the brief's three judging criteria:
 - [x] **System architecture** — modules + diagram drafted (see §4); Landing module added
 - [x] **State machine pattern** — Beat 5 diagrammed and audited (see §5.1 + §5.1.1)
 - [x] **Beat 5 logic audit** — precondition guard + narrative fix locked (fresh-out-of-oven pizza)
+- [x] **Authoring workflow** — Stately Editor canonical, vertical-slice-first (Beat 5 → scaffold → voice → iPad → expand). See §5.4.
+- [x] **Stately machine URL** — https://stately.ai/registry/editor/embed/ce0f4ea4-b58e-44d6-9305-afb270205f0a?machineId=2e541cb9-eef4-4c18-8720-0f4719b24692&mode=design
 - [x] **Operational considerations** — demo mode, reset, fallback, browser matrix (see §4.4)
 - [x] **Brief compliance map** — see §10
 - [x] **Landing page architecture** — at `/`, SuperTutors brand, CTA card → `/lesson`
@@ -693,4 +731,4 @@ How we're specifically investing in each of the brief's three judging criteria:
 
 ---
 
-*Updated 2026-05-19, planning round 11 — added §3.12 Visual & Animation Direction (palette, shape language, asset pipeline, hero-moment animation targets, honest scope). Locked Midjourney as AI image tool, tsparticles as particle lib, lottie-react as stretch for Freddy facial animation. Updated tech stack (§3.10), file structure (§6, with character/landing/backgrounds/ui asset folders), defensibility (§7, new visual-direction row), open decisions (§12).*
+*Updated 2026-05-19, planning round 12 — locked Stately Editor as canonical authoring source for the lesson state machine (live URL embedded in §5). Added §5.4 Authoring Workflow (Stately → export → repo → voice → iPad). Bumped XState to v5 (Stately's export target). Added Stately row to §7 defensibility. Vertical-slice-first strategy locked: Beat 5 fully wired end-to-end before scaling out to remaining beats.*
