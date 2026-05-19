@@ -37,9 +37,9 @@ Every task has a **Done when** line with concrete success criteria. Patterns:
 
 > Update this section at the start/end of each session so any new Claude session can ramp in 30 seconds.
 
-**Active phase:** P0 complete; P1 ready to start (blocked on PT.1 + PT.3)
-**Active session owner:** awaiting Jason for parallel tracks
-**Blockers:** PT.1 (ElevenLabs voice pick) + PT.3 (Stately Beat 5 authoring) block P1.2 onward
+**Active phase:** P0 complete; P1 ready to start (blocked on PT.3)
+**Active session owner:** awaiting Jason for Stately Beat 5 authoring
+**Blockers:** PT.3 (Stately Beat 5 authoring) blocks P1.2 onward. PT.1 ✓ locked (voice `QzTKubutNn9TjrB7Xb2Q`). PT.4 (iPad) blocks P1.6 inspection only.
 
 ---
 
@@ -47,10 +47,10 @@ Every task has a **Done when** line with concrete success criteria. Patterns:
 
 These are independent of my (Claude's) build sequence and **must start ASAP** to avoid blocking later phases.
 
-- [ ] **PT.1 — Pick ElevenLabs voice for Freddy (J)**
-  - Generate 3–5 voice samples of the same Beat 5 line (e.g., the AHA reveal); pick one that matches "Super Mario meets Jersey Shore"
-  - **Done when:** voice ID committed to `src/modules/tutor/dialogue.json` → `voice.voiceId` field
-  - **Blocks:** P3 (voice pipeline)
+- [x] **PT.1 — Pick ElevenLabs voice for Freddy (J)**
+  - Voice ID `QzTKubutNn9TjrB7Xb2Q` committed to `dialogue.json` → `voice.voiceId`
+  - https://elevenlabs.io/app/voice-library?voiceId=QzTKubutNn9TjrB7Xb2Q
+  - **Follow-up before P3.3 actually generates MP3s:** Jason must "Add to my voices" in the ElevenLabs Voice Library (Library voices need to be saved to the account before API calls succeed)
 
 - [ ] **PT.2 — Midjourney asset generation (J, using C-drafted prompts)**
   - Generate: Freddy (3–5 expressions), 3 guests (each with 3 expressions), CTA hero illustration, restaurant backgrounds
@@ -224,9 +224,9 @@ Goal: the Table workspace becomes real. The hero gesture works.
 
 Goal: real ElevenLabs voice playing in the lesson, with name personalization.
 
-- [ ] **P3.1 — ElevenLabs voice ID committed (J — see PT.1)**
-  - Voice ID written into `dialogue.json` → `voice.voiceId`
-  - **Done when:** PT.1 complete and field populated
+- [x] **P3.1 — ElevenLabs voice ID committed (J — see PT.1)**
+  - `QzTKubutNn9TjrB7Xb2Q` committed
+  - **Outstanding:** confirm voice is added to the ElevenLabs account's library (not just bookmarked)
 
 - [ ] **P3.2 — Vercel env vars set (J)**
   - `ELEVENLABS_API_KEY` + `ELEVENLABS_VOICE_ID` in Vercel project settings (production + preview)

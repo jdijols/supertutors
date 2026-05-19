@@ -3,8 +3,9 @@
   "description": "All authored Freddy Fractions dialogue. Keys map 1:1 to MP3 filenames in /public/audio/. Lines may contain {{NAME}} which is split at build time so the kid's name MP3 is stitched at runtime (see PRD §3.11).",
   "voice": {
     "provider": "elevenlabs",
-    "voiceId": "TBD-freddy-fractions-voice",
-    "notes": "Super Mario meets Jersey Shore — Italian-American chef energy, warm, lovable, expressive."
+    "voiceId": "QzTKubutNn9TjrB7Xb2Q",
+    "libraryUrl": "https://elevenlabs.io/app/voice-library?voiceId=QzTKubutNn9TjrB7Xb2Q",
+    "notes": "Super Mario meets Jersey Shore — Italian-American chef energy, warm, lovable, expressive. Selected from ElevenLabs Voice Library by Jason. Voice must be added to the account's voice library before the API can call it (Voice Library → Add to my voices)."
   },
   "lines": {
     "aha_setup": "Hey {{NAME}}, want to see something cool? I just pulled this fresh pizza outta the oven — it's already cut in half. Try slicing one of those halves once more, just for me.",
