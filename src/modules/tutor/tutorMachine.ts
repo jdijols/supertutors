@@ -92,14 +92,20 @@ export const tutorMachine = setup({
           on: { DIALOGUE_DONE: "waiting_for_slice" },
         },
         sliced_correctly: {
-          entry: { type: "playDialogue", params: { key: "aha_compare_prompt" } },
+          entry: {
+            type: "playDialogue",
+            params: { key: "aha_compare_prompt" },
+          },
           on: { DIALOGUE_DONE: "waiting_for_compare" },
         },
         waiting_for_compare: {
           after: { 30000: "stuck_compare" },
           on: {
             PROXIMITY: [
-              { target: "aha_triggered", guard: ({ event }) => event.comparison === "equal" },
+              {
+                target: "aha_triggered",
+                guard: ({ event }) => event.comparison === "equal",
+              },
               { target: "not_equal" },
             ],
           },

@@ -37,9 +37,9 @@ Every task has a **Done when** line with concrete success criteria. Patterns:
 
 > Update this section at the start/end of each session so any new Claude session can ramp in 30 seconds.
 
-**Active phase:** P0 — Test Infrastructure & Foundation Hardening
-**Active session owner:** Claude
-**Blockers:** none
+**Active phase:** P0 complete; P1 ready to start (blocked on PT.1 + PT.3)
+**Active session owner:** awaiting Jason for parallel tracks
+**Blockers:** PT.1 (ElevenLabs voice pick) + PT.3 (Stately Beat 5 authoring) block P1.2 onward
 
 ---
 
@@ -80,38 +80,38 @@ These are independent of my (Claude's) build sequence and **must start ASAP** to
 
 Goal: every subsequent phase ships with confidence. Set the testing bar now.
 
-- [ ] **P0.1 — Install + configure Vitest (C)**
+- [x] **P0.1 — Install + configure Vitest (C)**
   - Add: `vitest`, `@vitest/ui`, `jsdom`, `@testing-library/react`, `@testing-library/jest-dom`
   - Configure `vitest.config.ts` (jsdom env, setup file with `@testing-library/jest-dom`)
   - Add npm scripts: `test`, `test:ui`, `test:run` (CI-friendly)
   - Write one passing smoke test (e.g., a utility math function)
   - **Done when:** `npm test` runs and passes; CI-friendly `test:run` exits 0
 
-- [ ] **P0.2 — Install + configure Playwright (C)**
+- [x] **P0.2 — Install + configure Playwright (C)**
   - Add `@playwright/test`; install chromium (webkit later for iPad Safari emulation)
   - Configure `playwright.config.ts` with iPad viewport (1180×820 portrait)
   - Add npm script: `test:e2e`
   - Write one smoke test: `/` → click "Learn Fractions with Freddy" → splash renders → enter "Test" → workspace appears
   - **Done when:** `npm run test:e2e` passes against `npm run dev`
 
-- [ ] **P0.3 — ESLint + Prettier (C)**
+- [x] **P0.3 — ESLint + Prettier (C)**
   - Add: `eslint`, `@typescript-eslint/*`, `eslint-plugin-react-hooks`, `eslint-plugin-react-refresh`, `prettier`
   - Configure `eslint.config.js` (flat config) + `.prettierrc`
   - Add npm scripts: `lint`, `lint:fix`, `format`
   - **Done when:** `npm run lint` passes on current scaffold; `npm run format` is idempotent
 
-- [ ] **P0.4 — Accessibility baseline (C)**
+- [x] **P0.4 — Accessibility baseline (C)**
   - Add `@axe-core/playwright`
   - Extend P0.2 smoke test to run axe on `/` and `/lesson` (with a test name entered)
   - Fail on critical/serious violations
   - **Done when:** axe finds zero critical/serious violations on the placeholders
 
-- [ ] **P0.5 — Error boundary at app root (C)**
+- [x] **P0.5 — Error boundary at app root (C)**
   - Add `ErrorBoundary` component wrapping `<RouterProvider>`
   - On error: friendly "Oops! Let's restart" UI with reset button
   - **Done when:** Throwing an error in any component shows the boundary, not a white screen; unit test verifies catch behavior
 
-- [ ] **P0.6 — Visual inspection of scaffold (J)**
+- [~] **P0.6 — Visual inspection of scaffold (J)** *(awaiting J's iPad confirmation; placeholders are deployed and a11y-clean)*
   - Open https://supertutors.vercel.app
   - Verify: Landing renders, CTA card navigates to /lesson, Splash captures name, LessonView renders placeholder Table + ChatPanel
   - **Done when:** Jason confirms scaffold UX placeholders match [PRD §3.8](./PRD.md#38-entry-flow--landing--splash)

@@ -53,7 +53,7 @@ export function SplashScreen() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type your name"
-          className="w-full text-2xl text-center font-display py-4 px-5 rounded-2xl bg-white border-4 border-terracotta-200 focus:border-terracotta-400 focus:outline-none text-terracotta-600 placeholder:text-terracotta-200"
+          className="w-full text-2xl text-center font-display py-4 px-5 rounded-2xl bg-white border-4 border-terracotta-200 focus:border-terracotta-400 focus:outline-none text-terracotta-600 placeholder:text-terracotta-400"
         />
 
         <motion.button

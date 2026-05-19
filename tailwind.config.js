@@ -37,6 +37,7 @@ export default {
         portal: {
           50: "#F5F7FA",
           100: "#E4E9F0",
+          200: "#C3CCDA",
           500: "#3B4A6B",
           900: "#1A2237",
         },

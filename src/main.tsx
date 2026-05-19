@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import App from "@/App";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { LandingPage } from "@/modules/landing/LandingPage";
 import { LessonView } from "@/modules/lesson/LessonView";
 import "@/styles/globals.css";
@@ -19,6 +20,8 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <ErrorBoundary>
+      <RouterProvider router={router} />
+    </ErrorBoundary>
   </React.StrictMode>,
 );

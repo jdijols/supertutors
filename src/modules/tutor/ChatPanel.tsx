@@ -18,7 +18,7 @@ export function ChatPanel() {
           <div className="font-display text-lg text-terracotta-600">
             Freddy Fractions
           </div>
-          <div className="text-xs text-terracotta-400">
+          <div className="text-xs text-terracotta-600">
             SuperSlice Pizza · your tutor
           </div>
         </div>
@@ -30,7 +30,7 @@ export function ChatPanel() {
         </div>
       </div>
 
-      <p className="mt-4 text-xs text-terracotta-300">
+      <p className="mt-4 text-xs text-terracotta-500">
         Audio + XState dialogue wiring is stubbed; populated when Beat 5 is
         exported from Stately.
       </p>

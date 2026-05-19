@@ -17,11 +17,13 @@ export function TutorCard({
     return (
       <div
         aria-disabled
-        className="rounded-3xl bg-portal-100 border-2 border-dashed border-portal-100 p-6 min-h-[260px] flex flex-col justify-end text-portal-500"
+        className="rounded-3xl bg-portal-100 border-2 border-dashed border-portal-200 p-6 min-h-[260px] flex flex-col justify-end text-portal-900"
       >
-        <div className="aspect-[4/3] w-full rounded-2xl bg-portal-50 mb-4 grid place-items-center text-3xl opacity-40">
-          ✦
-        </div>
+        <div
+          aria-hidden="true"
+          role="presentation"
+          className="aspect-[4/3] w-full rounded-2xl bg-portal-50 mb-4"
+        />
         <div className="font-display text-xl">{title}</div>
         <div className="text-sm">{subtitle}</div>
       </div>

@@ -1,0 +1,13 @@
+dist
+node_modules
+playwright-report
+test-results
+coverage
+.vercel
+References
+public/audio
+package-lock.json
+*.lock
+
+# Hand-formatted long-form docs — keep our line breaks
+*.md

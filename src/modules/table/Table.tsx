@@ -17,7 +17,7 @@ export function Table() {
         <p className="text-terracotta-500">
           Current beat: <strong>{currentBeat}</strong>
         </p>
-        <p className="text-terracotta-400 mt-3 text-sm">
+        <p className="text-terracotta-600 mt-3 text-sm">
           Manipulative (pizza + slicer + glove + guests) will render here. This
           is a scaffold placeholder — Beat 5 (AHA) is the first to be wired
           end-to-end via Stately → exported XState machine.
