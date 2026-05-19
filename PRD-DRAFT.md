@@ -50,10 +50,11 @@
 
 ### 3.4 Guests
 - Three facial expression states (modeled on Synthesis):
-  - **Neutral** (default, on arrival)
-  - **Frown / sad** (another guest has more pizza than them — unfair)
-  - **Smile** (they have the correct or equal-fair amount)
-- Emotional feedback loop ties fairness ↔ equivalence. The kid learns "equal" as both a math concept *and* a social outcome.
+  - **Neutral** (default — on arrival, while waiting, or while watching the kid prepare their order)
+  - **Frown / sad** (their requested order isn't yet fulfilled — too little, wrong type, OR another guest is being unfairly favored in a shared scenario)
+  - **Smile** (their specific order is satisfied — whatever amount they asked for, met or exceeded)
+- **The core trigger is per-guest requirement satisfaction**, NOT inter-guest equality. A single guest asking for 1/2 and receiving 1/2 should smile, even though there's no equivalency comparison happening.
+- In multi-guest equal-share scenarios this naturally creates a fairness ↔ equivalence emotional loop as a *side effect*, but the system works for any guest order independently.
 
 ### 3.5 Tutor Brain
 - **Pure scripted state machine** — no LLM, deeply authored branching. Implemented as XState (see §3.10 Tech Stack).
@@ -242,27 +243,29 @@ The full XState machine is a hierarchical state chart with one top-level state p
 stateDiagram-v2
     [*] --> setup
 
-    setup --> waiting_for_slice : Freddy: "Hey {{NAME}}, want to see something cool? Try slicing one of those halves once more"
+    setup --> waiting_for_slice : Freddy - Hey NAME, want to see something cool? Try slicing one of those halves once more
 
-    waiting_for_slice --> sliced_correctly : EVENT SLICED (target = existing half)
-    waiting_for_slice --> wrong_slice : EVENT SLICED (target = whole pizza or other)
+    waiting_for_slice --> sliced_correctly : SLICED on existing half
+    waiting_for_slice --> wrong_slice : SLICED on wrong target
     waiting_for_slice --> stuck : timeout 30s
 
-    wrong_slice --> waiting_for_slice : Freddy: "Nice cut! But try slicing one of the halves we already made"
-    stuck --> waiting_for_slice : Freddy gentle nudge: "Try tapping the slicer on one of those halves"
+    wrong_slice --> waiting_for_slice : Freddy - Nice cut! But try slicing one of the halves we already made
+    stuck --> waiting_for_slice : Freddy nudge - Try tapping the slicer on one of those halves
 
-    sliced_correctly --> waiting_for_compare : Freddy: "Now drag those two quarters next to a half — what do you notice?"
+    sliced_correctly --> waiting_for_compare : Freddy - Now drag those two quarters next to a half. What do you notice?
 
-    waiting_for_compare --> aha_triggered : EVENT PROXIMITY_EQUAL (quarters near a half, areas match)
-    waiting_for_compare --> not_equal : EVENT PROXIMITY_DETECTED but areas do not match
+    waiting_for_compare --> aha_triggered : PROXIMITY_EQUAL (areas match)
+    waiting_for_compare --> not_equal : PROXIMITY detected but areas differ
     waiting_for_compare --> stuck_compare : timeout 30s
 
-    not_equal --> waiting_for_compare : Freddy: "Hmm, those are not quite the same — try moving them right next to each other"
-    stuck_compare --> waiting_for_compare : Freddy: "Try sliding the quarters right up against the half"
+    not_equal --> waiting_for_compare : Freddy - Hmm, those are not quite the same. Try moving them right next to each other
+    stuck_compare --> waiting_for_compare : Freddy - Try sliding the quarters right up against the half
 
     aha_triggered --> celebrating : animation align + glow + chime
-    celebrating --> [*] : Freddy: "Whoa {{NAME}} — 1/2 is the SAME as 2/4! You just made fraction equivalence!" then transition to Beat 6
+    celebrating --> [*] : Freddy - Whoa NAME, 1/2 is the SAME as 2/4! You just made fraction equivalence! Then transition to Beat 6
 ```
+
+> **Mermaid syntax note:** state diagram transition labels are delimited by a single `:`, so additional colons inside a label break the parser. We use `-` as the speaker/quote separator instead and `NAME` (not `{{NAME}}`) as the placeholder marker so the diagram renders on GitLab/GitHub. The actual dialogue in `dialogue.json` will use the full `{{NAME}}` template syntax.
 
 ### 5.2 Intent Map Convention (per beat)
 
@@ -369,7 +372,7 @@ Anticipated "why did you build it this way?" questions and crisp answers:
 | iPad-first | "Brief requires iPad. Designed around touch primitives (tap, hold, pinch, drag, snap) with no hover dependencies. WCAG AA throughout." |
 | Drag-to-compare for check | "Proximity-based comparison reuses the manipulative the kid already knows. Doesn't introduce a new mode for the check phase." |
 | Pre-generated voice + ElevenLabs | "Studio-quality kid-friendly voice gives Freddy real character — measurable warmth differentiator from Synthesis's tap-and-type approach. Free tier covers the lesson." |
-| Guest expressions | "Fairness ↔ equivalence emotional feedback loop. Kids learn 'equal' as both math and social concept." |
+| Guest expressions | "Three states (neutral / sad / smile) triggered by **per-guest order satisfaction** — happy when their specific request is fulfilled. In multi-guest equal-share scenarios this also creates a fairness ↔ equivalence emotional loop as a side effect, but the core trigger is requirement satisfaction so the system works for any guest order, not just comparisons." |
 | SVG for manipulative | "Accessible (ARIA), scalable, easy proximity hit-detection via getBoundingClientRect, animates cleanly with Framer Motion." |
 | Single coherent manipulative | "Synthesis uses 3–4 sequential representations. We use one (square pizza) — less context-switching for the kid, more time spent in the wedge gesture." |
 
