@@ -65,12 +65,17 @@ export function LessonView() {
       </RestaurantScene>
 
       {/* Speech bubbles — z-30 to render ABOVE the counter mask.
-          Positioned at Freddy's head height (above the counter line). */}
-      <div className="absolute left-[28%] md:left-[34%] bottom-[60vh] md:bottom-[72vh] max-w-md z-30">
+          Positioned BELOW Freddy's face so the bubble partially overlaps
+          the counter, with the tail pointing UP-LEFT to his face. Avoids
+          the conflict between tail and his raised OK-gesture hand.
+          TODO (future iteration): position bubble dynamically based on
+          who's speaking (Freddy vs. guests) and what visual elements
+          are present on the counter. */}
+      <div className="absolute left-[20%] md:left-[26%] bottom-[35vh] md:bottom-[42vh] max-w-md z-30">
         <SpeechBubble
           open={showGreetingBubble}
           speaker="Freddy"
-          tailSide="left"
+          tailSide="top-left"
           onTap={() => setGreetingDismissed(true)}
         >
           Heyyy, welcome to SuperSlice! I&apos;m Freddy Fractions — c&apos;mon
@@ -80,7 +85,7 @@ export function LessonView() {
         <SpeechBubble
           open={showResponseBubble}
           speaker="Freddy"
-          tailSide="left"
+          tailSide="top-left"
         >
           {name}! Beautiful name. Alright {name}, lemme show ya how this
           works.

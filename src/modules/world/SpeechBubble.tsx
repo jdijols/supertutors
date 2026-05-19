@@ -14,12 +14,20 @@ import type { ReactNode } from "react";
  *
  * Tap-to-skip / tap-to-replay handled here via `onTap` callback if provided.
  */
-export type BubbleSide = "left" | "right";
+export type BubbleSide = "left" | "right" | "top-left" | "top-right";
 
 export interface SpeechBubbleProps {
   /** Show / hide the bubble. */
   open: boolean;
-  /** Which side the tail points to. Defaults to "left" (bubble appears to the right of the speaker). */
+  /**
+   * Where the tail attaches relative to the bubble:
+   *   - "left" / "right": tail extends horizontally from the side, pointing at
+   *     a speaker at roughly the same vertical position
+   *   - "top-left" / "top-right": tail extends upward from the top edge,
+   *     pointing at a speaker ABOVE the bubble (e.g., bubble below the
+   *     speaker's chest, over the counter)
+   * Defaults to "left".
+   */
   tailSide?: BubbleSide;
   /** Optional speaker label (e.g., "Freddy", "Guest 1"). */
   speaker?: string;
@@ -64,18 +72,31 @@ export function SpeechBubble({
           )}
           {children}
           {/* Tail */}
-          <div
-            aria-hidden
-            className={`
-              absolute top-1/2 -translate-y-1/2 w-0 h-0
-              border-y-[14px] border-y-transparent
-              ${
-                tailSide === "left"
-                  ? "left-0 -translate-x-full border-r-[18px] border-r-terracotta-200"
-                  : "right-0 translate-x-full border-l-[18px] border-l-terracotta-200"
-              }
-            `}
-          />
+          {(tailSide === "left" || tailSide === "right") && (
+            <div
+              aria-hidden
+              className={`
+                absolute top-1/2 -translate-y-1/2 w-0 h-0
+                border-y-[14px] border-y-transparent
+                ${
+                  tailSide === "left"
+                    ? "left-0 -translate-x-full border-r-[18px] border-r-terracotta-200"
+                    : "right-0 translate-x-full border-l-[18px] border-l-terracotta-200"
+                }
+              `}
+            />
+          )}
+          {(tailSide === "top-left" || tailSide === "top-right") && (
+            <div
+              aria-hidden
+              className={`
+                absolute top-0 -translate-y-full w-0 h-0
+                border-x-[12px] border-x-transparent
+                border-b-[16px] border-b-terracotta-200
+                ${tailSide === "top-left" ? "left-6" : "right-6"}
+              `}
+            />
+          )}
         </motion.div>
       )}
     </AnimatePresence>
