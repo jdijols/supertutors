@@ -20,16 +20,38 @@ In Midjourney left nav → **Style Creator** → paste this prompt → hit **Sta
 ### Style Creator prompt (paste this)
 
 ```
-Kid-friendly illustrated 2D style. Bold rounded shapes with clean thick outlines, no thin lines. Warm Italian-American palette (terracotta, mozzarella cream, tomato red, basil green, oven-glow yellow). Soft volumetric lighting. Joyful expressive mood. Painterly textures with confident shapes. In the spirit of Duolingo character art meets modern Pixar shorts. Designed to delight a 9-year-old. Never grim, never cartoonish-mean.
+Cartoon character art for a kids' learning app, style of Duolingo characters and modern Pixar animated shorts. Friendly round mascot faces, big expressive eyes, bold shapes, thick clean outlines, flat colors with soft cel-shaded gradient shading. Middle-aged Italian-American pizza chef inside a cozy warm pizzeria. Cheerful welcoming mood, warm color palette of reds yellows and greens. Modern cartoon mascot illustration. Never painterly, never anime, never realistic, never gritty, never dark.
 ```
 
-**When picking from the Style Creator results, favor images that show:**
-- Bold rounded shapes (no thin spindly lines)
-- Warm terracotta / mozzarella / tomato palette
-- Friendly characters with expressive faces
-- Soft lighting (not harsh shadows or grim mood)
+### Prompt-writing principles (lessons learned from v1)
 
-Avoid picking gritty, photoreal, dark-fantasy, or anime variants — those will drag the style in wrong directions.
+The first version of this prompt failed because MJ read it as a *gallery-art* brief instead of a *cartoon-mascot* brief. What changed and why:
+
+| Don't say | Say instead | Why |
+|---|---|---|
+| "Illustrated 2D style" | "Cartoon character art for a kids' learning app" | "Cartoon mascot" + "kids' app" are concrete style families MJ recognizes; "illustrated 2D" defaults to fine-art interpretations |
+| "Spirit of Duolingo / Pixar" | "Style of Duolingo characters and Pixar animated shorts" | MJ doesn't parse "spirit of" reliably — name the references directly |
+| "Painterly textures, confident shapes" | "Flat colors with soft cel-shaded gradient shading" | "Painterly" was the worst single offender — it actively pulled toward oil/watercolor. Cel-shading is the technique that actually defines Duolingo/Pixar character coloring |
+| "Warm Italian-American palette (terracotta, mozzarella cream, basil green...)" | "Warm color palette of reds yellows and greens" | Food-painting words drag MJ toward gallery art. Concrete primary-color names parse cleanly |
+| (no subject context) | "Middle-aged Italian-American pizza chef inside a cozy warm pizzeria" | Subject + setting grounds the generation; without it MJ wanders into abstract portraits |
+| (no negative anchors) | "Never painterly, never anime, never realistic, never gritty, never dark" | MJ respects "never X" well in natural language — explicit exclusions keep it on rails |
+
+### What to FAVOR when selecting from Style Creator results
+
+- **Cartoon-mascot faces** — big round eyes, simple expressive features
+- **Cel-shaded coloring** — flat color areas with soft shadows (not visible brushstrokes)
+- **Pizzeria warmth** — warm reds/yellows, ovens, hanging lights in the bg
+- Anything that feels like a kid would recognize it as "from a kids' app"
+
+### What to SKIP
+
+- Painterly portraits (watercolor / oil-painting types)
+- Hyper-realistic faces
+- Anime / manga (large feature sets, screen-tone shading)
+- High-contrast dark backgrounds
+- Pure line-art with no color
+
+If after 2–3 rounds it's still drifting wrong, screenshot what you're getting and we iterate the prompt again. Style Creator typically converges within a few rounds once the prompt is dialed in.
 
 ## Step 2 — Set Moodboard as default
 
