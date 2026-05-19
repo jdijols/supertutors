@@ -24,7 +24,7 @@ Build a single, self-contained math lesson on **fraction equivalence (1/2 = 2/4)
 
 ## Documents
 
-- [PRD-DRAFT.md](./PRD-DRAFT.md) — full product requirements, system architecture, state diagrams, talking points
+- [PRD.md](./PRD.md) — full product requirements, system architecture, state diagrams, talking points
 - `References/` — project brief, design notes, Synthesis competitive analysis (not part of product)
 
 ## Tech Stack (locked)
@@ -42,4 +42,4 @@ See PRD §3.10 for rationale per layer.
 
 ---
 
-*Planning notes: see PRD-DRAFT.md for full system architecture, intent map convention, and defensibility talking points.*
+*Planning notes: see PRD.md for full system architecture, intent map convention, and defensibility talking points.*
