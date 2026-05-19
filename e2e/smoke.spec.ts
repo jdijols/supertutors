@@ -51,9 +51,12 @@ test.describe("scaffold happy path", () => {
     await nameInput.fill("TestKid");
     await page.getByRole("button", { name: /nice to meet you, testkid/i }).click();
 
-    // 8. Onboarding complete: tools become available
-    await expect(page.getByTestId("tool-picker")).toBeVisible();
-    await expect(page.getByTestId("number-bar")).toBeVisible();
+    // 8. Onboarding complete: name input overlay dismisses; world stays clean
+    //    (NumberBar + ToolPicker are wired but hidden until XState drives
+    //    real input focus / manipulative interaction in a future round).
+    await expect(page.getByTestId("name-input-overlay")).not.toBeVisible();
+    await expect(page.getByTestId("restaurant-scene")).toBeVisible();
+    await expect(page.getByTestId("freddy-character")).toBeVisible();
   });
 
   test("CTA cards for unbuilt tutors are non-interactive", async ({ page }) => {

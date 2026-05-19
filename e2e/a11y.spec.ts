@@ -69,14 +69,14 @@ test.describe("a11y baseline", () => {
     await expectNoBlockingA11yViolations(page);
   });
 
-  test("lesson world (post-onboarding — tools active)", async ({ page }) => {
+  test("lesson world (post-onboarding — clean canvas)", async ({ page }) => {
     await page.goto("/lesson");
     await page.getByTestId("speech-bubble").click();
     await page.getByPlaceholder(/type your name/i).fill("TestKid");
     await page
       .getByRole("button", { name: /nice to meet you, testkid/i })
       .click();
-    await expect(page.getByTestId("tool-picker")).toBeVisible();
+    await expect(page.getByTestId("name-input-overlay")).not.toBeVisible();
     await waitForAnimationsToSettle(page);
     await expectNoBlockingA11yViolations(page);
   });

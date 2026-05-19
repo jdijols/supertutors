@@ -66,9 +66,6 @@ export function FreddyCharacter({
           {emoji}
         </motion.span>
       </div>
-      <div className="mt-2 text-xs font-mono text-terracotta-600 bg-mozzarella-50/80 px-2 py-1 rounded">
-        Freddy · {pose} · {mouth}
-      </div>
     </motion.div>
   );
 }

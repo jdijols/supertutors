@@ -98,20 +98,20 @@ export function LessonView() {
         </div>
       </div>
 
-      {/* Bottom-LEFT: NumberBar (hidden in onboarding; will be driven by
-          XState in later phases). Demoed visible here so layout is verifiable. */}
+      {/* Bottom-LEFT: NumberBar — hidden until XState wires real input
+          focus events in the next round. */}
       <div className="absolute bottom-6 left-6">
         <NumberBar
-          open={!inOnboarding}
-          label="Numerator"
-          onDigit={(d) => console.info(`[demo] digit ${d}`)}
-          onDelete={() => console.info("[demo] delete")}
+          open={false}
+          onDigit={() => undefined}
+          onDelete={() => undefined}
         />
       </div>
 
-      {/* Bottom-RIGHT corner: ToolPicker. Hidden during onboarding. */}
+      {/* Bottom-RIGHT corner: ToolPicker — hidden until XState wires
+          real manipulative interaction in the next round. */}
       <div className="absolute bottom-6 right-6">
-        <ToolPicker visible={!inOnboarding} />
+        <ToolPicker visible={false} />
       </div>
     </main>
   );
