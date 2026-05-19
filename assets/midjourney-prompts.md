@@ -15,35 +15,76 @@ This means **per-asset prompts no longer need style suffixes or moodboard refere
 
 ## Step 1 — Create the style in Style Creator
 
-In Midjourney left nav → **Style Creator** → paste this prompt → hit **Start** → MJ generates a sheet of images → pick the ones that match the SuperSlice vibe → MJ evolves into a saved style → set as default for the project.
+### How Style Creator actually works (revised understanding)
 
-### Style Creator prompt (paste this)
+Style Creator does **not** generate images from your prompt directly. It shows a grid of **pre-cached images** from existing SREF (style reference) codes — Midjourney picks which family of pre-cached images to show based on your prompt. Your selections (and the ones you skip) push and pull through Midjourney's style space to create a **new** custom SREF code.
 
+The Style Creator UI has **TWO input fields**, not one:
+
+1. **Main prompt** — a SIMPLE subject. Just describes what kind of image you want to see in the grid. No style language. (e.g. "a friendly pizza chef")
+2. **Starting style description** — hidden behind an "Add starting style" button. THIS is where the broad style language goes. Biases the initial grid toward your target style. (e.g. "cartoon mascot illustration, Pixar style")
+
+Cramming style language into field 1 doesn't work — MJ ignores the style words and just picks portrait-family pre-cached images at random.
+
+### What to paste
+
+**Field 1 — Main prompt (keep this simple):**
 ```
-Cartoon character art for a kids' learning app, style of Duolingo characters and modern Pixar animated shorts. Friendly round mascot faces, big expressive eyes, bold shapes, thick clean outlines, flat colors with soft cel-shaded gradient shading. Middle-aged Italian-American pizza chef inside a cozy warm pizzeria. Cheerful welcoming mood, warm color palette of reds yellows and greens. Modern cartoon mascot illustration. Never painterly, never anime, never realistic, never gritty, never dark.
+a friendly pizza chef
+```
+Aspect ratio (in the param panel): `3:4` (portrait — matches how characters will be displayed in the world).
+
+**Field 2 — Starting style description (click "Add starting style" first):**
+```
+cartoon mascot illustration, Pixar and Duolingo style, flat colors with soft cel-shading, warm welcoming mood
 ```
 
-### Prompt-writing principles (lessons learned from v1)
+Keep the style description broad (per the video tutorial: "typing in a broad style works best here"). Don't list every constraint — pick the 4–5 most defining style anchors.
 
-The first version of this prompt failed because MJ read it as a *gallery-art* brief instead of a *cartoon-mascot* brief. What changed and why:
+### Settings before you start
 
-| Don't say | Say instead | Why |
-|---|---|---|
-| "Illustrated 2D style" | "Cartoon character art for a kids' learning app" | "Cartoon mascot" + "kids' app" are concrete style families MJ recognizes; "illustrated 2D" defaults to fine-art interpretations |
-| "Spirit of Duolingo / Pixar" | "Style of Duolingo characters and Pixar animated shorts" | MJ doesn't parse "spirit of" reliably — name the references directly |
-| "Painterly textures, confident shapes" | "Flat colors with soft cel-shaded gradient shading" | "Painterly" was the worst single offender — it actively pulled toward oil/watercolor. Cel-shading is the technique that actually defines Duolingo/Pixar character coloring |
-| "Warm Italian-American palette (terracotta, mozzarella cream, basil green...)" | "Warm color palette of reds yellows and greens" | Food-painting words drag MJ toward gallery art. Concrete primary-color names parse cleanly |
-| (no subject context) | "Middle-aged Italian-American pizza chef inside a cozy warm pizzeria" | Subject + setting grounds the generation; without it MJ wanders into abstract portraits |
-| (no negative anchors) | "Never painterly, never anime, never realistic, never gritty, never dark" | MJ respects "never X" well in natural language — explicit exclusions keep it on rails |
+- **Relax mode ON** (Account → Settings) — Style Creator burns fast hours quickly. Relax mode generates more slowly but doesn't eat your quota. You can scroll/select while jobs queue.
+- **Hotkeys ON** — number keys to select, arrows to scroll. Way faster than mouse clicks.
 
-### What to FAVOR when selecting from Style Creator results
+### Iteration strategy (the key insight from the tutorial)
 
-- **Cartoon-mascot faces** — big round eyes, simple expressive features
-- **Cel-shaded coloring** — flat color areas with soft shadows (not visible brushstrokes)
-- **Pizzeria warmth** — warm reds/yellows, ovens, hanging lights in the bg
-- Anything that feels like a kid would recognize it as "from a kids' app"
+When working toward a SPECIFIC style, **break it into components** and pick images that move toward each component, even if no single image hits all of them:
 
-### What to SKIP
+| Target component | What to look for |
+|---|---|
+| Cartoon-mascot character | Round forms, big expressive eyes, simple features |
+| Cel-shaded coloring | Flat color fills with soft gradient shadows (NOT brushstrokes) |
+| Warm welcoming palette | Reds, yellows, oranges, greens dominant |
+| Kid-friendly tone | Approachable, never grim or gritty |
+
+You may select a cartoon style that's in the wrong colors, OR a warm-palette style that's a bit too sketchy — that's expected. Pick across the components and MJ converges over rounds.
+
+### Per-round process
+
+1. **Hover the heart** on any image to see its **full SREF grid** before selecting — sometimes the one image shown isn't the best representation of what that style can do. Some SREFs are flexible (can produce both photographic and illustrated outputs).
+2. **Select 2–3 images per round** that move toward your target. Pick across components, not all the same.
+3. **Skip aggressively** — non-selections also influence the result. Don't waste selections on "kinda nice" images that aren't moving you toward the target.
+4. **Click again to deselect** if you change your mind before the round completes.
+5. **Side-likes**: anything you love but isn't relevant — click the heart icon to save to your Style Explorer Likes for later. Don't use it as a Style Creator selection.
+
+**Round count target: 8–10 rounds** for a specific style like ours (more than the 5-round minimum). The first few rounds have wide variation; convergence kicks in around round 5–6.
+
+### Reviewing convergence
+
+After ~5 rounds, hop to the **Create** page (left nav). You'll see:
+- The **OG / baseline** job (your prompt with zero style influence) — ignore this
+- The output of each completed round
+
+Watch for the rounds to **narrow** — earlier rounds show variation; later rounds should look more consistent in style. When the style feels locked, **click the style tag** on the round you like best → adds the new custom SREF code to your prompt bar → that's your saved style. Set it as default for the project.
+
+### What to FAVOR when selecting
+
+- Cartoon-mascot faces — round forms, big expressive eyes
+- Cel-shaded coloring — flat fills + soft shadows (not visible brushstrokes)
+- Warm pizzeria-adjacent palettes — reds, yellows, oranges, greens
+- Anything that looks like "from a kids' app or animated film"
+
+### What to SKIP (and don't accidentally side-like into your selection)
 
 - Painterly portraits (watercolor / oil-painting types)
 - Hyper-realistic faces
@@ -51,7 +92,14 @@ The first version of this prompt failed because MJ read it as a *gallery-art* br
 - High-contrast dark backgrounds
 - Pure line-art with no color
 
-If after 2–3 rounds it's still drifting wrong, screenshot what you're getting and we iterate the prompt again. Style Creator typically converges within a few rounds once the prompt is dialed in.
+### Session controls
+
+- **Reset session** — keeps the same prompt, clears selections and starts fresh
+- **End session** — clears everything; use this if you want to change the main prompt or style description
+
+### Lessons from v1 (kept for future reference)
+
+The original prompt attempt failed because it lumped style language into the main prompt field. Even with the right vocabulary (cel-shading, cartoon mascot, etc.), MJ ignored most of it and showed gallery-art pre-cached images. The fix is structural — TWO fields, simple subject + broad style description — not a different word choice.
 
 ## Step 2 — Set Moodboard as default
 
