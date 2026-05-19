@@ -1,17 +1,24 @@
-# Midjourney Prompts — SuperSlice Pizza
+# AI Asset Prompts — SuperSlice Pizza
 
 > Asset generation workflow for the Freddy Fractions world.
-> Uses the modern midjourney.com web editor (NOT Discord).
+> **Dual-tool approach:** ChatGPT (gpt-image-1) for character + scene art; Midjourney for the CTA hero illustration (if needed).
 
-## Workflow overview
+## Why two tools
 
-The MJ web editor has three persistent layers that compose on every prompt:
+We started Midjourney-only, but the Style Creator + Moodboard workflow couldn't reliably produce kid-friendly cartoon-mascot style — MJ kept drifting to gallery art or photoreal restaurant interiors. Switched to ChatGPT for character work and it nailed the Pixar/Duolingo aesthetic on the first generation.
 
-1. **Moodboard** — uploaded reference images (pizza, ovens, chefs, etc.). Auto-applied to all prompts when set as default.
-2. **Style** — a reusable aesthetic created in Style Creator. Auto-applied when active.
-3. **Per-asset prompt** — short, subject-focused description of what to generate.
+**Tool selection by asset:**
 
-This means **per-asset prompts no longer need style suffixes or moodboard references** — those are inherited. Each prompt only describes the *subject + composition + aspect ratio*.
+| Asset | Tool | Why |
+|---|---|---|
+| Freddy character + variations | **ChatGPT (gpt-image-1)** | Reliable on "Pixar / Duolingo cartoon mascot" prompts; conversational iteration; character consistency in a single thread |
+| Restaurant scene background | **ChatGPT (gpt-image-1)** | Same thread as Freddy = inherits the cartoon style; better composition control ("counter fills bottom half" actually lands); 1536×1024 landscape fits iPad better than 16:9 |
+| Guest characters (P4) | **ChatGPT (gpt-image-1)** | Same character-consistency reasons |
+| Landing CTA hero (P2) | **Either** | Try ChatGPT first; MJ is fine as fallback since it's a single one-off polish piece |
+
+## The critical workflow rule
+
+**Generate all SuperSlice-world assets in ONE ChatGPT thread.** The model maintains character + style consistency through thread context. Starting a new chat resets the visual continuity and the next Freddy comes out different.
 
 ## Step 1 — Create the style in Style Creator
 
