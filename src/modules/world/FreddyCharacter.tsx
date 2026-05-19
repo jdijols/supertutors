@@ -1,71 +1,88 @@
 import { motion } from "framer-motion";
 
 /**
- * Freddy character — placeholder render until Midjourney assets land.
+ * Freddy character — renders the Midjourney/ChatGPT-generated PNG variant
+ * that matches the requested pose + gesture + mouth state.
  *
- * Props drive the rendered asset. When real PNGs are in `/public/images/
- * characters/freddy/`, render `<img src={...}>`; until then, render an
- * emoji + visible labels so layout is testable.
+ * Asset matrix in `/public/images/characters/freddy/`:
+ *   facing-student-{ok|neutral|excited|thinking}-{closed|open}.png  (8 files)
+ *   facing-guest-pointing-{closed|open}.png                          (2 files)
  *
- * Phase 1 mouth states: closed | open.
- * Phase 2 (stretch) phoneme states will expand the union.
+ * Pose / gesture mapping per beat (used by LessonView / state machine):
+ *   - Greeting + warm reactions       → ok
+ *   - Idle, calm explaining           → neutral
+ *   - AHA + Win celebrations          → excited
+ *   - Setup of reveal beats ("hmm")   → thinking
+ *   - When facing a guest             → pointing (only valid gesture)
+ *
+ * `mouth` toggles between resting (closed) and speaking (open). When
+ * `speaking={true}` we layer a subtle vertical bob via Framer Motion to
+ * sell "alive while talking" without needing full phoneme lip-sync yet.
  */
 export type FreddyPose = "facing_student" | "facing_guest";
-export type FreddyMouth = "closed" | "open";
-export type FreddyExpression =
+export type FreddyGesture =
+  | "ok"
   | "neutral"
+  | "pointing"
   | "excited"
-  | "encouraging"
   | "thinking";
+export type FreddyMouth = "closed" | "open";
 
 export interface FreddyCharacterProps {
   pose?: FreddyPose;
+  gesture?: FreddyGesture;
   mouth?: FreddyMouth;
-  expression?: FreddyExpression;
-  /** True while a speech bubble is playing. Toggles mouth + subtle anim. */
+  /** True while a speech bubble is playing. Adds a subtle idle bob. */
   speaking?: boolean;
+  /** Optional className for sizing override. */
+  className?: string;
+}
+
+function resolveImageSrc(
+  pose: FreddyPose,
+  gesture: FreddyGesture,
+  mouth: FreddyMouth,
+): string {
+  const direction = pose === "facing_student" ? "facing-student" : "facing-guest";
+  // facing-guest only has the `pointing` gesture; coerce silently rather
+  // than 404, in case the state machine asks for an invalid combo.
+  const safeGesture: FreddyGesture =
+    pose === "facing_guest" ? "pointing" : gesture;
+  return `/images/characters/freddy/${direction}-${safeGesture}-${mouth}.png`;
 }
 
 export function FreddyCharacter({
   pose = "facing_student",
+  gesture = "ok",
   mouth = "closed",
-  expression = "neutral",
   speaking = false,
+  className = "w-40 md:w-56 h-auto",
 }: FreddyCharacterProps) {
-  // Placeholder render: emoji that hints at the pose, with a visible state
-  // tag underneath so we can verify the prop wiring without final art.
-  const emoji = pose === "facing_student" ? "👨‍🍳" : "🧑‍🍳";
+  const src = resolveImageSrc(pose, gesture, mouth);
 
   return (
     <motion.div
       data-testid="freddy-character"
       data-pose={pose}
+      data-gesture={gesture}
       data-mouth={mouth}
-      data-expression={expression}
       data-speaking={speaking}
       animate={
-        speaking
-          ? { y: [0, -2, 0], rotate: [0, 1, -1, 0] }
-          : { y: 0, rotate: 0 }
+        speaking ? { y: [0, -3, 0], rotate: [0, 0.5, -0.5, 0] } : { y: 0, rotate: 0 }
       }
       transition={
         speaking
-          ? { duration: 0.4, repeat: Infinity, ease: "easeInOut" }
+          ? { duration: 0.5, repeat: Infinity, ease: "easeInOut" }
           : { duration: 0.3 }
       }
-      className="flex flex-col items-center select-none"
+      className="select-none pointer-events-none"
     >
-      <div
-        aria-hidden
-        className="w-40 h-40 md:w-56 md:h-56 rounded-full bg-mozzarella-100 border-4 border-terracotta-200 grid place-items-center text-7xl md:text-8xl shadow-xl shadow-terracotta-300/40"
-      >
-        <motion.span
-          animate={speaking && mouth === "open" ? { scale: 1.05 } : { scale: 1 }}
-          transition={{ duration: 0.15 }}
-        >
-          {emoji}
-        </motion.span>
-      </div>
+      <img
+        src={src}
+        alt="Freddy Fractions"
+        draggable={false}
+        className={`${className} drop-shadow-2xl`}
+      />
     </motion.div>
   );
 }

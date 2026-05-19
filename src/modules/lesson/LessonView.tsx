@@ -48,13 +48,16 @@ export function LessonView() {
   return (
     <main className="relative w-screen h-screen overflow-hidden bg-mozzarella-50">
       <RestaurantScene>
-        {/* Freddy stands behind the counter, right-of-center. */}
+        {/* Freddy stands behind the counter, right-of-center.
+            Onboarding uses the OK greeting gesture; later beats switch to
+            neutral / excited / thinking via the state machine. */}
         <div
           className="absolute left-1/2 top-1/2 -translate-y-1/2"
           style={{ transform: "translate(20%, -40%)" }}
         >
           <FreddyCharacter
             pose="facing_student"
+            gesture="ok"
             mouth={showGreetingBubble || showResponseBubble ? "open" : "closed"}
             speaking={showGreetingBubble || showResponseBubble}
           />

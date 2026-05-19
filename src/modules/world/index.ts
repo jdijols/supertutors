@@ -1,7 +1,7 @@
 export { FreddyCharacter } from "./FreddyCharacter";
 export type {
   FreddyCharacterProps,
-  FreddyExpression,
+  FreddyGesture,
   FreddyMouth,
   FreddyPose,
 } from "./FreddyCharacter";
