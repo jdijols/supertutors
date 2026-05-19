@@ -29,7 +29,7 @@ Build a single, self-contained math lesson on **fraction equivalence (1/2 = 2/4)
 
 ## Tech Stack (locked)
 
-Vite + React + TypeScript · Tailwind CSS · Framer Motion · React Router · XState (tutor brain) · Zustand · Howler.js · ElevenLabs (hybrid TTS) · Vercel
+Vite + React + TypeScript · Tailwind CSS · Framer Motion · tsparticles · React Router · XState (tutor brain) · Zustand · Howler.js · ElevenLabs (hybrid TTS) · Midjourney + LottieFiles (assets) · Vercel
 
 See PRD §3.10 for rationale per layer.
 

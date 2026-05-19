@@ -154,6 +154,8 @@ No parent flow, no audio check, no presence gate, no dashboard. Personalization 
 | App state | **Zustand** | Lightweight, no boilerplate, easy to integrate with XState |
 | Routing | **React Router DOM** | Two URL routes (landing `/` and lesson `/lesson`); standard, ~10KB; supports deep-linking and browser back button — important for shareable URLs and natural navigation between SuperTutors portal and the lesson world |
 | Sound effects | **Howler.js** | Reliable cross-browser audio, supports sequential playback for stitched name-audio |
+| Particles | **tsparticles** | ~30KB. Cheapest way to nail Fruit-Ninja-style slice splatter (cheese stretch, sauce droplets) + win confetti. Without it, hero moments feel flat. |
+| Character animation (stretch) | **lottie-react** | ~50KB. Optional layer for animated Freddy facial expressions (blinks, mouth, eyebrows, body). Ships Thursday if Wednesday's SVG baseline is solid. |
 | Voice (TTS) | **ElevenLabs** (hybrid pipeline) | See §3.11 — pre-gen for static, runtime for name |
 | Voice security | **Vercel Edge Function** | ~10 lines to proxy ElevenLabs API key. Free on hobby tier. |
 | Storage | **IndexedDB** (browser) | Cache kid's name MP3 across sessions |
@@ -187,6 +189,50 @@ No parent flow, no audio check, no presence gate, no dashboard. Personalization 
 #### Cost & failure
 - **Cost:** ~$0.0001 per session (one short API call). Free tier covers thousands of sessions/month.
 - **Failure mode:** if the Edge Function call fails (offline, ElevenLabs down), fall back to playing static lines without the name — lesson still works, just less personal. Logged but not blocking. (See §4.4 for global audio fallback.)
+
+### 3.12 Visual & Animation Direction
+
+#### Visual Language
+- **Palette:** warm Italian-American — terracotta, mozzarella cream, tomato red, basil green, oven-glow yellow. No cold blues. Saturated, not pastel.
+- **Shape language:** bold rounded forms, no hairlines or thin strokes — kid-eye-friendly, scales cleanly at any zoom.
+- **Character expressions are primary.** Freddy + guests carry the warmth visually. Faces matter more than backgrounds.
+- **Tactile feedback on every gesture:** slice = juice/cheese particle splatter + sound. Snap = pulse + glow + chime. Win = character bounce + confetti.
+- **References:** **Duolingo** (character expressiveness, micro-animations on success), **Fruit Ninja** (juicy slice feedback, particles, satisfying physics), **Angry Birds** (caricatured emotional characters).
+
+#### Asset Pipeline
+
+| Asset | Created with | Rendered as | Animated with |
+|---|---|---|---|
+| **Freddy** (3–5 expressions) | Midjourney → Figma refine → SVG export (v1). Lottie from LottieFiles as stretch (Thursday). | SVG inline (v1) → Lottie JSON (stretch) | Framer Motion cross-fade/bounce on state change (v1) → lottie-react for facial anim (stretch) |
+| **Guests** (3 expressions × N) | Midjourney → Figma → SVG | SVG inline | Framer Motion (spring on state change) |
+| **Pizza** (procedural) | Hand-coded SVG components (Crust, Sauce, Cheese, Pepperoni) | SVG | Framer Motion `layout` animations for slice transitions |
+| **Slice particle effect** | tsparticles preset (cheese stretch, sauce droplets) | Canvas overlay | tsparticles physics |
+| **Tools** (slicer wheel, glove) | Figma → SVG | SVG | Framer Motion (cutter spins on hover-tap, glove flex on grab) |
+| **Landing CTA illustration** | Midjourney — THE polish piece (Freddy at SuperSlice with pizza + slicer) | PNG/WebP | Framer Motion hover/tap bounce |
+| **Backgrounds** (restaurant, oven, counter) | Midjourney + light Figma cleanup | SVG / PNG | CSS / Framer Motion (subtle parallax on hero moments) |
+| **Win confetti** | tsparticles confetti preset | Canvas | tsparticles physics |
+
+#### Tool Decisions (locked)
+
+- **AI image generation:** **Midjourney** ($10/mo) — best quality for cohesive character art + hero CTA illustration. Subscription expensed to project.
+- **Freddy expressiveness strategy:** **Static SVG primary, Lottie if time** — ships baseline by Wednesday, layered Lottie facial animation Thursday if Wednesday is solid. Hedged: guaranteed baseline + stretch for "alive" feel.
+- **Particles:** **tsparticles** added to stack — locked.
+
+#### Hero Moments — Animation Targets
+
+| Moment | What we animate |
+|---|---|
+| **Slice (any beat)** | Cutter wheel spin during drag. Pizza splits with `layout` animation. Cheese-stretch particles + sauce droplets (tsparticles). "Squelch + slice" SFX. Pieces gently bounce apart with spring. |
+| **Snap-align (Beat 5 AHA)** | Proximity detected → glow pulse on both pieces → snap-into-alignment (spring) → chime → brief screen-glow flash. |
+| **Guest reaction** | Face state change with spring bounce. Stars/sparkle particle on smile. Frown shake. |
+| **Win moment (Beat 7)** | All guests bounce + smile. Full-screen confetti (tsparticles preset). Freddy big celebration animation. Triumphant SFX. |
+| **Counter tick (Beat 1.5)** | Tapped slice highlights with wave + bounce. Counter number scales up + spring-bounces back. Subtle sparkle particle on each tap. |
+
+#### Honest Scope
+
+Reasonably close to Duolingo/Angry Birds polish **for hero moments** is achievable in 5 days with this pipeline. Secondary surfaces (idle states, between-beat transitions) will be simpler — bold but not heavily animated.
+
+What we explicitly **can't** match: years of custom-illustrated character polish from a full design team. AI-assisted pipeline gets us ~80% there in ~5% of the time.
 
 ---
 
@@ -427,6 +473,13 @@ super-slice/
 ├── public/
 │   ├── audio/                       # Pre-generated MP3s
 │   └── images/
+│       ├── characters/
+│       │   ├── freddy/              # SVG expressions (v1) + freddy.lottie.json (stretch)
+│       │   └── guests/              # SVG expressions per guest character
+│       ├── landing/
+│       │   └── cta-hero.png         # Midjourney CTA illustration
+│       ├── backgrounds/             # Restaurant scene, oven, counter
+│       └── ui/                      # Tools, icons, decorative
 ├── src/
 │   ├── App.tsx                      # Root component
 │   ├── main.tsx                     # Vite entry
@@ -506,6 +559,7 @@ Anticipated "why did you build it this way?" questions and crisp answers:
 | Single coherent manipulative | "Synthesis uses 3–4 sequential representations (cookies, bars, grids). We use one (square pizza) — less context-switching for the kid, more time spent in the wedge gesture." |
 | Beat 1.5 (Welcome Tour for vocab) | "Synthesis teaches numerator/denominator as a separate ~10-min lesson before equivalence. We integrated the same pattern into our restaurant narrative — 60–90s 'welcome tour' counting pepperoni slices — so kids enter the AHA beat with vocabulary in hand, without breaking the single-lesson scope or the continuous story." |
 | Demo mode | "`?demo=true` lets us jump to any beat with keyboard shortcuts — essential for recording the demo video without retakes through 8 beats. Also lets the hiring partner skip around when reviewing." |
+| Visual + animation direction | "AI-assisted asset pipeline (Midjourney for illustration, LottieFiles + lottie-react for character animation, tsparticles for slice/confetti, Framer Motion throughout) lets one developer ship Duolingo-adjacent polish in 5 days. Hero moments (slice, snap, AHA, win) are deliberately over-invested; secondary surfaces are deliberately minimal. Inspired by Fruit Ninja (slice feel) and Angry Birds (character expressiveness)." |
 
 ---
 
@@ -613,7 +667,12 @@ How we're specifically investing in each of the brief's three judging criteria:
 - [x] **Operational considerations** — demo mode, reset, fallback, browser matrix (see §4.4)
 - [x] **Brief compliance map** — see §10
 - [x] **Landing page architecture** — at `/`, SuperTutors brand, CTA card → `/lesson`
-- [ ] **Landing page CTA illustration** — Freddy at SuperSlice scene with pizza + slicer; source or commission?
+- [x] **Visual & animation direction** — palette, shape language, hero moments, asset pipeline locked (see §3.12)
+- [x] **AI image tool** — Midjourney ($10/mo)
+- [x] **Animation libs** — tsparticles confirmed; lottie-react as stretch (Thursday)
+- [ ] **Landing page CTA illustration** — Midjourney scene (Freddy at SuperSlice with pizza + slicer)
+- [ ] **Midjourney prompts library** — author Freddy + guests + CTA + backgrounds prompts; iterate to brand
+- [ ] **LottieFiles asset hunt** — find/adapt a pizza-chef Lottie for Freddy (stretch goal)
 - [ ] **Intent maps for remaining beats** (1, 1.5, 2, 3, 4, 6, 7) — Beat 1.5 (Welcome Tour) and Beat 2 (Sandbox) are highest priority
 - [ ] **Fallback matrix per beat** — woven into each beat's state machine; needs explicit audit
 - [ ] **Eval rubric** — defining "good" (warmth, pacing, clarity, aha-clarity, recovery quality)
@@ -634,4 +693,4 @@ How we're specifically investing in each of the brief's three judging criteria:
 
 ---
 
-*Updated 2026-05-19, planning round 10 — renamed tutor to Freddy Fractions (Super Mario meets Jersey Shore vibe); corrected setting spelling to SuperSlice Pizza; added §2 Brand & World restructure (SuperTutors as platform, Freddy as first tutor, SuperSlice as setting); added Landing Page at `/` route with React Router (SuperTutors-branded portal with "Learn Fractions with Freddy" CTA card); added §5.1.1 Beat 5 Logic Audit with two real fixes (setup precondition guard + "fresh out of oven" narrative fix).*
+*Updated 2026-05-19, planning round 11 — added §3.12 Visual & Animation Direction (palette, shape language, asset pipeline, hero-moment animation targets, honest scope). Locked Midjourney as AI image tool, tsparticles as particle lib, lottie-react as stretch for Freddy facial animation. Updated tech stack (§3.10), file structure (§6, with character/landing/backgrounds/ui asset folders), defensibility (§7, new visual-direction row), open decisions (§12).*
