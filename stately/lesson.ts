@@ -1,14 +1,23 @@
 /**
  * SuperTutors lesson — canonical XState v5 machine.
  *
- * CANONICAL SOURCE for Stately authoring. One machine, all 8 beats nested
- * as compound states. The top-level diagram shows the lesson flow
- * (splash → welcomeTour → sandbox → firstGuest → twoGuests → aha →
- * check → win); drill into any beat to author its internal states.
+ * CANONICAL SOURCE for Stately authoring. One machine, five top-level
+ * phases (matching the brief's explore → instruct → check arc, with
+ * onboarding and celebrate bookends), each phase a compound state
+ * with its own internal flow.
  *
- * Beat 5 (AHA) is fully fleshed out — see PRD §5.1 + §5.1.1.
- * Beats 1, 1.5, 2, 3, 4, 6, 7 are minimal stubs (entry line → done)
- * that Jason will author in Stately during P4.
+ * TOP-LEVEL FLOW:
+ *   onboarding → explore → instruct → check → celebrate (final)
+ *
+ * INTERACTION MODEL (per design decision 2026-05-19):
+ *   - Full-bleed world (no chat panel). Freddy and guests live in the
+ *     RestaurantScene. Speech is shown as bubbles anchored to the speaker
+ *     and auto-dismissed when audio finishes.
+ *   - Student input is never typed prose. Numeric input uses the on-screen
+ *     NumberBar; selections use tappable buttons in the workspace;
+ *     gestures (slice, drag, tap-to-count) happen on pizzas/slices directly.
+ *   - One exception: the kid's NAME is entered once via the system keyboard
+ *     during onboarding. Every other lesson input is in-world UI.
  *
  * Round-trip:
  *   1. Copy the entire createMachine(...) call below.
@@ -24,7 +33,7 @@ import { createMachine } from "xstate";
 
 export const lessonMachine = createMachine({
   id: "supertutors_lesson",
-  initial: "splash",
+  initial: "onboarding",
   context: {
     name: "",
   },
@@ -38,280 +47,221 @@ export const lessonMachine = createMachine({
       | { type: "PROXIMITY"; comparison: "equal" | "not_equal" }
       | { type: "TAPPED"; pieceId: string; hasTopping: boolean }
       | { type: "DELIVERED"; pieceId: string; guestId: string }
+      | { type: "NUMBER_SUBMITTED"; fieldId: string; value: number }
+      | { type: "CHOICE_SELECTED"; choiceId: string }
+      | { type: "BUBBLE_DISMISSED" }
       | { type: "RESET" },
   },
   states: {
-    // ─────────────────────────────────────────────────────────────
-    // BEAT 1 — Splash
-    // ─────────────────────────────────────────────────────────────
-    splash: {
+    // ─────────────────────────────────────────────────────────────────────
+    // PHASE 1 — ONBOARDING
+    // Goal: introduce Freddy + the world; capture the kid's name.
+    // Pattern: world is already visible; Freddy waves, speech bubble pops
+    // up, audio plays; bubble dismisses; name input field appears in
+    // the workspace; kid types name (system keyboard, one-time); Freddy
+    // responds with the name spoken aloud.
+    // ─────────────────────────────────────────────────────────────────────
+    onboarding: {
       description:
-        'Beat 1 — Splash screen. Freddy introduces himself and asks the kid\'s name. Behind the scenes the name MP3 prefetch fires so audio is ready by Beat 1.5.\n\nFREDDY: "Heyyy, welcome to SuperSlice! I\'m Freddy Fractions. What\'s your name, kid?"\n\n(TODO: J to author in Stately)',
+        "Phase 1 — Onboarding. The world is fully visible from second one: Freddy stands behind the SuperSlice counter, oven on the left, empty pizza table in front. Freddy waves and speaks; speech bubble overlays anchored to him.\n\n(TODO: J to refine in Stately.)",
       initial: "greeting",
       states: {
         greeting: {
-          entry: "playDialogue.splash_greet",
+          description:
+            'World mounts; Freddy turns to face the student and waves. First speech bubble appears anchored to him with audio.\n\nFREDDY: "Heyyy, welcome to SuperSlice! I\'m Freddy Fractions — c\'mon back behind the counter, we got work to do. What\'s your name, kid?"',
+          entry: "playDialogue.onboarding_greet",
           on: {
-            NAME_ENTERED: { target: "ready" },
+            DIALOGUE_DONE: { target: "awaiting_name" },
           },
         },
-        ready: {
+        awaiting_name: {
           description:
-            'Kid entered name. Freddy confirms warmly with the name spoken aloud.\n\nFREDDY: "Ready to slice some pizza, {{NAME}}?"',
-          entry: "playDialogue.splash_ready",
+            "Speech bubble has dismissed. A name input field appears in the workspace (centered near Freddy). System keyboard slides up — this is the ONE time it's allowed. Kid types name and submits (return / enter / 'done').",
+          on: {
+            NAME_ENTERED: {
+              target: "name_received",
+              actions: "storeName",
+            },
+          },
+        },
+        name_received: {
+          description:
+            'Name MP3 is ready (pre-fetched during greeting via ElevenLabs Edge Function proxy — see PRD §3.11). Freddy responds, speaking the name aloud.\n\nFREDDY: "{{NAME}}! Beautiful name. Alright {{NAME}}, lemme show ya how this works."',
+          entry: "playDialogue.onboarding_name_received",
           on: {
             DIALOGUE_DONE: { target: "done" },
           },
         },
         done: { type: "final" },
       },
-      onDone: { target: "welcomeTour" },
+      onDone: { target: "explore" },
     },
 
-    // ─────────────────────────────────────────────────────────────
-    // BEAT 1.5 — Welcome Tour ("Count the Pepperoni")
-    // ─────────────────────────────────────────────────────────────
-    welcomeTour: {
+    // ─────────────────────────────────────────────────────────────────────
+    // PHASE 2 — EXPLORE
+    // Goal: build familiarity with the manipulative + vocabulary.
+    // Sub-phases: vocab (Count the Pepperoni) → sandbox (free play).
+    // ─────────────────────────────────────────────────────────────────────
+    explore: {
       description:
-        'Beat 1.5 — Welcome Tour. Explicit numerator/denominator vocabulary via counting pepperoni on a sample pizza. Tools are HIDDEN — only interaction is tapping slices.\n\nFREDDY: "Before our guests arrive, lemme show ya how we talk about pizzas around here. Look at this pizza, {{NAME}} — how many slices got pepperoni?"\n\n(TODO: J to author counting sub-machine — tap pepperoni → counter increments → name numerator → tap total → name denominator → 1-2 variations → exit)',
-      initial: "intro",
+        "Phase 2 — Explore. Two sub-phases: (a) Count the Pepperoni for explicit numerator/denominator vocabulary, then (b) Sandbox for free play with tools and fraction toasts. Tools fade in during sandbox; remain visible (in right corner) for the rest of the lesson.",
+      initial: "vocab",
       states: {
-        intro: {
-          entry: "playDialogue.welcome_intro",
-          on: {
-            DIALOGUE_DONE: { target: "done" },
+        vocab: {
+          description:
+            'Sub-phase 2a — Count the Pepperoni. A pizza slides out of the oven onto the counter, sliced into 4 with some pepperoni on some slices. Kid taps pepperoni slices to count (numerator), then taps the input field "?" → NumberBar appears → taps the count. Freddy reacts. Same for denominator.\n\n(TODO: J to author the counting sub-machine.)\n\nFREDDY (intro): "Before our first customer shows up, lemme show ya how we talk about pizzas around here. Take a look at this pizza — count the slices with pepperoni and tap the number."',
+          initial: "intro",
+          states: {
+            intro: {
+              entry: "playDialogue.explore_vocab_intro",
+              on: { DIALOGUE_DONE: { target: "done" } },
+            },
+            // TODO: pepperoni_count_prompt, awaiting_numerator_input,
+            // total_count_prompt, awaiting_denominator_input, vocab_reveal,
+            // variation_1, variation_2
+            done: { type: "final" },
           },
+          onDone: { target: "sandbox" },
         },
-        // TODO: count_pepperoni, count_total, reveal_vocab, variation_1, variation_2
+        sandbox: {
+          description:
+            'Sub-phase 2b — Sandbox. Tools (glove + cutter) fade in to the right corner. NumberBar dismisses. Kid plays freely: slice pizzas, move pieces, see fraction toasts auto-appear over each new piece. Freddy gives warm reactions but doesn\'t direct.\n\n(TODO: J to author. Most complex sub-phase — many possible student actions. Exit trigger TBD: timer? min-actions? kid-tapped "ready" button?)\n\nFREDDY (intro): "Alright {{NAME}}, your turn — go on, slice some pizzas! Try different ways. I\'ll be right here."',
+          initial: "playing",
+          states: {
+            playing: {
+              entry: "playDialogue.explore_sandbox_intro",
+              on: { DIALOGUE_DONE: { target: "done" } },
+            },
+            // TODO: free-play sub-states + toast triggers + ready signal
+            done: { type: "final" },
+          },
+          onDone: { target: "done" },
+        },
         done: { type: "final" },
       },
-      onDone: { target: "sandbox" },
+      onDone: { target: "instruct" },
     },
 
-    // ─────────────────────────────────────────────────────────────
-    // BEAT 2 — Sandbox / Explore
-    // ─────────────────────────────────────────────────────────────
-    sandbox: {
+    // ─────────────────────────────────────────────────────────────────────
+    // PHASE 3 — INSTRUCT
+    // Goal: guided practice that builds to the AHA.
+    // Sub-phases: first_order → two_orders → equivalence_reveal.
+    // The AHA lives here as the climax, not as a peer top-level beat.
+    // ─────────────────────────────────────────────────────────────────────
+    instruct: {
       description:
-        'Beat 2 — Sandbox. Tools fade in. Free play with slicer + glove. Fraction toasts on every slice. Tutorial-by-doing. Exits after a "ready" trigger (TBD — could be a timer, a min-actions count, or kid taps a "next" button).\n\nFREDDY: "Alright {{NAME}}, your turn — go ahead, try makin\' some pizzas! Slice \'em however ya want."\n\n(TODO: J to author. Most complex beat — many possible student actions.)',
-      initial: "playing",
+        "Phase 3 — Instruct. Guests arrive at the counter from the far side. Kid prepares orders (slice + deliver via glove). Difficulty escalates: single guest → two guests with equal share → equivalence problem.",
+      initial: "first_order",
       states: {
-        playing: {
-          entry: "playDialogue.sandbox_intro",
-          on: {
-            DIALOGUE_DONE: { target: "done" },
+        first_order: {
+          description:
+            'Sub-phase 3a — First customer. A single guest approaches the counter. Asks for a simple share. Kid slices, delivers via glove tool, guest smiles. First win.\n\n(TODO: J to author. Linear with one wrong-amount branch.)\n\nFREDDY: "Oh hey, our first customer just walked in! Listen to what they want."\nGUEST: "Hiya — could I please have HALF the pizza?"',
+          initial: "guest_arrival",
+          states: {
+            guest_arrival: {
+              entry: "playDialogue.instruct_first_arrival",
+              on: { DIALOGUE_DONE: { target: "done" } },
+            },
+            // TODO: order_spoken, awaiting_delivery, delivered_correct,
+            // delivered_wrong, guest_satisfied
+            done: { type: "final" },
           },
+          onDone: { target: "two_orders" },
         },
-        // TODO: free-play sub-states + toast triggers + ready signal
+        two_orders: {
+          description:
+            "Sub-phase 3b — Second customer arrives. Both guests want equal pizza. Kid figures out halves for both.\n\n(TODO: J to author. Linear with proportional-wrong branches.)",
+          initial: "guest_arrival",
+          states: {
+            guest_arrival: {
+              entry: "playDialogue.instruct_two_arrival",
+              on: { DIALOGUE_DONE: { target: "done" } },
+            },
+            // TODO: order_spoken, awaiting_delivery, both_satisfied,
+            // unequal_branch
+            done: { type: "final" },
+          },
+          onDone: { target: "equivalence_reveal" },
+        },
+        equivalence_reveal: {
+          description:
+            "Sub-phase 3c — THE AHA. A third guest arrives wanting the same amount as the others, but the kid is running low on whole pizzas. Freddy nudges them to slice differently. Kid discovers that two quarters equal one half. Cinematic reveal with snap-align + glow + chime.\n\nSee PRD §5.1 + §5.1.1. Specific sub-states (setup precondition, waiting_for_slice, wrong_slice, stuck, sliced_correctly, waiting_for_compare, not_equal, stuck_compare, aha_triggered, celebrating) to be authored in Stately by J.\n\n(TODO: J to author all sub-states in Stately. This is the load-bearing climax — invest authoring time here.)",
+          initial: "intro",
+          states: {
+            intro: {
+              entry: "playDialogue.instruct_aha_intro",
+              on: { DIALOGUE_DONE: { target: "done" } },
+            },
+            // TODO: third_guest_arrival, ran_low_revelation, waiting_for_slice,
+            // wrong_slice, stuck, sliced_correctly, waiting_for_compare,
+            // not_equal, stuck_compare, aha_triggered, celebrating
+            done: { type: "final" },
+          },
+          onDone: { target: "done" },
+        },
         done: { type: "final" },
-      },
-      onDone: { target: "firstGuest" },
-    },
-
-    // ─────────────────────────────────────────────────────────────
-    // BEAT 3 — First Guest
-    // ─────────────────────────────────────────────────────────────
-    firstGuest: {
-      description:
-        'Beat 3 — First guest arrives at the restaurant. Asks for a simple share. Kid slices, delivers via glove, guest smiles. First win.\n\nFREDDY: "Oh hey {{NAME}}, our first customer just walked in! Let\'s see what they want."\nGUEST: "Hiya — could I please have half the pizza?"\n\n(TODO: J to author. Linear with one wrong-amount branch.)',
-      initial: "arrival",
-      states: {
-        arrival: {
-          entry: "playDialogue.first_guest_arrival",
-          on: {
-            DIALOGUE_DONE: { target: "done" },
-          },
-        },
-        // TODO: order_received, waiting_for_delivery, delivered_correct, delivered_wrong
-        done: { type: "final" },
-      },
-      onDone: { target: "twoGuests" },
-    },
-
-    // ─────────────────────────────────────────────────────────────
-    // BEAT 4 — Two Guests, Equal Share
-    // ─────────────────────────────────────────────────────────────
-    twoGuests: {
-      description:
-        'Beat 4 — A second guest arrives. Both want equal pizza. Kid figures out halves. Both smile.\n\nFREDDY: "Lookit that, another customer! And it sounds like they want the same as the first one."\n\n(TODO: J to author. Linear with proportional-wrong branches.)',
-      initial: "arrival",
-      states: {
-        arrival: {
-          entry: "playDialogue.two_guests_arrival",
-          on: {
-            DIALOGUE_DONE: { target: "done" },
-          },
-        },
-        // TODO: order_received, waiting_for_delivery, both_smile_check, unequal_branch
-        done: { type: "final" },
-      },
-      onDone: { target: "aha" },
-    },
-
-    // ─────────────────────────────────────────────────────────────
-    // BEAT 5 — THE AHA (fully fleshed out — see PRD §5.1 + §5.1.1)
-    // ─────────────────────────────────────────────────────────────
-    aha: {
-      description:
-        "Beat 5 — THE AHA. Fraction equivalence reveal. The load-bearing beat. See PRD §5.1 / §5.1.1.",
-      initial: "setup",
-      states: {
-        setup: {
-          description:
-            'Beat 5 entry. Seeds a fresh halved pizza on the table if none exists (precondition guard — PRD §5.1.1 Issue #1). Plays Freddy\'s setup line, then waits for the slice.\n\nFREDDY: "Hey {{NAME}}, c\'mere! Wanna see somethin\' really cool? I just pulled this fresh pizza outta the oven — already cut in half, see? Try slicin\' one of those halves one more time. Just for me, okay?"',
-          entry: ["seedHalvedPizza", "playDialogue.aha_setup"],
-          on: {
-            DIALOGUE_DONE: { target: "waiting_for_slice" },
-          },
-        },
-
-        waiting_for_slice: {
-          description:
-            "Idle. Expecting the kid to slice one of the existing halves.\nInputs accepted: SLICED event on any piece. Branches on whether the parent piece was a 1/2 or not.\nTimeout: 30s → stuck.",
-          on: {
-            SLICED: [
-              {
-                target: "sliced_correctly",
-                guard: "isHalfPiece",
-              },
-              {
-                target: "wrong_slice",
-              },
-            ],
-          },
-          after: {
-            "30000": { target: "stuck" },
-          },
-        },
-
-        wrong_slice: {
-          description:
-            'Kid sliced something other than a half (the whole pizza, a quarter, or another piece). Warm redirect.\n\nFREDDY: "Whoa whoa whoa, nice cut! But hey, try slicin\' one of the halves we already made, not the big pie. You got this, {{NAME}}."',
-          entry: "playDialogue.aha_wrong_slice",
-          on: {
-            DIALOGUE_DONE: { target: "waiting_for_slice" },
-          },
-        },
-
-        stuck: {
-          description:
-            'Gentle nudge after 30s of no slice.\n\nFREDDY: "You okay over there, {{NAME}}? Just tap the slicer right on one of those halves and drag it across. Nothin\' to it."',
-          entry: "playDialogue.aha_stuck",
-          on: {
-            DIALOGUE_DONE: { target: "waiting_for_slice" },
-          },
-        },
-
-        sliced_correctly: {
-          description:
-            'Kid successfully sliced a half into two quarters. Two new pieces appear on the table. Prompt the drag-to-compare.\n\nFREDDY: "Ohhh yeah, look at that! Now you got two pieces — two quarters! Now do me a favor — drag those two little quarters right next to the other half. Right next to it. Whatcha see?"',
-          entry: "playDialogue.aha_compare_prompt",
-          on: {
-            DIALOGUE_DONE: { target: "waiting_for_compare" },
-          },
-        },
-
-        waiting_for_compare: {
-          description:
-            "Idle. Expecting the kid to drag pieces close enough for proximity detection to fire.\nInputs accepted: PROXIMITY event with comparison='equal' or 'not_equal'.\nTimeout: 30s → stuck_compare.",
-          on: {
-            PROXIMITY: [
-              {
-                target: "aha_triggered",
-                guard: "areasMatch",
-              },
-              {
-                target: "not_equal",
-              },
-            ],
-          },
-          after: {
-            "30000": { target: "stuck_compare" },
-          },
-        },
-
-        not_equal: {
-          description:
-            'Pieces are close but areas don\'t match. Encouraging hint to align the right groups.\n\nFREDDY: "Hmmm, close, but not quite. Try movin\' those two quarters real close — right up against the half. Side by side, capisce?"',
-          entry: "playDialogue.aha_not_equal",
-          on: {
-            DIALOGUE_DONE: { target: "waiting_for_compare" },
-          },
-        },
-
-        stuck_compare: {
-          description:
-            'Kid not moving pieces after 30s. Push them to slide together.\n\nFREDDY: "Slide \'em together, {{NAME}}. The two quarters and the half — right up next to each other. You\'ll see somethin\' cool happen."',
-          entry: "playDialogue.aha_stuck_compare",
-          on: {
-            DIALOGUE_DONE: { target: "waiting_for_compare" },
-          },
-        },
-
-        aha_triggered: {
-          description:
-            "Proximity equal! Play the cinematic snap-align + glow + chime animation. Wait for ANIMATION_DONE before the reveal.",
-          entry: "playAhaAnimation",
-          on: {
-            ANIMATION_DONE: { target: "celebrating" },
-          },
-        },
-
-        celebrating: {
-          description:
-            'Cinematic reveal. Freddy names the equivalence explicitly.\n\nFREDDY: "WHOA. WHOA WHOA WHOA. {{NAME}}, look at this! One half and two quarters — they\'re the SAME SIZE! Boom — that\'s called fraction equivalence! 1/2 equals 2/4! Mama mia, you just figured out somethin\' real! Bellissimo!"',
-          entry: "playDialogue.aha_reveal",
-          on: {
-            DIALOGUE_DONE: { target: "done" },
-          },
-        },
-
-        done: {
-          description:
-            "Beat 5 complete. Parent transitions to Beat 6 (Check for Understanding).",
-          type: "final",
-        },
       },
       onDone: { target: "check" },
     },
 
-    // ─────────────────────────────────────────────────────────────
-    // BEAT 6 — Check for Understanding
-    // ─────────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
+    // PHASE 4 — CHECK
+    // Goal: mastery confirmation through 2-3 independent problems.
+    // Uses tap-input fields + NumberBar for numeric answers; uses
+    // drag-to-compare for proximity proofs.
+    // ─────────────────────────────────────────────────────────────────────
     check: {
       description:
-        'Beat 6 — Mastery check. 2-3 short problems using drag-to-compare proximity mechanic. Branching dialogue on wrong answers.\n\nFREDDY: "Alright {{NAME}}, let\'s see if you really got it. I\'m gonna give ya a couple little challenges."\n\n(TODO: J to author. 2-3 sub-machines, each one a mini problem.)',
+        'Phase 4 — Check for understanding. 2-3 short problems testing the equivalence concept. Mix of numeric inputs (NumberBar) and drag-to-compare gestures. Branching dialogue on wrong answers stays warm and re-teaches.\n\n(TODO: J to author 2-3 problem sub-machines.)\n\nFREDDY (intro): "Alright {{NAME}}, let\'s see if you got it. Just a couple little challenges."',
       initial: "intro",
       states: {
         intro: {
           entry: "playDialogue.check_intro",
-          on: {
-            DIALOGUE_DONE: { target: "done" },
-          },
+          on: { DIALOGUE_DONE: { target: "done" } },
         },
-        // TODO: problem_1, problem_2, problem_3
+        // TODO: problem_1 (e.g., "Show me 2/4 next to 1/2 — are they equal?"),
+        // problem_2 (e.g., numeric: "How many eighths equal one half?"),
+        // problem_3 (stretch)
         done: { type: "final" },
       },
-      onDone: { target: "win" },
+      onDone: { target: "celebrate" },
     },
 
-    // ─────────────────────────────────────────────────────────────
-    // BEAT 7 — Win
-    // ─────────────────────────────────────────────────────────────
-    win: {
+    // ─────────────────────────────────────────────────────────────────────
+    // PHASE 5 — CELEBRATE
+    // Goal: win moment that ties back to narrative + reinforces mastery.
+    // ─────────────────────────────────────────────────────────────────────
+    celebrate: {
       description:
-        'Beat 7 — Celebration. All guests smile. Full-screen confetti. Freddy celebrates by name.\n\nFREDDY: "{{NAME}}, you did it! Look at all these happy customers! You\'re officially a fractions champion. Whaddaya say we do it again sometime?"',
-      initial: "celebrating",
+        'Phase 5 — Celebrate. All guests smile and face the student. Full-screen confetti via tsparticles. Freddy turns to the student with his biggest grin and delivers the final reinforcement.\n\nFREDDY: "{{NAME}}, you did it! Look at all these happy customers — every one of them got their fair share, all because YOU figured out that one half equals two quarters. You\'re officially a fractions champion. Mama mia. Bellissimo!"',
+      initial: "guests_react",
       states: {
-        celebrating: {
-          entry: ["playWinAnimation", "playDialogue.win_celebrate"],
+        guests_react: {
+          description:
+            "All guests face the student with happy expressions. Camera holds for ~1s. No dialogue yet.",
+          entry: "triggerGuestsReact",
+          on: {
+            ANIMATION_DONE: { target: "confetti" },
+          },
+        },
+        confetti: {
+          description:
+            "tsparticles confetti preset bursts across the screen. Audio chime.",
+          entry: "triggerConfetti",
+          on: {
+            ANIMATION_DONE: { target: "freddy_final" },
+          },
+        },
+        freddy_final: {
+          description: "Freddy delivers the final reinforcement line by name.",
+          entry: "playDialogue.celebrate_freddy_final",
           on: {
             DIALOGUE_DONE: { target: "done" },
           },
         },
         done: {
           description:
-            "Lesson complete. App can return to landing or offer replay.",
+            "Lesson complete. App may offer 'play again' or return to landing.",
           type: "final",
         },
       },
@@ -321,6 +271,6 @@ export const lessonMachine = createMachine({
 
   on: {
     // Lesson-wide events
-    RESET: { target: ".splash" },
+    RESET: { target: ".onboarding" },
   },
 });

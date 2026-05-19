@@ -31,18 +31,19 @@ Production code (`src/modules/tutor/tutorMachine.ts`) imports the same machine �
 | `lesson.ts` | Canonical lesson machine — all 8 beats. Round-trip target. |
 | `README.md` | This file — workflow + conventions. |
 
-## Beat-authoring status
+## Phase-authoring status
 
-| Beat | State in `lesson.ts` | Status |
-|---|---|---|
-| 1 — Splash | `states.splash` | stub (greeting → ready → done) — TODO J |
-| 1.5 — Welcome Tour | `states.welcomeTour` | stub (intro → done) — TODO J |
-| 2 — Sandbox | `states.sandbox` | stub (playing → done) — TODO J |
-| 3 — First Guest | `states.firstGuest` | stub (arrival → done) — TODO J |
-| 4 — Two Guests | `states.twoGuests` | stub (arrival → done) — TODO J |
-| **5 — AHA** | **`states.aha`** | **✓ fleshed out (10 sub-states matching PRD §5.1 + §5.1.1) — Jason refines** |
-| 6 — Check | `states.check` | stub (intro → done) — TODO J |
-| 7 — Win | `states.win` | stub (celebrating → done) — TODO J |
+The machine is structured as 5 top-level phases (matching the brief's
+explore → instruct → check arc, with onboarding + celebrate bookends).
+Each phase is a compound state; some have nested sub-phases.
+
+| # | Phase | State path | Status |
+|---|---|---|---|
+| 1 | **Onboarding** | `states.onboarding` | partial scaffold (greeting → awaiting_name → name_received → done) — J refines dialogue |
+| 2 | **Explore** | `states.explore.{vocab, sandbox}` | both sub-phases are intro-stubs — J authors counting + sandbox sub-machines |
+| 3 | **Instruct** | `states.instruct.{first_order, two_orders, equivalence_reveal}` | three sub-phases stubbed — J authors all sub-states. The AHA (equivalence_reveal) is the load-bearing climax. |
+| 4 | **Check** | `states.check` | intro-stub — J authors 2-3 problem sub-machines |
+| 5 | **Celebrate** | `states.celebrate.{guests_react, confetti, freddy_final}` | scaffold ready — J refines final dialogue |
 
 ## Dialogue convention
 
