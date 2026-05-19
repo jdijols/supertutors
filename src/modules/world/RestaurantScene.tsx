@@ -27,13 +27,12 @@ export function RestaurantScene({ children }: RestaurantSceneProps) {
       data-testid="restaurant-scene"
       className="relative w-full h-full overflow-hidden bg-mozzarella-50"
     >
-      {/* TODO once Midjourney bg lands, drop in:
-          <img
-            src="/images/backgrounds/superslice-interior.png"
-            alt=""
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-      */}
+      <img
+        src="/images/backgrounds/superslice-interior.png"
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover"
+        draggable={false}
+      />
       {children}
     </div>
   );

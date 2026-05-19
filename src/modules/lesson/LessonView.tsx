@@ -48,20 +48,26 @@ export function LessonView() {
   return (
     <main className="relative w-screen h-screen overflow-hidden bg-mozzarella-50">
       <RestaurantScene>
-        {/* Freddy stands behind the counter on the LEFT, with the
-            speech bubble appearing to his right at head height.
-            Onboarding uses the OK greeting gesture; later beats switch to
-            neutral / excited / thinking via the state machine. */}
-        <div className="absolute bottom-8 left-8 md:left-12 flex items-end gap-2 md:gap-6 z-10">
+        {/* Freddy stands BEHIND the counter on the LEFT side.
+            His sprite's bottom aligns with the counter's back edge in the
+            bg image (~50% from viewport bottom), so the counter visually
+            occludes his lower body — same way a real chef looks from
+            across the bar. Onboarding uses the OK greeting gesture;
+            later beats swap to neutral / excited / thinking via the
+            state machine. */}
+        <div
+          className="absolute left-4 md:left-12 flex items-end gap-2 md:gap-6 z-10"
+          style={{ bottom: "42vh" }}
+        >
           <FreddyCharacter
             pose="facing_student"
             gesture="ok"
             mouth={showGreetingBubble || showResponseBubble ? "open" : "closed"}
-            className="w-56 md:w-80 h-auto"
+            className="w-48 md:w-64 h-auto"
           />
 
           {/* Bubble container — pushed up to head height via mb-* */}
-          <div className="mb-32 md:mb-56 max-w-md">
+          <div className="mb-24 md:mb-40 max-w-md">
             <SpeechBubble
               open={showGreetingBubble}
               speaker="Freddy"
