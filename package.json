@@ -1,0 +1,45 @@
+{
+  "name": "supertutors",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SuperTutors — Learn Fractions with Freddy. A scripted, conversational AI math tutor (Week 4 Gauntlet challenger project).",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "generate-voice": "echo 'TODO: implement scripts/generate-voice.ts (ElevenLabs MP3 generation from dialogue.json)'",
+    "extract-dialogue": "echo 'TODO: implement dialogue extraction from Stately export into dialogue.json'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jdijols/supertutors.git"
+  },
+  "homepage": "https://github.com/jdijols/supertutors#readme",
+  "dependencies": {
+    "@xstate/react": "^6.1.0",
+    "framer-motion": "^12.39.0",
+    "howler": "^2.2.4",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "react-router-dom": "^7.15.1",
+    "react-tsparticles": "^2.12.2",
+    "tsparticles": "^4.0.4",
+    "tsparticles-preset-confetti": "^2.12.0",
+    "xstate": "^5.31.1",
+    "zustand": "^5.0.13"
+  },
+  "devDependencies": {
+    "@types/howler": "^2.2.13",
+    "@types/node": "^25.9.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.2",
+    "autoprefixer": "^10.5.0",
+    "postcss": "^8.5.14",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.13"
+  }
+}
