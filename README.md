@@ -1,4 +1,4 @@
-# SuperTutors — Fractions Freddy
+# SuperTutors — Freddy Fractions
 
 > A conversational AI math tutor that teaches fraction equivalence to 9-year-olds through a Sicilian-pizza manipulative. Built for the Week 4 Gauntlet challenger project (clone Synthesis Tutor).
 
@@ -17,19 +17,21 @@ Build a single, self-contained math lesson on **fraction equivalence (1/2 = 2/4)
 
 ## World
 
-- **Platform:** SuperTutors
-- **Character:** Fractions Freddy (chef persona)
-- **Setting:** Super Slice Pizza restaurant
+- **Platform:** SuperTutors — a collection of subject-specific AI tutors; this ships the first one. Deploys to `supertutors.vercel.app`.
+- **Tutor:** Freddy Fractions — first tutor in the SuperTutors family. Character vibe: **Super Mario meets Jersey Shore** — warm, lovable Italian-American chef energy.
+- **Setting:** SuperSlice Pizza — Freddy's pizza shop, where he tutors fractions between (and through) pizza-making
 - **Manipulative:** Sicilian-style (square) pizza pieces, sliced with a pizza-cutter wheel
 
 ## Documents
 
-- [PRD.md](./PRD.md) — full product requirements, system architecture, state diagrams, talking points
+- [PRD.md](./PRD.md) — full product requirements, system architecture, state diagrams, defensibility talking points
 - `References/` — project brief, design notes, Synthesis competitive analysis (not part of product)
 
 ## Tech Stack (locked)
 
-Vite + React + TypeScript · Tailwind CSS · Framer Motion · XState (tutor brain) · Zustand · Howler.js · ElevenLabs (hybrid TTS) · Vercel
+Vite + React + TypeScript · Tailwind CSS · Framer Motion · React Router · XState (tutor brain) · Zustand · Howler.js · ElevenLabs (hybrid TTS) · Vercel
+
+See PRD §3.10 for rationale per layer.
 
 See PRD §3.10 for rationale per layer.
 

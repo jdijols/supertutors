@@ -1,4 +1,4 @@
-# Super Slice Pizza Tutor — PRD
+# SuperSlice Pizza Tutor — PRD
 
 > **Status:** Official PRD for the Week 4 Gauntlet challenger project (clone Synthesis Tutor). Living document — updated as the build progresses. Supersedes `PRD-DRAFT.md`.
 
@@ -20,10 +20,24 @@
 
 ## 2. Brand & World
 
-- **Platform name:** SuperTutors (parent brand — this is the first/fractions tutor)
-- **Character:** Fractions Freddy (chef persona, slightly Italian-American voice)
-- **World:** Super Slice Pizza (a pizza restaurant)
-- **Visual language:** Pulled from Superbuilders (https://jobs.superbuilders.dev/jobs) — pending dedicated research round
+### 2.1 Platform — SuperTutors
+- Parent brand. A collection of subject-specific AI tutors, each with their own character and world.
+- This project ships the **first tutor** in that collection. Brand framework supports future tutors; nothing built for additional subjects in v1.
+- Deploys to `supertutors.vercel.app`.
+
+### 2.2 This Tutor — Freddy Fractions
+- **Name:** Freddy Fractions — first tutor in the SuperTutors family
+- **Subject:** fractions (this lesson: fraction equivalence)
+- **Character vibe:** **Super Mario meets Jersey Shore** — Italian-American chef energy, warm, lovable, expressive, fun. Hand-wavy, enthusiastic delivery. Genuine pizza-shop-owner warmth, not a cartoon caricature. Voice cast in ElevenLabs to match this brief.
+- **Setting:** **SuperSlice Pizza** — Freddy's pizza shop, where he tutors fractions between (and through) pizza-making
+
+### 2.3 Visual Language
+- **SuperTutors brand** (landing page) — pulled from Superbuilders (https://jobs.superbuilders.dev/jobs); corporate-clean, portal-style
+- **SuperSlice / Freddy brand** (in-lesson) — kid-friendly, restaurant-themed (warm reds, pepperoni, dough/cheese palette), game-like
+- Two visual identities, intentional — the landing is the "portal" and the lesson is the "world"
+
+### 2.4 Future Tutors (not in scope)
+- Other subjects (math beyond fractions, science, history, etc.) with their own characters and worlds. SuperTutors landing supports additional CTA cards as tutors are added.
 
 ---
 
@@ -88,10 +102,27 @@
 - **In scope:** voice, confetti, sound design for key moments
 - **Stretch:** custom illustrations, ambient restaurant audio
 
-### 3.8 Onboarding (kid-facing splash, ~10 sec)
-1. Freddy intro + "What's your name?" — single input, autofocus, big tap target
-2. "Ready to slice some pizza, [Name]?" — giant button → straight into the lesson
-3. **Behind the scenes:** name submit triggers ElevenLabs name-audio generation in parallel (see §3.11 Audio Architecture); ready by lesson start
+### 3.8 Entry Flow — Landing + Splash
+
+Two layers, two URL routes, two distinct visual identities.
+
+#### 3.8.1 Landing Page (`/` route — SuperTutors brand)
+
+Lives outside the lesson. Public-facing portal.
+
+1. SuperTutors logo + tagline
+2. **CTA card:** "Learn Fractions with Freddy" — fun illustrated picture of Freddy at SuperSlice Pizza with pizza + slicer + warm restaurant scene. Kid-friendly, game-like presentation. Tap target = the whole card.
+3. Tap card → navigates to `/lesson`
+
+Future tutors would appear here as additional CTA cards (one per subject/tutor) — the layout supports a grid.
+
+#### 3.8.2 Lesson Splash (Beat 1, `/lesson` route — SuperSlice brand)
+
+Kid-facing splash, ~10 sec inside the lesson world.
+
+1. Freddy intro + "What's your name?" — single input, autofocus, big tap target. Character voice in full effect ("Heyyy, welcome to SuperSlice! What's your name, kid?").
+2. "Ready to slice some pizza, [Name]?" — giant button → straight into Beat 1.5
+3. **Behind the scenes:** name submit triggers ElevenLabs name-audio generation in parallel (see §3.11 Audio Architecture); ready by Beat 1.5 start
 
 No parent flow, no audio check, no presence gate, no dashboard. Personalization (using the kid's name throughout, in text AND audio) gives us the warmth win.
 
@@ -121,6 +152,7 @@ No parent flow, no audio check, no presence gate, no dashboard. Personalization 
 | Manipulative rendering | **SVG + Framer Motion** | Accessible (ARIA), scalable, easy proximity hit-detection, easy to animate |
 | Tutor brain | **XState** | Literally a finite state machine — our scripted tutor architecture *is* an XState machine. Defensible. State diagrams generate from the same source code. |
 | App state | **Zustand** | Lightweight, no boilerplate, easy to integrate with XState |
+| Routing | **React Router DOM** | Two URL routes (landing `/` and lesson `/lesson`); standard, ~10KB; supports deep-linking and browser back button — important for shareable URLs and natural navigation between SuperTutors portal and the lesson world |
 | Sound effects | **Howler.js** | Reliable cross-browser audio, supports sequential playback for stitched name-audio |
 | Voice (TTS) | **ElevenLabs** (hybrid pipeline) | See §3.11 — pre-gen for static, runtime for name |
 | Voice security | **Vercel Edge Function** | ~10 lines to proxy ElevenLabs API key. Free on hobby tier. |
@@ -164,8 +196,9 @@ No parent flow, no audio check, no presence gate, no dashboard. Personalization 
 
 | Module | Location | Responsibility | Talks to |
 |---|---|---|---|
-| **Splash** | `src/modules/splash/` | Name capture, name-audio prefetch trigger | Voice Proxy, Store |
-| **Lesson Orchestrator** | `src/modules/lesson/` | Beat lifecycle, transitions, root view layout | Tutor Brain, Table, Chat |
+| **Landing** | `src/modules/landing/` | SuperTutors-branded portal page at `/`. Renders CTA card(s); navigates to `/lesson` on click. | React Router |
+| **Splash** | `src/modules/splash/` | Beat 1 in-lesson splash. Name capture, name-audio prefetch trigger | Voice Proxy, Store |
+| **Lesson Orchestrator** | `src/modules/lesson/` | Beat lifecycle, transitions, root view layout (at `/lesson`) | Tutor Brain, Table, Chat |
 | **Tutor Brain (XState)** | `src/modules/tutor/tutorMachine.ts` | Dialogue state, branching, expected events. The "scripted brain." | Audio Engine, Chat Panel, Store |
 | **Chat Panel** | `src/modules/tutor/ChatPanel.tsx` | Dialogue text bubbles, Freddy avatar, scroll | Audio Engine |
 | **Table Workspace** | `src/modules/table/Table.tsx` | Pizzas, slices, guests, drag/drop, proximity detection, counting mode (Beat 1.5). Emits events. | Tutor Brain (events), Tools, Store |
@@ -181,9 +214,10 @@ No parent flow, no audio check, no presence gate, no dashboard. Personalization 
 ```mermaid
 graph TB
     subgraph Browser["Browser (iPad Safari)"]
-        Splash["Splash<br/>name capture"]
+        Landing["Landing /<br/>SuperTutors brand<br/>CTA: Learn Fractions with Freddy"]
+        Splash["Splash /lesson<br/>name capture<br/>SuperSlice brand"]
 
-        subgraph LessonView["Lesson View"]
+        subgraph LessonView["Lesson View (/lesson)"]
             Chat["Chat Panel<br/>Freddy"]
             Table["Table Workspace<br/>pizzas, slices, guests, counting"]
             Tools["Tool Picker<br/>glove / cutter"]
@@ -210,6 +244,7 @@ graph TB
         EL["ElevenLabs API"]
     end
 
+    Landing -->|CTA tap, navigate| Splash
     Splash -->|name input| Store
     Splash -->|POST name| Proxy
     Proxy -->|secured req| EL
@@ -292,6 +327,68 @@ stateDiagram-v2
 
 > **Mermaid syntax note:** state diagram transition labels are delimited by a single `:`, so additional colons inside a label break the parser. We use `-` as the speaker/quote separator instead and `NAME` (not `{{NAME}}`) as the placeholder marker so the diagram renders on GitLab/GitHub. The actual dialogue in `dialogue.json` will use the full `{{NAME}}` template syntax.
 
+### 5.1.1 Beat 5 Logic Audit
+
+Self-review of the Beat 5 state diagram for correctness, completeness, and narrative integrity. Two real issues surfaced (one architectural, one narrative); both addressed below.
+
+#### Transitions verified
+
+All 15 transitions trace correctly from `[*]` to `[*]`. No dead-ends. Every wrong / stuck branch returns to a waiting state with a warm recovery line. Final transition exits cleanly to Beat 6.
+
+#### Implicit triggers (encoded in XState, not visible on the diagram)
+
+| Trigger | Where it fires | Effect |
+|---|---|---|
+| `DIALOGUE_DONE` | Audio Engine, after every MP3 finishes | Drives every "after Freddy's line" transition (setup → wait, wrong_slice → wait, stuck → wait, sliced_correctly → wait_compare, not_equal → wait_compare, stuck_compare → wait_compare, celebrating → exit) |
+| `ANIMATION_DONE` | After the visual snap + glow + chime completes | Drives `aha_triggered → celebrating` |
+| State input guards | XState `cond` clauses on transitions | Slice/proximity events fired during setup/wrong_slice/stuck/not_equal/stuck_compare/aha_triggered/celebrating are ignored. Only `waiting_for_slice` accepts SLICED; only `waiting_for_compare` accepts PROXIMITY_* |
+
+#### Event payloads (Table → Brain contract)
+
+```
+SLICED { pieceId, parentFraction, resultingFractions[] }
+PROXIMITY_DETECTED { pieceIds[], totalArea, comparison: 'equal' | 'not_equal' }
+TAPPED { pieceId, hasTopping }      // Beat 1.5 counting
+DELIVERED { pieceId, guestId }       // Beats 3+
+```
+
+Beat 5 specifically branches on `SLICED.parentFraction === '1/2'` (correct) vs. anything else (`wrong_slice`).
+
+#### Issue #1 — Architectural: setup precondition guard (FIXED)
+
+**Problem:** Beat 5's opening line ("Try slicing one of those halves once more") assumes a halved pizza exists on the table. If the kid arrives at Beat 5 with no halves visible (e.g., everything was given to guests and cleared, or they re-sliced earlier), the beat dead-ends.
+
+**Fix:** `setup` state's `entry` action runs a precondition check:
+1. Scan table for any piece with `fraction === '1/2'` that is NOT owned by a guest
+2. If none, place a fresh pre-halved pizza on the table (away from guest areas)
+3. Then play Freddy's setup dialogue, then transition on `DIALOGUE_DONE`
+
+#### Issue #2 — Narrative: "whose pizza am I cutting?" (FIXED)
+
+**Problem:** After Beat 4, the only halves on the table are *with guests*. Asking the kid to slice "one of those halves" creates an awkward take-pizza-back-from-guest mechanic that breaks the social contract Freddy built up.
+
+**Fix:** the precondition guard above places a NEW halved pizza on the table — framed narratively as "fresh out of the oven" — so the kid has an unattached half to experiment on. Freddy's setup line becomes:
+
+> *"Hey [NAME], want to see something cool? I just pulled this fresh pizza outta the oven — it's already cut in half. Try slicing one of those halves once more, just for me."*
+
+This keeps the guest pizzas inviolate, provides a clear target for the slice, and adds a nice Jersey-Shore-chef beat ("outta the oven, just for me").
+
+#### Accepted v1 behavior (not bugs)
+
+- **Wrong-attempt loops are unbounded.** `wrong_slice → waiting_for_slice` and `not_equal → waiting_for_compare` can loop forever; we trust Freddy's hints will eventually land. v2 could escalate with a "let me show you" demo after N retries.
+- **Proximity threshold is TBD.** "Near each other" = bounding-box overlap OR within ~20pt threshold; final value tuned in QA.
+
+#### Narrative integrity — passes
+
+1. Beat 5 opens → fresh halved pizza appears → Freddy: *"want to see something cool? I just pulled this fresh pizza outta the oven..."*
+2. Kid slices one half → two quarters appear (from the same pizza, area preserved)
+3. Freddy: *"Now drag those two quarters next to a half. What do you notice?"*
+4. Kid drags → snap-align → animation → chime → glow
+5. Freddy: *"Whoa [NAME] — 1/2 is the SAME as 2/4! You just made fraction equivalence!"*
+6. Smooth exit to Beat 6 (Check)
+
+Each kid action has a clear, expected next state. No silent failures. All wrong/stuck paths warmly redirect back to the same action without losing context.
+
 ### 5.2 Intent Map Convention (per beat)
 
 Each beat in the state machine follows this pattern:
@@ -334,7 +431,10 @@ super-slice/
 │   ├── App.tsx                      # Root component
 │   ├── main.tsx                     # Vite entry
 │   ├── modules/
-│   │   ├── splash/                  # Name capture, intro
+│   │   ├── landing/                 # SuperTutors brand portal at /
+│   │   │   ├── LandingPage.tsx
+│   │   │   └── TutorCard.tsx        # CTA card (reusable for future tutors)
+│   │   ├── splash/                  # Beat 1: name capture, intro
 │   │   │   ├── SplashScreen.tsx
 │   │   │   └── useNameAudioPrefetch.ts
 │   │   ├── lesson/                  # Lesson orchestration
@@ -501,15 +601,20 @@ How we're specifically investing in each of the brief's three judging criteria:
 
 ## 12. Open Decisions
 
-- [x] **Narrative arc** — kid is cook at Super Slice Pizza; guests arrive with orders; kid slices + delivers fairly
+- [x] **Narrative arc** — kid is cook at SuperSlice Pizza; guests arrive with orders; kid slices + delivers fairly
+- [x] **Tutor identity** — Freddy Fractions (Super Mario meets Jersey Shore vibe); first tutor in the SuperTutors family
+- [x] **Setting spelling** — SuperSlice Pizza (one word, capital S)
 - [x] **Lesson arc** — 8 beats locked (see §3.9), Beat 1.5 added
-- [x] **Tech stack** — locked (see §3.10)
+- [x] **Tech stack** — locked (see §3.10), React Router added for landing/lesson routing
 - [x] **Audio architecture** — hybrid TTS locked (see §3.11)
-- [x] **System architecture** — modules + diagram drafted (see §4)
-- [x] **State machine pattern** — Beat 5 diagrammed; intent map convention defined (see §5)
+- [x] **System architecture** — modules + diagram drafted (see §4); Landing module added
+- [x] **State machine pattern** — Beat 5 diagrammed and audited (see §5.1 + §5.1.1)
+- [x] **Beat 5 logic audit** — precondition guard + narrative fix locked (fresh-out-of-oven pizza)
 - [x] **Operational considerations** — demo mode, reset, fallback, browser matrix (see §4.4)
 - [x] **Brief compliance map** — see §10
-- [ ] **Intent maps for remaining beats** (1, 1.5, 2, 3, 4, 6, 7) — author next; Beat 1.5 (Welcome Tour) and Beat 2 (Sandbox) are highest priority since they're the most interaction-rich
+- [x] **Landing page architecture** — at `/`, SuperTutors brand, CTA card → `/lesson`
+- [ ] **Landing page CTA illustration** — Freddy at SuperSlice scene with pizza + slicer; source or commission?
+- [ ] **Intent maps for remaining beats** (1, 1.5, 2, 3, 4, 6, 7) — Beat 1.5 (Welcome Tour) and Beat 2 (Sandbox) are highest priority
 - [ ] **Fallback matrix per beat** — woven into each beat's state machine; needs explicit audit
 - [ ] **Eval rubric** — defining "good" (warmth, pacing, clarity, aha-clarity, recovery quality)
 - [ ] **Check-for-understanding** problem specifics (mechanic confirmed; problem set TBD)
@@ -517,7 +622,7 @@ How we're specifically investing in each of the brief's three judging criteria:
 - [ ] **Superbuilders brand research** — colors, fonts, tone (dedicated round)
 - [ ] **Demo video script** — pre-script before recording
 - [ ] **WCAG conformance level** — AA target, confirm
-- [ ] **Tonight's scaffold deploy** — Vite app, splash screen, empty table route, Vercel preview URL live
+- [ ] **Tonight's scaffold deploy** — Vite app, landing + splash + empty table route, Vercel preview URL live
 
 ---
 
@@ -529,4 +634,4 @@ How we're specifically investing in each of the brief's three judging criteria:
 
 ---
 
-*Updated 2026-05-19, planning round 9 — promoted from PRD-DRAFT.md to official PRD. Added Beat 1.5 (Welcome Tour for explicit numerator/denominator vocabulary), §4.4 Operational Considerations, §10 Brief Compliance & How We Exceed, and integrated Beat 1.5 across all surfaces (pedagogy, tools, table module, file structure, intent map list, defensibility, Synthesis comparison).*
+*Updated 2026-05-19, planning round 10 — renamed tutor to Freddy Fractions (Super Mario meets Jersey Shore vibe); corrected setting spelling to SuperSlice Pizza; added §2 Brand & World restructure (SuperTutors as platform, Freddy as first tutor, SuperSlice as setting); added Landing Page at `/` route with React Router (SuperTutors-branded portal with "Learn Fractions with Freddy" CTA card); added §5.1.1 Beat 5 Logic Audit with two real fixes (setup precondition guard + "fresh out of oven" narrative fix).*
