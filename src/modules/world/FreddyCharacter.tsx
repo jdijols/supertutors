@@ -1,5 +1,3 @@
-import { motion } from "framer-motion";
-
 /**
  * Freddy character — renders the Midjourney/ChatGPT-generated PNG variant
  * that matches the requested pose + gesture + mouth state.
@@ -15,9 +13,10 @@ import { motion } from "framer-motion";
  *   - Setup of reveal beats ("hmm")   → thinking
  *   - When facing a guest             → pointing (only valid gesture)
  *
- * `mouth` toggles between resting (closed) and speaking (open). When
- * `speaking={true}` we layer a subtle vertical bob via Framer Motion to
- * sell "alive while talking" without needing full phoneme lip-sync yet.
+ * `mouth` toggles between resting (closed) and speaking (open). That mouth
+ * swap IS the speaking signal — we deliberately don't bob/shake the body
+ * because the static cartoon pose looks janky when wiggled. Phoneme
+ * lip-sync (Phase 2) layers in additional mouth shapes; the body stays put.
  */
 export type FreddyPose = "facing_student" | "facing_guest";
 export type FreddyGesture =
@@ -61,20 +60,12 @@ export function FreddyCharacter({
   const src = resolveImageSrc(pose, gesture, mouth);
 
   return (
-    <motion.div
+    <div
       data-testid="freddy-character"
       data-pose={pose}
       data-gesture={gesture}
       data-mouth={mouth}
       data-speaking={speaking}
-      animate={
-        speaking ? { y: [0, -3, 0], rotate: [0, 0.5, -0.5, 0] } : { y: 0, rotate: 0 }
-      }
-      transition={
-        speaking
-          ? { duration: 0.5, repeat: Infinity, ease: "easeInOut" }
-          : { duration: 0.3 }
-      }
       className="select-none pointer-events-none"
     >
       <img
@@ -83,6 +74,6 @@ export function FreddyCharacter({
         draggable={false}
         className={`${className} drop-shadow-2xl`}
       />
-    </motion.div>
+    </div>
   );
 }

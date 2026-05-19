@@ -48,45 +48,39 @@ export function LessonView() {
   return (
     <main className="relative w-screen h-screen overflow-hidden bg-mozzarella-50">
       <RestaurantScene>
-        {/* Freddy stands behind the counter, right-of-center.
+        {/* Freddy stands behind the counter on the LEFT, with the
+            speech bubble appearing to his right at head height.
             Onboarding uses the OK greeting gesture; later beats switch to
             neutral / excited / thinking via the state machine. */}
-        <div
-          className="absolute left-1/2 top-1/2 -translate-y-1/2"
-          style={{ transform: "translate(20%, -40%)" }}
-        >
+        <div className="absolute bottom-8 left-8 md:left-12 flex items-end gap-2 md:gap-6 z-10">
           <FreddyCharacter
             pose="facing_student"
             gesture="ok"
             mouth={showGreetingBubble || showResponseBubble ? "open" : "closed"}
-            speaking={showGreetingBubble || showResponseBubble}
+            className="w-56 md:w-80 h-auto"
           />
-        </div>
 
-        {/* Greeting bubble (onboarding) */}
-        <div className="absolute left-1/2 top-1/3 -translate-x-1/2">
-          <SpeechBubble
-            open={showGreetingBubble}
-            speaker="Freddy"
-            tailSide="right"
-            onTap={() => setGreetingDismissed(true)}
-          >
-            Heyyy, welcome to SuperSlice! I&apos;m Freddy Fractions — c&apos;mon
-            back behind the counter, we got work to do. What&apos;s your name,
-            kid?
-          </SpeechBubble>
-        </div>
-
-        {/* Response bubble (post-name) */}
-        <div className="absolute left-1/2 top-1/3 -translate-x-1/2">
-          <SpeechBubble
-            open={showResponseBubble}
-            speaker="Freddy"
-            tailSide="right"
-          >
-            {name}! Beautiful name. Alright {name}, lemme show ya how this
-            works.
-          </SpeechBubble>
+          {/* Bubble container — pushed up to head height via mb-* */}
+          <div className="mb-32 md:mb-56 max-w-md">
+            <SpeechBubble
+              open={showGreetingBubble}
+              speaker="Freddy"
+              tailSide="left"
+              onTap={() => setGreetingDismissed(true)}
+            >
+              Heyyy, welcome to SuperSlice! I&apos;m Freddy Fractions — c&apos;mon
+              back behind the counter, we got work to do. What&apos;s your name,
+              kid?
+            </SpeechBubble>
+            <SpeechBubble
+              open={showResponseBubble}
+              speaker="Freddy"
+              tailSide="left"
+            >
+              {name}! Beautiful name. Alright {name}, lemme show ya how this
+              works.
+            </SpeechBubble>
+          </div>
         </div>
       </RestaurantScene>
 
