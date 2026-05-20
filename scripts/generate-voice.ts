@@ -104,10 +104,12 @@ async function main(): Promise<void> {
 
   let generated = 0;
   let skipped = 0;
+  const liveFiles = new Set<string>();
   for (const [key, text] of Object.entries(data.lines)) {
     const split = splitDialogueLine(key, text);
     for (const segment of split.segments) {
       const file = `${segment.filenameStem}.mp3`;
+      liveFiles.add(file);
       const filePath = path.join(outDir, file);
       const expected = hash(segment.text);
       if (manifest[file] === expected && existsSync(filePath)) {
@@ -123,8 +125,20 @@ async function main(): Promise<void> {
       await writeFile(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
     }
   }
+  // Prune manifest entries for lines that no longer exist in dialogue.json.
+  let pruned = 0;
+  for (const file of Object.keys(manifest)) {
+    if (!liveFiles.has(file)) {
+      delete manifest[file];
+      pruned++;
+    }
+  }
+  if (pruned > 0) {
+    await writeFile(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
+  }
+
   console.log(
-    `[generate-voice] done — generated ${generated}, skipped ${skipped}.`,
+    `[generate-voice] done — generated ${generated}, skipped ${skipped}, pruned ${pruned}.`,
   );
 }
 
