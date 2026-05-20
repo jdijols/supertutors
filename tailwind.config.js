@@ -41,11 +41,30 @@ export default {
           500: "#3B4A6B",
           900: "#1A2237",
         },
+        // Superbuilders parent-brand tokens (extracted from their CSS bundles).
+        // Monochrome + warm-pewter accent. Light mode adaptation here.
+        sb: {
+          ink: "#1A1A1A",
+          surface: "#F5F5F5",
+          card: "#FFFFFF",
+          border: "#E5E5E5",
+          muted: "#737373",
+          subtle: "#A3A3A3",
+          accent: "#BFA68A", // hsl(30 30% 64%) — warm pewter / champagne
+          "accent-soft": "#E8DECC",
+          "accent-deep": "#8C7556",
+        },
       },
       fontFamily: {
         // Placeholders; refine after brand research
         display: ['"Fredoka"', "system-ui", "sans-serif"],
         body: ['"Nunito"', "system-ui", "sans-serif"],
+        // Superbuilders parent-brand pair.
+        // Production SB wordmark uses PP Variant Mono (paid, Pangram Pangram).
+        // We ship Geist Mono as the closest free analogue — swap to PP Variant
+        // Mono here once a license is in place and the woff2 is in /public/fonts/.
+        mono: ['"Geist Mono"', "ui-monospace", "monospace"],
+        sans: ['"Inter"', "ui-sans-serif", "system-ui", "sans-serif"],
       },
     },
   },
