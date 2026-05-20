@@ -31,7 +31,7 @@ export function NumberBar({ open, onDigit, onDelete, label }: NumberBarProps) {
       transition={{ type: "spring", stiffness: 400, damping: 30 }}
       role="group"
       aria-label={label ? `${label} input` : "Number input"}
-      className="flex items-center gap-2 p-3 bg-sb-card/95 backdrop-blur rounded-2xl shadow-xl shadow-sb-ink/15 border border-sb-border"
+      className="flex items-center gap-2 p-3 bg-sb-paper/95 backdrop-blur rounded-2xl shadow-xl shadow-sb-accent-deep/25 border-2 border-sb-ink"
     >
       {label && (
         <span className="font-mono uppercase tracking-[0.18em] text-[11px] text-sb-accent-deep px-2">
@@ -45,7 +45,7 @@ export function NumberBar({ open, onDigit, onDelete, label }: NumberBarProps) {
           whileTap={{ scale: 0.9 }}
           transition={{ type: "spring", stiffness: 600, damping: 20 }}
           onClick={() => onDigit(d)}
-          className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-sb-surface hover:bg-sb-border active:bg-sb-ink active:text-white font-mono font-bold text-2xl text-sb-ink focus:outline-none focus:ring-2 focus:ring-sb-accent focus:ring-offset-2 focus:ring-offset-sb-card"
+          className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-sb-card hover:bg-sb-paper-deep active:bg-sb-ink active:text-white font-mono font-bold text-2xl text-sb-ink focus:outline-none focus:ring-2 focus:ring-sb-accent focus:ring-offset-2 focus:ring-offset-sb-paper"
           aria-label={`Enter ${d}`}
         >
           {d}
@@ -55,7 +55,7 @@ export function NumberBar({ open, onDigit, onDelete, label }: NumberBarProps) {
         type="button"
         whileTap={{ scale: 0.9 }}
         onClick={onDelete}
-        className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-sb-ink hover:bg-sb-accent-deep text-white text-2xl focus:outline-none focus:ring-2 focus:ring-sb-accent focus:ring-offset-2 focus:ring-offset-sb-card"
+        className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-sb-ink hover:bg-sb-accent-deep text-white text-2xl focus:outline-none focus:ring-2 focus:ring-sb-accent focus:ring-offset-2 focus:ring-offset-sb-paper"
         aria-label="Delete last digit"
       >
         ⌫

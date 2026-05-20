@@ -53,6 +53,13 @@ export default {
           accent: "#BFA68A", // hsl(30 30% 64%) — warm pewter / champagne
           "accent-soft": "#E8DECC",
           "accent-deep": "#8C7556",
+          // Warm bridge tokens: used on lesson UI chrome (speech bubble,
+          // overlays, pickers) to harmonize with the in-world scene art
+          // without abandoning the parent SB palette. Mirrors the Freddy
+          // card's champagne gradient.
+          paper: "#EFE7DA", // primary warm UI surface
+          "paper-deep": "#F1E5D0", // warmer accent — emphasis / hover
+          "paper-soft": "#F5F2EC", // palest — subtle warmth
         },
       },
       fontFamily: {

@@ -29,13 +29,13 @@ export function InputField({ value, focused, onFocus, label }: InputFieldProps) 
       transition={{ type: "spring", stiffness: 400, damping: 22 }}
       className={`
         inline-flex items-center justify-center min-w-[64px] h-16 px-4
-        rounded-2xl bg-sb-card text-3xl font-mono font-bold
-        text-sb-ink
+        rounded-2xl bg-sb-paper text-3xl font-mono font-bold
+        text-sb-ink shadow-md shadow-sb-accent-deep/20
         transition-colors
         ${
           focused
-            ? "border-2 border-sb-ink ring-2 ring-sb-accent ring-offset-2 ring-offset-sb-surface"
-            : "border-2 border-sb-border"
+            ? "border-2 border-sb-ink ring-2 ring-sb-accent ring-offset-2 ring-offset-sb-paper-soft"
+            : "border-2 border-sb-ink/40"
         }
         focus:outline-none
       `}

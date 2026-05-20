@@ -59,8 +59,8 @@ export function SpeechBubble({
           onClick={onTap}
           className={`
             relative max-w-md px-5 py-4
-            bg-sb-card border-2 border-sb-ink rounded-3xl
-            shadow-xl shadow-sb-ink/15
+            bg-sb-paper border-2 border-sb-ink rounded-3xl
+            shadow-xl shadow-sb-accent-deep/25
             text-sb-ink font-sans text-xl leading-snug
             ${onTap ? "cursor-pointer active:scale-95" : ""}
           `}

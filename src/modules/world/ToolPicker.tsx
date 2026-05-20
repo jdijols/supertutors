@@ -29,7 +29,7 @@ export function ToolPicker({ visible = true }: ToolPickerProps) {
       data-testid="tool-picker"
       role="group"
       aria-label="Pick a tool"
-      className="flex items-center gap-2 p-2 bg-sb-card/95 backdrop-blur rounded-2xl shadow-xl shadow-sb-ink/15 border border-sb-border"
+      className="flex items-center gap-2 p-2 bg-sb-paper/95 backdrop-blur rounded-2xl shadow-xl shadow-sb-accent-deep/25 border-2 border-sb-ink"
     >
       {TOOLS.map((tool) => {
         const active = toolMode === tool.mode;
@@ -45,11 +45,11 @@ export function ToolPicker({ visible = true }: ToolPickerProps) {
             data-active={active}
             className={`
               w-14 h-14 md:w-16 md:h-16 rounded-xl grid place-items-center text-3xl
-              focus:outline-none focus:ring-2 focus:ring-sb-accent focus:ring-offset-2 focus:ring-offset-sb-card
+              focus:outline-none focus:ring-2 focus:ring-sb-accent focus:ring-offset-2 focus:ring-offset-sb-paper
               ${
                 active
                   ? "bg-sb-ink text-white shadow-inner"
-                  : "bg-sb-surface hover:bg-sb-border"
+                  : "bg-sb-card hover:bg-sb-paper-deep"
               }
             `}
           >
