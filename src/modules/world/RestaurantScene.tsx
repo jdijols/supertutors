@@ -30,7 +30,7 @@ export function RestaurantScene({ children }: RestaurantSceneProps) {
   return (
     <div
       data-testid="restaurant-scene"
-      className="relative w-full h-full overflow-hidden bg-mozzarella-50"
+      className="relative w-full h-full overflow-hidden bg-sb-surface"
     >
       {/* Layer 1 — background scene */}
       <img

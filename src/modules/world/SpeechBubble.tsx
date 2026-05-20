@@ -59,14 +59,14 @@ export function SpeechBubble({
           onClick={onTap}
           className={`
             relative max-w-md px-5 py-4
-            bg-white border-4 border-terracotta-200 rounded-3xl
-            shadow-xl shadow-terracotta-300/30
-            text-terracotta-600 font-display text-xl leading-snug
+            bg-sb-card border-2 border-sb-ink rounded-3xl
+            shadow-xl shadow-sb-ink/15
+            text-sb-ink font-sans text-xl leading-snug
             ${onTap ? "cursor-pointer active:scale-95" : ""}
           `}
         >
           {speaker && (
-            <div className="text-xs font-mono text-terracotta-500 mb-1">
+            <div className="text-[11px] font-mono uppercase tracking-[0.18em] text-sb-accent-deep mb-1">
               {speaker}
             </div>
           )}
@@ -80,8 +80,8 @@ export function SpeechBubble({
                 border-y-[14px] border-y-transparent
                 ${
                   tailSide === "left"
-                    ? "left-0 -translate-x-full border-r-[18px] border-r-terracotta-200"
-                    : "right-0 translate-x-full border-l-[18px] border-l-terracotta-200"
+                    ? "left-0 -translate-x-full border-r-[18px] border-r-sb-ink"
+                    : "right-0 translate-x-full border-l-[18px] border-l-sb-ink"
                 }
               `}
             />
@@ -92,7 +92,7 @@ export function SpeechBubble({
               className={`
                 absolute top-0 -translate-y-full w-0 h-0
                 border-x-[12px] border-x-transparent
-                border-b-[16px] border-b-terracotta-200
+                border-b-[16px] border-b-sb-ink
                 ${tailSide === "top-left" ? "left-6" : "right-6"}
               `}
             />

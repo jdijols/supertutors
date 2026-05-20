@@ -32,7 +32,7 @@ export function NameInputOverlay({ open, onSubmit }: NameInputOverlayProps) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 12 }}
       transition={{ type: "spring", stiffness: 400, damping: 30 }}
-      className="bg-white rounded-3xl shadow-2xl shadow-terracotta-400/30 border-4 border-terracotta-200 p-6 max-w-md w-full"
+      className="bg-sb-card rounded-3xl shadow-2xl shadow-sb-ink/25 border-2 border-sb-ink p-6 max-w-md w-full"
     >
       <form
         onSubmit={(e) => {
@@ -42,7 +42,7 @@ export function NameInputOverlay({ open, onSubmit }: NameInputOverlayProps) {
       >
         <label
           htmlFor="kid-name"
-          className="block font-display text-lg text-terracotta-600 mb-2 text-center"
+          className="block font-mono uppercase tracking-[0.18em] text-[11px] text-sb-accent-deep mb-3 text-center"
         >
           What&apos;s your name?
         </label>
@@ -57,15 +57,15 @@ export function NameInputOverlay({ open, onSubmit }: NameInputOverlayProps) {
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder="Type your name"
-          className="w-full text-2xl text-center font-display py-4 px-5 rounded-2xl bg-mozzarella-50 border-4 border-terracotta-200 focus:border-terracotta-400 focus:outline-none text-terracotta-600 placeholder:text-terracotta-400"
+          className="w-full text-2xl text-center font-sans py-4 px-5 rounded-2xl bg-sb-surface border-2 border-sb-border focus:border-sb-ink focus:outline-none text-sb-ink placeholder:text-sb-subtle"
         />
         <motion.button
           type="submit"
           disabled={!canSubmit}
           whileTap={canSubmit ? { scale: 0.97 } : undefined}
-          className="mt-4 w-full py-4 rounded-2xl bg-tomato-500 text-white font-display text-xl shadow-lg shadow-tomato-500/30 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-4 focus:ring-tomato-400/40"
+          className="mt-4 w-full py-4 rounded-2xl bg-sb-ink text-white font-mono uppercase tracking-[0.12em] text-base shadow-lg shadow-sb-ink/30 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-sb-accent focus:ring-offset-2 focus:ring-offset-sb-card"
         >
-          {canSubmit ? `Nice to meet you, ${trimmed}!` : "Tell Freddy your name"}
+          {canSubmit ? `Nice to meet you, ${trimmed}` : "Tell Freddy your name"}
         </motion.button>
       </form>
     </motion.div>

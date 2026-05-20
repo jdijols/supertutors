@@ -31,10 +31,10 @@ export function NumberBar({ open, onDigit, onDelete, label }: NumberBarProps) {
       transition={{ type: "spring", stiffness: 400, damping: 30 }}
       role="group"
       aria-label={label ? `${label} input` : "Number input"}
-      className="flex items-center gap-2 p-3 bg-white/95 backdrop-blur rounded-2xl shadow-xl shadow-terracotta-300/30 border-2 border-terracotta-200"
+      className="flex items-center gap-2 p-3 bg-sb-card/95 backdrop-blur rounded-2xl shadow-xl shadow-sb-ink/15 border border-sb-border"
     >
       {label && (
-        <span className="font-display text-sm text-terracotta-600 px-2">
+        <span className="font-mono uppercase tracking-[0.18em] text-[11px] text-sb-accent-deep px-2">
           {label}
         </span>
       )}
@@ -45,7 +45,7 @@ export function NumberBar({ open, onDigit, onDelete, label }: NumberBarProps) {
           whileTap={{ scale: 0.9 }}
           transition={{ type: "spring", stiffness: 600, damping: 20 }}
           onClick={() => onDigit(d)}
-          className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-mozzarella-100 hover:bg-mozzarella-200 active:bg-terracotta-100 font-display text-2xl text-terracotta-600 focus:outline-none focus:ring-4 focus:ring-terracotta-300"
+          className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-sb-surface hover:bg-sb-border active:bg-sb-ink active:text-white font-mono font-bold text-2xl text-sb-ink focus:outline-none focus:ring-2 focus:ring-sb-accent focus:ring-offset-2 focus:ring-offset-sb-card"
           aria-label={`Enter ${d}`}
         >
           {d}
@@ -55,7 +55,7 @@ export function NumberBar({ open, onDigit, onDelete, label }: NumberBarProps) {
         type="button"
         whileTap={{ scale: 0.9 }}
         onClick={onDelete}
-        className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-tomato-400 hover:bg-tomato-500 active:bg-tomato-600 text-white text-2xl focus:outline-none focus:ring-4 focus:ring-tomato-400/40"
+        className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-sb-ink hover:bg-sb-accent-deep text-white text-2xl focus:outline-none focus:ring-2 focus:ring-sb-accent focus:ring-offset-2 focus:ring-offset-sb-card"
         aria-label="Delete last digit"
       >
         ⌫

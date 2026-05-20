@@ -73,7 +73,7 @@ export function LessonView() {
   }, [showResponseBubble, name]);
 
   return (
-    <main className="relative w-screen h-screen overflow-hidden bg-mozzarella-50">
+    <main className="relative w-screen h-screen overflow-hidden bg-sb-surface">
       <RestaurantScene>
         {/* Freddy stands BEHIND the counter — large, bottom-anchored to
             the viewport so his lower body extends into the counter zone.
