@@ -6,10 +6,24 @@
  *
  * See PRD §3.11 Audio Architecture, runtime pipeline.
  *
- * Env var required (set in Vercel project settings):
+ * Env vars (set in Vercel project settings):
  *   ELEVENLABS_API_KEY
  *   ELEVENLABS_VOICE_ID
+ *
+ * Status codes:
+ *   200 audio/mpeg — generated MP3 stream
+ *   400            — invalid name (empty, too long, control chars, wrong type)
+ *   405            — non-POST method
+ *   415            — body is not JSON
+ *   502            — ElevenLabs returned non-2xx
+ *   503            — env vars not configured
  */
+
+import {
+  buildElevenLabsRequest,
+  validateEnv,
+  validateName,
+} from "../src/lib/voiceProxyValidation";
 
 export const config = {
   runtime: "edge",
@@ -20,37 +34,41 @@ export default async function handler(req: Request): Promise<Response> {
     return new Response("Method not allowed", { status: 405 });
   }
 
-  const body = await req.json().catch(() => null);
-  const name = typeof body?.name === "string" ? body.name.trim() : "";
-
-  if (!name || name.length > 32) {
-    return new Response("Invalid name", { status: 400 });
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return new Response("Body must be JSON", { status: 415 });
   }
 
-  const apiKey = process.env.ELEVENLABS_API_KEY;
-  const voiceId = process.env.ELEVENLABS_VOICE_ID;
-
-  if (!apiKey || !voiceId) {
-    // Scaffold mode: env vars not set yet. Return 503 so the client falls back
-    // to text-only (see PRD §3.11 failure mode + §4.4 global audio fallback).
-    return new Response("Voice service not configured", { status: 503 });
-  }
-
-  const elevenRes = await fetch(
-    `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "xi-api-key": apiKey,
-      },
-      body: JSON.stringify({
-        text: name,
-        model_id: "eleven_turbo_v2_5",
-        voice_settings: { stability: 0.55, similarity_boost: 0.8 },
-      }),
-    },
+  const nameResult = validateName(
+    typeof body === "object" && body !== null
+      ? (body as Record<string, unknown>).name
+      : undefined,
   );
+  if (!nameResult.ok) {
+    return new Response(nameResult.reason, { status: nameResult.status });
+  }
+
+  const envResult = validateEnv({
+    apiKey: process.env.ELEVENLABS_API_KEY,
+    voiceId: process.env.ELEVENLABS_VOICE_ID,
+  });
+  if (!envResult.ok) {
+    return new Response(envResult.reason, { status: envResult.status });
+  }
+
+  const elevenReq = buildElevenLabsRequest(
+    nameResult.name,
+    envResult.apiKey,
+    envResult.voiceId,
+  );
+
+  const elevenRes = await fetch(elevenReq.url, {
+    method: "POST",
+    headers: elevenReq.headers,
+    body: elevenReq.body,
+  });
 
   if (!elevenRes.ok) {
     return new Response("Upstream voice error", { status: 502 });

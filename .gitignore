@@ -44,3 +44,4 @@ playwright/.cache/
 # Generated audio (if we decide to gitignore later — for now leave commented)
 # public/audio/*.mp3
 .vercel
+.env*.local

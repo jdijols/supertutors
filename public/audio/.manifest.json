@@ -1,0 +1,15 @@
+{
+  "aha_setup_a.mp3": "581d43745726e0ee62911178bfb3887c3fe295d29eeb741f0e40f91e8a70907a",
+  "aha_setup_b.mp3": "08742ce9ac3b927f20c03a08b95897f55615be30d51846d2d7600684e4872b9d",
+  "aha_wrong_slice.mp3": "89760fe64a41e23604aacaca2e5e86fb4b4670514c00b02e5f99308ba678df28",
+  "aha_stuck_a.mp3": "8cb3b8d8aae8bf979371326e83203d7b0da1f83c72e5d159ee45d7778f61a1c1",
+  "aha_stuck_b.mp3": "074e61dffe6dc66e2be268dee658a8a9b7ba6ffb22e0912688dad42b1f7ac4b1",
+  "aha_compare_prompt.mp3": "860cdcb45d2b0fe432c69a0f9f4626784a54a347c4eaf280725ac03505de7e21",
+  "aha_not_equal.mp3": "6c1a20edec9bd456d3299b983b637b5f0340a1b29bf58f3571fa5eb026cf8333",
+  "aha_stuck_compare_a.mp3": "b59e6b94279b8bff4c50a3d5ea44d680af0215fa1021bbb16c9bc6cf4e47b988",
+  "aha_stuck_compare_b.mp3": "0fcd588883d55ed78912292773cc57faffa6512d78abc5ddea9fa9a1eb53a90d",
+  "aha_reveal_a.mp3": "4c7452094be3d62d997d10086708d9ed42a47a22444f123bf2425f8880afb144",
+  "aha_reveal_b.mp3": "9ed95bd5ab7e4a4e18aacc630c2a3115b2bdd1e48e3d23906d502c24fccd6c26",
+  "onboarding_greeting.mp3": "691ba9e69c397d86c4924b545d4e34e6f815edddf4f29283f4790daf3790dbe7",
+  "onboarding_response_b.mp3": "7349c2b9e1f2bcd0ca145403d0a41a63390e2e1ca1e1798365a507e8b5754cf4"
+}

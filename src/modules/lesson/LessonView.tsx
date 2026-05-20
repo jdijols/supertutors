@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAppStore } from "@/store/appStore";
+import { audioEngine } from "@/modules/audio/AudioEngine";
+import { renderLine } from "@/modules/tutor/dialogue";
 import {
   FreddyCharacter,
   NameInputOverlay,
@@ -41,9 +43,34 @@ export function LessonView() {
     setName(submitted);
     setGreetingDismissed(true);
     setResponseShown(true);
-    // Auto-dismiss response bubble after a beat (simulating audio length)
-    window.setTimeout(() => setResponseShown(false), 3000);
+    // Dismissal is driven by audioEngine.onDone in the response-bubble effect
+    // below — no fixed timer, so the bubble length always matches the audio.
   }
+
+  // Greeting audio: plays when the bubble is visible. User taps to dismiss.
+  useEffect(() => {
+    if (showGreetingBubble) {
+      audioEngine.play({
+        dialogueKey: "onboarding_greeting",
+        onDone: () => {},
+      });
+    }
+    return () => audioEngine.stop();
+  }, [showGreetingBubble]);
+
+  // Response audio: plays once the name is submitted; bubble dismisses when
+  // the final segment finishes (or immediately if audio fails to load).
+  useEffect(() => {
+    if (showResponseBubble && name) {
+      audioEngine.play({
+        dialogueKey: "onboarding_response",
+        hasNameSlot: true,
+        name,
+        onDone: () => setResponseShown(false),
+      });
+    }
+    return () => audioEngine.stop();
+  }, [showResponseBubble, name]);
 
   return (
     <main className="relative w-screen h-screen overflow-hidden bg-mozzarella-50">
@@ -78,17 +105,14 @@ export function LessonView() {
           tailSide="top-left"
           onTap={() => setGreetingDismissed(true)}
         >
-          Heyyy, welcome to SuperSlice! I&apos;m Freddy Fractions — c&apos;mon
-          back behind the counter, we got work to do. What&apos;s your name,
-          kid?
+          {renderLine("onboarding_greeting")}
         </SpeechBubble>
         <SpeechBubble
           open={showResponseBubble}
           speaker="Freddy"
           tailSide="top-left"
         >
-          {name}! Beautiful name. Alright {name}, lemme show ya how this
-          works.
+          {name ? renderLine("onboarding_response", { name }) : null}
         </SpeechBubble>
       </div>
 

@@ -37,9 +37,10 @@ Every task has a **Done when** line with concrete success criteria. Patterns:
 
 > Update this section at the start/end of each session so any new Claude session can ramp in 30 seconds.
 
-**Active phase:** P0 complete; P1 ready to start (blocked on PT.3)
-**Active session owner:** awaiting Jason for Stately Beat 5 authoring
-**Blockers:** PT.3 (Stately Beat 5 authoring) blocks P1.2 onward. PT.1 ✓ locked (voice `QzTKubutNn9TjrB7Xb2Q`). PT.4 (iPad) blocks P1.6 inspection only.
+**Active phase:** P2 kicked off (procedural Pizza SVG shipped); narrative-first authoring strategy adopted (2026-05-19, replaces vertical-slice-first) — Jason authors beats linearly 1 → 1.5 → 2 → ... → 7; Claude builds manipulative UI in parallel as each beat requires it.
+**Active session owner:** Jason → Beat 1 in Stately; Claude → counter UI + Slice component as Beat 1.5 nears.
+**Blockers:** None on critical path. PT.4 (iPad) blocks iPad inspection only.
+**Safeguard:** Beat 5 (AHA) must be authored + wired by end-of-day Thursday 2026-05-21. If tracking behind by Thursday morning, jump-skip to Beat 5 next to lock the demo hero before falling back to linear order.
 
 ---
 
@@ -164,10 +165,11 @@ Goal: prove the entire pipeline (Stately → XState → React → audio → iPad
 
 Goal: the Table workspace becomes real. The hero gesture works.
 
-- [ ] **P2.1 — Pizza SVG component (C)**
+- [~] **P2.1 — Pizza SVG component (C)**
   - Procedural: crust + sauce + cheese + pepperoni layers
   - Configurable: position, size, slice count (1, 2, 4, 8), topping count
   - **Done when:** Unit test renders in all slice-count states without crash; visual inspection of a demo page
+  - **Progress 2026-05-19:** v1 component shipped at `src/modules/table/Pizza.tsx` with the 4 layers (crust + sauce + cheese + pepperoni), configurable pepperoni count (0–9) on balanced slot grid, tap highlight + onPepperoniTap for Beat 1.5 counting. 6 unit tests green (`src/modules/table/Pizza.test.tsx`). Visual sandbox at `/preview/pizza` (`src/modules/preview/PizzaPreview.tsx`). **Outstanding for full done:** Jason visual review + any iteration; slice-count states (1, 2, 4, 8) added in P2.2 (Slice component) where they belong rather than on the whole Pizza.
 
 - [ ] **P2.2 — Slice (Piece) component (C)**
   - Represents one piece of a sliced pizza; knows its fraction value
@@ -232,26 +234,30 @@ Goal: real ElevenLabs voice playing in the lesson, with name personalization.
   - `ELEVENLABS_API_KEY` + `ELEVENLABS_VOICE_ID` in Vercel project settings (production + preview)
   - **Done when:** `vercel env ls` shows both vars in both environments
 
-- [ ] **P3.3 — Implement generate-voice.ts (C)**
+- [~] **P3.3 — Implement generate-voice.ts (C)**
   - Reads `dialogue.json`; splits lines at `{{NAME}}`; calls ElevenLabs for each segment
   - Saves MP3s to `/public/audio/<key>.mp3` (or `<key>_a.mp3` + `<key>_b.mp3` for name-split lines)
   - Idempotent — skips regen if MP3 unchanged
   - **Done when:** `npm run generate-voice` produces MP3 files for all Beat 5 lines; unit test on the split logic
+  - **Progress 2026-05-19:** Script implemented at `scripts/generate-voice.ts`. Split logic extracted to `src/lib/dialogueSplit.ts` (6 unit tests green). Manifest-based idempotency via `public/audio/.manifest.json` (sha256 per segment). Runs on Node 25 native TS stripping — no new deps. **Blocked on P3.2** (needs `.env.local` from `vercel env pull`) before it can actually generate MP3s.
 
-- [ ] **P3.4 — Implement Edge Function fully (C — stub exists)**
+- [~] **P3.4 — Implement Edge Function fully (C — stub exists)**
   - `api/voice.ts`: validate name, call ElevenLabs, return MP3 blob
   - Returns 400 on invalid name (empty / > 32 chars), 503 if env unset, 502 on upstream error
   - **Done when:** Unit test: invalid name → 400; valid name → calls ElevenLabs with correct body; deployed Edge Function returns 200 for valid POST
+  - **Progress 2026-05-19:** Validation extracted to `src/lib/voiceProxyValidation.ts` (14 unit tests green: name rules, env presence, ElevenLabs request shape). `api/voice.ts` is now a thin handler delegating to the validators. Adds 405 (non-POST) + 415 (non-JSON body) + control-char rejection on top of the original spec. **Outstanding:** deployed-edge-function smoke test (blocked on P3.2).
 
-- [ ] **P3.5 — IndexedDB name cache (C)**
+- [x] **P3.5 — IndexedDB name cache (C)**
   - `src/modules/audio/nameAudioCache.ts`: get/set by name key
   - Falls back to fetch from `/api/voice` if not cached
   - **Done when:** Unit test: set name MP3, retrieve it, identity matches
+  - **Shipped 2026-05-19:** DI-based design — `NameAudioCache` interface, `InMemoryNameAudioCache` for tests, `IndexedDbNameAudioCache` for prod, `getNameAudioUrl(name, deps)` entry point with cache-or-fetch flow. 7 unit tests green. Names normalized (trim + lowercase) so spelling variants share an MP3.
 
-- [ ] **P3.6 — Audio Engine sequential stitching (C)**
+- [x] **P3.6 — Audio Engine sequential stitching (C)**
   - For name-injected lines, queue [pre-gen A] → [name MP3] → [pre-gen B] via Howler
   - Fires `onDone` after final segment ends
   - **Done when:** Unit test: stitch fires segments in order; integration: Beat 5 with kid's name actually spoken naturally
+  - **Shipped 2026-05-19:** `AudioEngine` class in `src/modules/audio/AudioEngine.ts` with Howler-backed sequential playback, DI-friendly (createHowl + resolveNameUrl injectable). Static + name-injected modes, segment-failure tolerance (fires onDone if any segment fails to load/play), generation counter so `stop()` and overlapping `play()` calls cancel stale sequences. 8 unit tests green. **Outstanding:** integration test against real Beat 5 MP3s (blocked on P3.2 + P3.3 producing files).
 
 - [ ] **P3.7 — Smoke test: voice playback (C)**
   - Playwright: enter name, navigate to Beat 5, expect HTMLAudioElement to play (or `/api/voice` to return 200 + audio/mpeg)

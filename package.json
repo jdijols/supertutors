@@ -19,7 +19,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "generate-voice": "echo 'TODO: implement scripts/generate-voice.ts (ElevenLabs MP3 generation from dialogue.json)'",
+    "generate-voice": "node --env-file=.env.local scripts/generate-voice.ts",
     "extract-dialogue": "echo 'TODO: implement dialogue extraction from Stately export into dialogue.json'"
   },
   "repository": {

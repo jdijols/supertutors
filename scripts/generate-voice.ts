@@ -6,54 +6,129 @@
  * placeholder (so the name slot can be stitched at runtime), calls ElevenLabs
  * for each static segment, and writes MP3s to public/audio/.
  *
- * See PRD §3.11 Audio Architecture, build-time pipeline.
+ * Idempotent: maintains public/audio/.manifest.json mapping
+ *   <stem>.mp3 -> sha256(text)
+ * Lines whose text hash matches the manifest AND whose MP3 already exists
+ * on disk are skipped, so re-running this script is cheap.
  *
- * Env var required (in a local .env or shell):
+ * Env (loaded from .env.local via `node --env-file=.env.local`):
  *   ELEVENLABS_API_KEY
  *   ELEVENLABS_VOICE_ID
  *
  * Run: npm run generate-voice
- *
- * Stub for scaffold — full implementation lands once we have:
- *   - Voice ID chosen in ElevenLabs (matching the Super Mario × Jersey Shore brief)
- *   - Beat 5 dialogue finalized in Stately + dialogue.json
  */
 
-import { readFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { existsSync } from "node:fs";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { buildElevenLabsRequest } from "../src/lib/voiceProxyValidation.ts";
+import {
+  splitDialogueLine,
+  type StaticSegment,
+} from "../src/lib/dialogueSplit.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const dialoguePath = path.resolve(
-  __dirname,
-  "..",
+const repoRoot = path.resolve(__dirname, "..");
+const dialoguePath = path.join(
+  repoRoot,
   "src",
   "modules",
   "tutor",
   "dialogue.json",
 );
+const outDir = path.join(repoRoot, "public", "audio");
+const manifestPath = path.join(outDir, ".manifest.json");
+
+interface DialogueFile {
+  lines: Record<string, string>;
+  voice: { voiceId: string };
+}
+
+type Manifest = Record<string, string>;
+
+function hash(text: string): string {
+  return createHash("sha256").update(text, "utf8").digest("hex");
+}
+
+async function readManifest(): Promise<Manifest> {
+  if (!existsSync(manifestPath)) return {};
+  const raw = await readFile(manifestPath, "utf8");
+  return JSON.parse(raw) as Manifest;
+}
+
+async function generateOne(
+  segment: StaticSegment,
+  apiKey: string,
+  voiceId: string,
+): Promise<Buffer> {
+  const req = buildElevenLabsRequest(segment.text, apiKey, voiceId);
+  const res = await fetch(req.url, {
+    method: "POST",
+    headers: req.headers,
+    body: req.body,
+  });
+  if (!res.ok) {
+    const detail = await res.text().catch(() => "<no body>");
+    throw new Error(
+      `ElevenLabs returned ${res.status} for "${segment.filenameStem}": ${detail}`,
+    );
+  }
+  return Buffer.from(await res.arrayBuffer());
+}
 
 async function main(): Promise<void> {
-  const raw = await readFile(dialoguePath, "utf8");
-  const data = JSON.parse(raw) as {
-    lines: Record<string, string>;
-    voice: { voiceId: string };
-  };
+  const apiKey = process.env.ELEVENLABS_API_KEY;
+  const voiceId = process.env.ELEVENLABS_VOICE_ID;
+  if (!apiKey || !voiceId) {
+    console.error(
+      "[generate-voice] ELEVENLABS_API_KEY and ELEVENLABS_VOICE_ID must be set.\n" +
+        "  Try: vercel env pull .env.local\n" +
+        "  Then: npm run generate-voice",
+    );
+    process.exit(1);
+  }
 
-  console.log(
-    `[generate-voice] (stub) would generate MP3s for ${Object.keys(data.lines).length} dialogue lines.`,
-  );
-  console.log("[generate-voice] (stub) lines:");
-  for (const key of Object.keys(data.lines)) {
-    const hasNameSlot = data.lines[key].includes("{{NAME}}");
-    console.log(`  - ${key}${hasNameSlot ? " (will split at {{NAME}})" : ""}`);
+  const raw = await readFile(dialoguePath, "utf8");
+  const data = JSON.parse(raw) as DialogueFile;
+  if (data.voice.voiceId !== voiceId) {
+    console.warn(
+      `[generate-voice] dialogue.json voice (${data.voice.voiceId}) ` +
+        `differs from env (${voiceId}). Env wins.`,
+    );
+  }
+
+  await mkdir(outDir, { recursive: true });
+  const manifest = await readManifest();
+
+  let generated = 0;
+  let skipped = 0;
+  for (const [key, text] of Object.entries(data.lines)) {
+    const split = splitDialogueLine(key, text);
+    for (const segment of split.segments) {
+      const file = `${segment.filenameStem}.mp3`;
+      const filePath = path.join(outDir, file);
+      const expected = hash(segment.text);
+      if (manifest[file] === expected && existsSync(filePath)) {
+        skipped++;
+        continue;
+      }
+      console.log(`[generate-voice] ${file}  <-  "${segment.text}"`);
+      const mp3 = await generateOne(segment, apiKey, voiceId);
+      await writeFile(filePath, mp3);
+      manifest[file] = expected;
+      generated++;
+      // Write incrementally so a mid-loop failure doesn't re-cost on retry.
+      await writeFile(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
+    }
   }
   console.log(
-    "[generate-voice] (stub) Implement ElevenLabs API call once voice ID is chosen.",
+    `[generate-voice] done — generated ${generated}, skipped ${skipped}.`,
   );
 }
 
 main().catch((err) => {
-  console.error(err);
+  console.error("[generate-voice] failed:", err);
   process.exit(1);
 });
