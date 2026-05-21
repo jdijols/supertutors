@@ -12,6 +12,7 @@ import {
   useSandboxPieces,
 } from "@/modules/table";
 import { SliceBurst } from "@/modules/table/SliceBurst";
+import { AhaAnimation } from "@/modules/lesson/AhaAnimation";
 import { Toast, fractionToastMessage } from "@/modules/toast";
 import { useAppStore } from "@/store/appStore";
 import { useHoldToReset } from "@/lib/useHoldToReset";
@@ -380,6 +381,10 @@ export function SandboxPreview() {
   // on the NEXT pointerdown. Used to suppress the click event that
   // browsers fire after pointerup, so a single drag-cut doesn't ALSO
   // trigger a second slice via the piece's onClick.
+  // AHA animation fires once per reset cycle when equal pieces first come together.
+  const [ahaActive, setAhaActive] = useState(false);
+  const ahaFiredRef = useRef(false);
+
   const didDragCutRef = useRef(false);
   const burstIdRef = useRef(0);
   const lastPressPosRef = useRef({ x: 0, y: 0 });
@@ -503,6 +508,8 @@ export function SandboxPreview() {
     setSeenFractions(new Set());
     setToast({ open: false, message: "", key: toast.key + 1 });
     setBursts([]);
+    ahaFiredRef.current = false;
+    setAhaActive(false);
   }
 
   // CC.2 — Hold-to-reset Freddy. Re-uses the sandbox `handleReset`.
@@ -527,6 +534,16 @@ export function SandboxPreview() {
     for (const p of pieces) map.set(p.id, p);
     return map;
   }, [pieces]);
+
+  // Fire the AHA animation once per reset cycle when equal pieces first land together.
+  useEffect(() => {
+    if (ahaFiredRef.current) return;
+    const hasEqual = proximityGroups.some((g) => g.comparison === "equal");
+    if (hasEqual) {
+      ahaFiredRef.current = true;
+      setAhaActive(true);
+    }
+  }, [proximityGroups]);
 
   // Tool-driven cursor: CSS classes (defined in globals.css) swap the
   // browser cursor for the custom glove / cutter PNGs, with `:active`
@@ -699,6 +716,14 @@ export function SandboxPreview() {
           sprite follows the pointer with the right tool variant + pointing
           override over the ToolPicker. */}
       <ToolSprite toolMode={toolMode} />
+
+      {/* AHA hero animation — fires the first time equal pieces come together
+          per reset cycle. Uses the same component as LessonView Beat 6. */}
+      <AhaAnimation
+        active={ahaActive}
+        onDone={() => setAhaActive(false)}
+        durationMs={1500}
+      />
 
       {/* Slice particle bursts — fixed-position, pointer-events-none. Each
           burst unmounts itself via onDone after the 0.45s animation. */}
