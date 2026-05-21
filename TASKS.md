@@ -439,10 +439,10 @@ For each beat, repeat the P1 vertical-slice pattern: Stately authoring → expor
 
 ## P6 — Deliverables
 
-- [ ] **P6.1 — iPad roadmap doc (C drafts, J reviews)**
+- [x] **P6.1 — iPad roadmap doc (C drafts, J reviews)**
   - Sketches + writeup: parent flow, child profile, audio check, dashboard, multi-child, future v2 features (variable denominators, more tutors in the SuperTutors family)
   - Committed to `deliverables/ipad-roadmap.md` (+ sketch PNGs)
-- [ ] **P6.2 — Demo video script (C drafts, J reviews)**
+- [x] **P6.2 — Demo video script (C drafts, J reviews)**
   - 3–5 min walkthrough with screen + voiceover cues; structured as: opener → manipulative demo → AHA → win → architecture pitch
   - Committed to `deliverables/demo-video-script.md`
 - [ ] **P6.3 — Demo video recorded (J)**
