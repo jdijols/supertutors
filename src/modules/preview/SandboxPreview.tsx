@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   FreddyCharacter,
   RestaurantScene,
@@ -7,12 +7,18 @@ import {
 } from "@/modules/world";
 import {
   buildWholePiece,
+  findProximityGroups,
   PizzaPiece,
   useSandboxPieces,
 } from "@/modules/table";
 import { Toast, fractionToastMessage } from "@/modules/toast";
 import { useAppStore } from "@/store/appStore";
-import type { PizzaFraction } from "@/modules/table";
+import { useHoldToReset } from "@/lib/useHoldToReset";
+import type {
+  PizzaFraction,
+  ProximityGroup,
+  SandboxPiece,
+} from "@/modules/table";
 
 /**
  * CSS clip-path for each eighth slot so the wrapper is clipped to just
@@ -80,6 +86,41 @@ function useViewport() {
  */
 
 const BASE_SIZE = 320;
+
+/** Adapts a live SandboxPiece (with extra fields) to the ProximityPiece shape. */
+function toProximityPiece(p: SandboxPiece) {
+  return {
+    id: p.id,
+    x: p.x,
+    y: p.y,
+    width: p.width,
+    height: p.height,
+    fraction: p.fraction,
+  };
+}
+
+/** Geometric center of a proximity group's bounding box, or null if empty. */
+function clusterCentroid(
+  group: ProximityGroup,
+  piecesById: Map<string, SandboxPiece>,
+): { x: number; y: number } | null {
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  let found = 0;
+  for (const id of group.pieceIds) {
+    const piece = piecesById.get(id);
+    if (!piece) continue;
+    found++;
+    minX = Math.min(minX, piece.x);
+    minY = Math.min(minY, piece.y);
+    maxX = Math.max(maxX, piece.x + piece.width);
+    maxY = Math.max(maxY, piece.y + piece.height);
+  }
+  if (!found) return null;
+  return { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
+}
 
 function getInitialPiecePosition() {
   if (typeof window === "undefined") {
@@ -252,6 +293,29 @@ export function SandboxPreview() {
     setToast({ open: false, message: "", key: toast.key + 1 });
   }
 
+  // CC.2 — Hold-to-reset Freddy. Re-uses the sandbox `handleReset`.
+  const freddyHoldRef = useRef<HTMLDivElement>(null);
+  const { isHolding: isResetting, progress: resetProgress } = useHoldToReset({
+    ref: freddyHoldRef,
+    onReset: handleReset,
+  });
+
+  // Proximity detection (P2.6). Recomputed whenever pieces change — position
+  // updates only land at drag-END (via `move`), so the indicator surfaces a
+  // moment after release. That matches the AHA mechanic in PRD §5.1.1: the
+  // kid puts the pieces down, then sees whether they match. Live mid-drag
+  // tracking + snap-align animation is P5.11 polish.
+  const proximityGroups = useMemo<ProximityGroup[]>(() => {
+    return findProximityGroups(pieces.map(toProximityPiece));
+  }, [pieces]);
+
+  // Index pieces by id so the cluster renderer can resolve centroids.
+  const piecesById = useMemo(() => {
+    const map = new Map<string, SandboxPiece>();
+    for (const p of pieces) map.set(p.id, p);
+    return map;
+  }, [pieces]);
+
   // Tool-driven cursor: CSS classes (defined in globals.css) swap the
   // browser cursor for the custom glove / cutter PNGs, with `:active`
   // pseudo-class swapping to the closed/cutting variant on press-down.
@@ -296,8 +360,25 @@ export function SandboxPreview() {
             mouth="closed"
             className="h-[88vh] md:h-[100vh] w-auto"
           />
+          {/* CC.2 — Hold-to-reset hit area over Freddy's head/torso. */}
+          <div
+            ref={freddyHoldRef}
+            data-testid="freddy-hold-target"
+            role="button"
+            aria-label="Hold to restart the lesson"
+            className="absolute top-[8vh] left-[10%] w-[55%] h-[40vh] rounded-3xl cursor-pointer"
+          />
         </div>
       </RestaurantScene>
+
+      {isResetting && resetProgress > 0.25 ? (
+        <div
+          data-testid="reset-progress-indicator"
+          className="absolute top-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-sb-ink/90 text-sb-paper-soft text-xs font-mono uppercase tracking-widest shadow-lg pointer-events-none"
+        >
+          Restart in {Math.max(1, Math.ceil((1 - resetProgress) * 1.5))}s
+        </div>
+      ) : null}
 
       {/* Sandbox piece layer — above counter mask (z-30+) so pieces sit on top. */}
       <div className="absolute inset-0 z-30">
@@ -333,6 +414,38 @@ export function SandboxPreview() {
             onDragEnd={move}
           />
         ))}
+      </div>
+
+      {/* Proximity indicators (P2.6). Renders a small badge above each
+          cluster's centroid: `≡` (basil-green) when the cluster admits an
+          equal-area partition (Beat 6 AHA condition), `≠` (oven-glow) when
+          the pieces are close but their areas don't match. Pointer-events
+          off so it never steals input. Beat 6 wiring will consume the
+          underlying `findProximityGroups` event instead of this overlay. */}
+      <div
+        className="absolute inset-0 z-35 pointer-events-none"
+        aria-live="polite"
+      >
+        {proximityGroups.map((group) => {
+          const centroid = clusterCentroid(group, piecesById);
+          if (!centroid) return null;
+          const isEqual = group.comparison === "equal";
+          return (
+            <div
+              key={group.pieceIds.join("|")}
+              data-proximity-comparison={group.comparison}
+              data-proximity-piece-ids={group.pieceIds.join(",")}
+              className={`absolute -translate-x-1/2 -translate-y-1/2 px-3 py-1 rounded-full text-2xl font-bold shadow-lg ${
+                isEqual
+                  ? "bg-basil-400 text-mozzarella-50 ring-4 ring-basil-400/40"
+                  : "bg-mozzarella-50 text-oven-glow ring-4 ring-oven-glow/40"
+              }`}
+              style={{ left: centroid.x, top: centroid.y - 20 }}
+            >
+              {isEqual ? "≡" : "≠"}
+            </div>
+          );
+        })}
       </div>
 
       {/* Tool picker bottom-right */}

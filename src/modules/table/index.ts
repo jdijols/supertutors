@@ -21,4 +21,14 @@ export type {
   UseSandboxPiecesOptions,
 } from "./useSandboxPieces";
 
+export {
+  PROXIMITY_THRESHOLD_PX,
+  admitsEqualPartition,
+  findProximityGroups,
+  fractionToNumber,
+  pieceGap,
+  piecesAreClose,
+} from "./proximity";
+export type { ProximityGroup, ProximityPiece } from "./proximity";
+
 export { Table } from "./Table";

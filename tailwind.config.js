@@ -48,7 +48,7 @@ export default {
           surface: "#F5F5F5",
           card: "#FFFFFF",
           border: "#E5E5E5",
-          muted: "#737373",
+          muted: "#5B5B5B",
           subtle: "#A3A3A3",
           accent: "#BFA68A", // hsl(30 30% 64%) — warm pewter / champagne
           "accent-soft": "#E8DECC",

@@ -1,0 +1,184 @@
+**Owners**
+
+- **Patrick Skinner**
+  - **Background**: Former US Army Paratrooper Medic and Mass Casualty Coordinator with 15+ years of education experience. Senior Developer Relations Engineer with 3+ years specializing in Web3 and educational technology. Co-builder of BEMO ([playbemo.com](http://playbemo.com/)), a hands-on learning platform that uses computer vision to turn physical play with puzzle pieces, letters, and numbers into personalized iPad-based learning experiences.
+  - **Expertise**: Full-stack development (TypeScript, JavaScript, React, Next.js), computer vision applications, developer relations, content creation, and homeschool education advocate with two children (Lucas, 9; Eva, 5).
+  - **Current Role**: Just joined SuperBuilders (September 2025), Gauntlet AI Cohort 2 Challenger, relocating to Austin, Texas.
+  - **Relevant Experience**: Direct hands-on experience building educational CV pipeline products, deep understanding of parent and child learning needs, strong technical background in the exact technologies required for this project.
+- **Mitchell White**
+  - **Background:** Mitch is a seasoned entrepreneur and technologist, currently serving as Senior AI Engineer at Superbuilders. He has founded and scaled companies across diverse industries, from ecommerce to hospitality, and successfully exited a venture that partnered with athletes like LaMelo Ball and brands like Puma, reaching 50k+ users and generating eight-figure revenue within two years.
+  - **Expertise:** Mitch specializes in deeply understanding user needs, translating them into product roadmaps, and scaling solutions to mass adoption. His strengths lie at the intersection of product strategy, go-to-market execution, and technology, with proven success in both early-stage innovation and global brand consulting.
+  - **Current Role:** Senior AI Engineer @ Superbuilders
+  - **Relevant Experience:** He has advised startups and enterprise organizations—including Rolling Loud, the world’s largest hip-hop festival—on product and GTM strategy. Beyond tech, he actively invests in commercial real estate, Airbnbs, stocks, and crypto. As a father, he is driven to build world-changing educational apps that will transform learning for his son and millions of children worldwide.
+- Yiran Chen
+  - **Background: **Yiran is a seasoned product manager and data professional with over a decade of experience in product analytics and management. She has led initiatives at fast-paced startups like PeerIQ and Button, as well as at Apple. Recently, she completed the 10-week GauntletAI challenge, gaining hands-on AI engineering experience. Yiran is excited to combine her background with advanced AI to shape the future of edTech.
+  - **Expertise:** Yiran brings extensive experience in shaping user experiences particularly within the eCommerce space. She is skilled at improving engagement and conversion rates through thoughtful UI/UX design and has a strong passion for creating intuitive digital experiences. With exceptional attention to detail and a data-driven mindset, Yiran leverages analytics to guide product decisions and deliver measurable impact.
+  - **Current Role:** Senior AI Engineer at SuperBuilders
+  - **Relevant Experience:** Yiran’s expertise in product analytics and management enables her to identify high-impact opportunities and guide teams to deliver products that solve real-world problems. Through the GauntletAI program, she built educational computer vision powered products, gaining direct experience in Montessori education and applying AI to learning environments. 
+
+**Purpose**
+
+- **Primary Purpose**: To create a new brainlift that outlines the plan to build a better version of OSMO, focusing on a computer vision pipeline rebuild and the development of new educational games. This brainlift will maintain the valuable market analysis from the original OSMO brainlift while incorporating the new strategy of building a spelling game and a math game as a proof of concept. The ultimate goal is to develop a robust CV pipeline and use the training data from these games to create a suite of educational games.
+- **Out of Scope**:
+  - Building hardware components or physical manipulatives manufacturing
+  - Developing games for subjects beyond spelling and math in the initial phase
+  - Creating enterprise classroom management systems in v1.0
+  - Competing directly with traditional educational publishers or textbook companies
+  - Building social networking features or multiplayer capabilities initially
+  - Developing for platforms other than iPad in the initial release
+
+**DOK 4 - Spiky POVs**
+
+- **SPOV1:** The debate over 'screen time' is obsolete. The real metric is cognitive engagement, and physical interaction provides an undeniable visual cue for parents that active learning, not passive consumption, is happening. **Solution**: We will create a "Learning Transparency Index" - a real-time parent dashboard that shows exactly what cognitive skills are being developed each second, with physical manipulation triggering visible neural pathway animations on screen. Parents will see their child's brain "lighting up" in real-time, making the learning process as transparent as watching them ride a bike.
+  - **Supporting Research**: Veraksa et al. (2021) demonstrated that passive TV viewing harms phonological memory while interactive screen time shows no negative impact. Liao et al. (2025) found excessive passive screen time (≥4 hours/day) linked to 42% lower academic curiosity, while active screen time showed positive learning outcomes.
+- **SPOV2:** Starting with simple games is backwards thinking. The industry obsesses over minimum viable products and gradual complexity increases, but the most robust CV pipelines emerge from training on the hardest possible datasets first, then scaling down. We should build the most challenging educational games first and let the data quality drive everything else backwards. **Solution**: We will launch with "Impossible Mode" - games designed to be too hard for children initially, but perfect for training our CV models on edge cases, complex hand positions, and unusual object interactions. The AI learns from failure patterns, then we dial down complexity until children succeed, creating a pipeline trained on the full spectrum of human learning behavior.
+  - **Supporting Research**: Transfer learning research shows that models trained on complex, diverse datasets perform better on simpler tasks than models trained incrementally. Computer vision systems achieve higher accuracy when trained on challenging, varied data rather than simple, homogeneous datasets.
+- **SPOV3:** Educator intuition, while valuable, is not scalable. Real-time computer vision analytics provide objective, personalized feedback to every child, overcoming the limitations of the traditional one-to-many classroom model. **Solution**: We will create "Digital Teaching Assistants" - AI entities that observe every micro-gesture, facial expression, and interaction pattern to provide teachers with superhuman observational capabilities. Each child gets a personalized learning profile updated every 30 seconds, allowing one teacher to effectively provide individualized attention to 30+ students simultaneously.
+  - **Supporting Research**: Stanford research (2023) found AI-driven feedback tools improved teaching effectiveness in real-time. Asriyan's research on real-time educational effectiveness using computer vision emotion detection shows measurable improvements in learning outcomes compared to traditional assessment methods.
+- **SPOV4:** Tactile learning is not just for toddlers. The cognitive benefits of physical manipulation extend to older children and even adults. The key is to create engaging, age-appropriate experiences that seamlessly blend the physical and digital worlds. **Solution**: We will develop "Haptic Memory Encoding" - a system where physical manipulation creates unique tactile signatures that the brain associates with concepts. Children will literally "feel" mathematical relationships and "touch" spelling patterns, creating embodied memories that persist far longer than visual or auditory learning alone.
+  - **Supporting Research**: Avraham et al. (2020) demonstrated that tactile augmentation affects internal representations for manipulation and grip force control across age groups. Byrne et al. (2023) found educational interventions involving physical manipulatives effective for both pre-primary and primary-age children.
+- **SPOV5:** Any educational manipulative not tracked and measured by a computer vision system is a missed opportunity for data collection and personalized learning. Every interaction is a data point that can be used to improve the learning experience. **Solution**: We will create "Learning DNA" - a comprehensive behavioral fingerprint built from thousands of micro-interactions. Every hesitation, every confident movement, every creative solution attempt becomes part of a child's unique learning profile. This data will predict learning difficulties before they manifest and suggest interventions before children even realize they're struggling.
+  - **Supporting Research**: Research on tangibles for learning shows that physical manipulation provides representational benefits that can be quantified and optimized through computer vision tracking (O'Malley & Stanton Fraser). Real-time performance feedback systems using computer vision technology demonstrate measurable improvements in learning outcomes.
+
+**DOK 3 - Insights**
+
+- **Insight 1:** The $40 billion AI education market projection is actually a massive underestimate because it assumes traditional educational models will persist. The real opportunity lies in the complete obsolescence of age-based grade levels - when AI can personalize learning in real-time, a 6-year-old might master calculus while a 12-year-old perfects phonics, creating a market 10x larger than current projections as education becomes truly individualized rather than institutionalized.
+  - **Source Connection**: Based on AI in Education Market Reports showing $5+ billion 2024 valuation with 40%+ CAGR, but extrapolated beyond traditional constraints.
+  - **SPOV Connection**: Supports SPOV3 by demonstrating that scalable AI solutions will fundamentally restructure education beyond current market assumptions.
+- **Insight 2:** The most successful educational games are those that are deeply rooted in learning science, but the real breakthrough comes from inverting the traditional relationship - instead of using games to teach concepts, we should use concepts to create better games. When children manipulate physical objects to solve puzzles, they're not learning math; they're discovering that math is the language the universe uses to create puzzles.
+  - **Source Connection**: Derived from Learning Science Document research on BDNF production, multi-modal neural pathways, and 40% vocabulary growth studies with physical-digital tools.
+  - **SPOV Connection**: Directly enables SPOV4 by reframing tactile learning as discovery rather than instruction, making it naturally engaging across all ages.
+- **Insight 3:** A hybrid computer vision approach is effective, but the real innovation lies in creating "failure-first" systems. Traditional CV pipelines optimize for accuracy, but educational CV should optimize for productive failure - systems that intentionally create moments of confusion, then guide children through resolution. The most powerful learning happens in the gap between expectation and reality.
+  - **Source Connection**: Based on CV Pipeline Rebuild Document technical analysis, but extended beyond accuracy metrics to learning effectiveness.
+  - **SPOV Connection**: Supports SPOV2 by providing the technical rationale for training on complex, failure-rich datasets that mirror real learning processes.
+- **Insight 4:** The choice of spelling and math games isn't just strategic for data collection - it's revolutionary because these are the only two subjects where physical manipulation directly mirrors cognitive processes. Letters are physical symbols that represent sounds, and numbers are physical quantities that represent relationships. Every other subject is metaphorical, but spelling and math are literal, making them perfect training grounds for AI that needs to understand the connection between physical and abstract thinking.
+  - **Source Connection**: Informed by CV Pipeline Rebuild Document's strategic game selection rationale and Learning Science research on foundational skill development.
+  - **SPOV Connection**: Challenges SPOV2's contrarian view by revealing that starting with foundational games isn't simple - it's actually the most complex challenge because it requires understanding the fundamental relationship between physical and cognitive reality.
+- **Insight 5:** The most effective educational games don't blend physical and digital play - they reveal that this distinction is artificial. Children don't see "screen time" and "real time" as separate categories; they see "boring time" and "interesting time." The key insight is that physical manipulation doesn't make digital learning more real; it makes children realize that digital environments can be just as authentic as physical ones when they provide genuine agency and consequence.
+  - **Source Connection**: Supported by OSMO research showing 100% of preschoolers wanting to continue using physical-digital systems, and increased experimentation/persistence findings.
+  - **SPOV Connection**: Reinforces SPOV1 by revealing that the screen time debate misses the point entirely - authenticity of experience matters more than the medium of delivery.
+
+**Experts**
+
+- **Expert 1**
+  - **Name:** Fei-Fei Li
+  - **Main views:** Leading researcher in computer vision and AI, with a focus on human-centered AI. Advocate for using AI to augment human capabilities.
+  - **Why Follow:** Her work at the Stanford Vision Lab is at the forefront of computer vision research. Her insights are critical for building a state-of-the-art CV pipeline.
+  - **Locations:**
+    - X: [https://x.com/drfeifei](https://x.com/drfeifei)
+    - Stanford Profile: [https://cap.stanford.edu/profiles/viewCV?facultyId=15052&name=Fei](https://cap.stanford.edu/profiles/viewCV?facultyId=15052&name=Fei)
+    - Stanford HAI: [https://hai.stanford.edu/people/fei-fei-li](https://hai.stanford.edu/people/fei-fei-li)
+- **Expert 2**
+  - **Name:** Andrew Ng
+  - **Main views:** Pioneer in machine learning and online education. Believes in the power of AI to democratize education.
+  - **Why Follow:** His expertise in both AI and education makes him a key figure to follow. His work on Coursera and [deeplearning.ai](http://deeplearning.ai/) provides valuable insights into scalable educational platforms.
+  - **Locations:**
+    - X: [https://x.com/andrewyng](https://x.com/andrewyng)
+    - LinkedIn: [https://www.linkedin.com/in/andrewyng](https://www.linkedin.com/in/andrewyng)
+    - Website: [https://www.andrewng.org/](https://www.andrewng.org/)
+    - Coursera: [https://www.coursera.org/instructor/andrewng](https://www.coursera.org/instructor/andrewng)
+    - [DeepLearning.AI](http://deeplearning.ai/): [https://www.deeplearning.ai/](https://www.deeplearning.ai/)
+- **Expert 3**
+  - **Name:** Judy Hoffman
+  - **Main views:** Expert in computer vision and machine learning, with a focus on domain adaptation and transfer learning.
+  - **Why Follow:** Her research is directly applicable to the challenge of building a CV pipeline that can be trained on a limited dataset and then generalized to new games and content.
+  - **Locations:**
+    - Website: [https://jhoffman.github.io/](https://jhoffman.github.io/)
+    - X: [https://x.com/judyfhoffman](https://x.com/judyfhoffman)
+    - LinkedIn: [https://www.linkedin.com/in/judy-hoffman-ai](https://www.linkedin.com/in/judy-hoffman-ai)
+    - Georgia Tech Profile: [https://www.gatech.edu/expert/judy-hoffman-computer-vision-and-machine-learning-expert](https://www.gatech.edu/expert/judy-hoffman-computer-vision-and-machine-learning-expert)
+- **Expert 4**
+  - **Name:** Rob Alvarez Bucholska (Professor Game)
+  - **Main views:** Expert in gamification and game-based learning. Advocate for using game mechanics to create engaging and effective learning experiences.
+  - **Why Follow:** His work provides a practical guide to designing educational games that are both fun and effective. His podcast is a valuable resource for a-ha moments in educational game design.
+  - **Locations:**
+    - Website: [https://www.professorgame.com/](https://www.professorgame.com/)
+    - LinkedIn: [https://www.linkedin.com/in/rob-alvarez-bucholska](https://www.linkedin.com/in/rob-alvarez-bucholska)
+    - YouTube: [https://www.youtube.com/@ProfessorGamePodcast](https://www.youtube.com/@ProfessorGamePodcast)
+    - Spotify Podcast: [https://open.spotify.com/show/5z7n4vV0ixU6KsjohXzyea](https://open.spotify.com/show/5z7n4vV0ixU6KsjohXzyea)
+- **Expert 5**
+  - **Name:** Dr. Dimitri Christakis
+  - **Main views:** Leading researcher on the effects of media on child development. Advocate for a balanced approach to screen time, with a focus on active, engaged learning.
+  - **Why Follow:** His research provides a scientific basis for the spiky POV that the quality of screen time is more important than the quantity. His work is essential for communicating the value of our product to parents.
+  - **Locations:**
+    - Seattle Children's Profile: [https://www.seattlechildrens.org/directory/dimitri-a-christakis/](https://www.seattlechildrens.org/directory/dimitri-a-christakis/)
+    - LinkedIn: [https://www.linkedin.com/in/dimitri-christakis-b62b1064](https://www.linkedin.com/in/dimitri-christakis-b62b1064)
+    - Children and Screens: [https://www.childrenandscreens.org/](https://www.childrenandscreens.org/)
+    - University of Washington: [https://www.washington.edu/](https://www.washington.edu/)
+
+**DOK 2 - Knowledge Tree**
+
+- **Category 1: Market Analysis**
+  - **Category 1.1: Market Size & Growth**
+    - **Source 1: AI in Education Market Reports**
+      - **URL**: [https://www.frontiersin.org/journals/education/articles/10.3389/feduc.2021.600687/full](https://www.frontiersin.org/journals/education/articles/10.3389/feduc.2021.600687/full)
+      - **DOK 1 - Facts**
+        - The AI in education market was valued at over $5 billion in 2024.
+        - The market is projected to reach over $40 billion by 2030.
+        - The CAGR for the AI in education market is over 40%.
+      - **DOK 2 - Summary**
+        - The AI in education market is experiencing massive growth, creating a significant opportunity for new and innovative solutions.
+        - The high CAGR indicates strong investor confidence and a rapidly expanding market.
+  - **Category 1.2: Competitive Landscape**
+    - **Source 1: OSMO Brainlift & Market Research**
+      - **URL**: [https://playosmo.com/](https://playosmo.com/)
+      - **DOK 1 - Facts**
+        - Osmo was acquired by BYJU'S for $120 million in 2019.
+        - BYJU'S is facing financial instability, creating a potential market opening.
+        - Other competitors include Tangible Games and various AR/VR educational platforms.
+      - **DOK 2 - Summary**
+        - The competitive landscape is dominated by a few key players, but the market is ripe for disruption.
+        - The financial troubles of the market leader create a unique opportunity for a new company to gain market share.
+  - **Category 1.3: Monetization Models**
+    - **Source 1: Educational Apps Market Research**
+      - **URL**: [https://www.sciencedirect.com/science/article/pii/S0965229925001013](https://www.sciencedirect.com/science/article/pii/S0965229925001013)
+      - **DOK 1 - Facts**
+        - Subscription models are the most common, with prices ranging from $7.99 to $14.99 per month.
+        - Freemium models have a conversion rate of 2-5%.
+        - B2B sales to schools often include a 50% discount for bulk licenses.
+      - **DOK 2 - Summary**
+        - A hybrid B2C and B2B model is the most effective way to maximize market reach.
+        - Transparent pricing and a clear value proposition are essential for building trust with parents and educators.
+- **Category 2: Computer Vision Pipeline**
+  - **Category 2.1: Technical Requirements**
+    - **Source 1: CV Pipeline Rebuild Document**
+      - **URL**: [https://ed.stanford.edu/news/feedback-ai-driven-tool-improves-teaching-stanford-led-research-finds](https://ed.stanford.edu/news/feedback-ai-driven-tool-improves-teaching-stanford-led-research-finds)
+      - **DOK 1 - Facts**
+        - The CV pipeline must support real-time processing at 30fps.
+        - The system should use on-device processing to protect user privacy.
+        - The pipeline must be able to handle multi-modal inputs, including hand tracking, facial expressions, and voice.
+      - **DOK 2 - Summary**
+        - The technical requirements for the CV pipeline are demanding, but achievable with modern hardware and software.
+        - A focus on on-device processing is a key differentiator and a major selling point for privacy-conscious parents.
+  - **Category 2.2: Game Design Integration**
+    - **Source 1: CV Pipeline Rebuild Document**
+      - **URL**: [https://computools.com/computer-vision-in-education/](https://computools.com/computer-vision-in-education/)
+      - **DOK 1 - Facts**
+        - The CV pipeline will be trained on data from a spelling game and a math game.
+        - The initial games will focus on letter and number tiles.
+        - The data from these games will be used to build more complex educational games in the future.
+      - **DOK 2 - Summary**
+        - The choice of the initial games is a strategic decision that will have a long-term impact on the development of the CV pipeline.
+        - By starting with foundational skills, we can build a robust and versatile CV pipeline that can be used to create a wide range of educational games.
+- **Category 3: Learning Science**
+  - **Category 3.1: Core Principles**
+    - **Source 1: Learning Science Document**
+      - **URL**: [https://pmc.ncbi.nlm.nih.gov/articles/PMC7014637/](https://pmc.ncbi.nlm.nih.gov/articles/PMC7014637/)
+      - **DOK 1 - Facts**
+        - Embodied cognition, cognitive offloading, and multi-modal learning are key principles of learning science.
+        - Physical manipulation of objects can increase the production of Brain-Derived Neurotrophic Factor (BDNF), which supports brain cell survival and synaptic connections.
+        - Multi-modal learning creates multiple neural pathways for deeper understanding.
+      - **DOK 2 - Summary**
+        - The product is grounded in established learning science principles.
+        - The use of physical manipulatives is not just a gimmick; it is a scientifically proven way to enhance learning.
+  - **Category 3.2: Research Validation**
+    - **Source 1: OSMO Brainlift & Learning Science Document**
+      - **URL**: [https://bera-journals.onlinelibrary.wiley.com/doi/full/10.1002/rev3.3400](https://bera-journals.onlinelibrary.wiley.com/doi/full/10.1002/rev3.3400)
+      - **DOK 1 - Facts**
+        - Studies have shown that physical-digital learning tools can lead to a 40% increase in vocabulary growth.
+        - 100% of preschoolers in one study wanted to continue using a physical-digital learning system.
+        - Students using physical-digital tools show increased experimentation and persistence with difficult puzzles.
+      - **DOK 2 - Summary**
+        - There is a wealth of research to support the effectiveness of physical-digital learning.
+        - The combination of physical and digital play is a powerful tool for engaging children and improving learning outcomes.
+

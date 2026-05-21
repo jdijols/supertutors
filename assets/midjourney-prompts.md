@@ -211,6 +211,200 @@ Additional Freddy mouth shapes for phoneme sync (~4 extra prompts per pose):
 
 (Same expansion for `facing-guest-*` if we want full lip-sync from both angles.)
 
-## Guest characters (P4 — drafted later)
+## Guest characters (Beats 4–5 — drafted 2026-05-20)
 
-Will generate ~3 distinct guests × 3 expressions (neutral, frown, smile) = ~9 images. Same `--cref` workflow per-guest. Will draft prompts when we reach the Instruct phase build.
+Three customer characters who visit the counter during the Instruct phase.
+Each is generated with 3 expressions (neutral / frown / smile) for a total of
+9 PNGs. Same single-thread ChatGPT workflow as Freddy — paste these one
+after another in the existing Freddy thread for style + composition
+continuity.
+
+### Staging notes (read once before prompting)
+
+Guests stand IN FRONT of the counter facing Freddy / the student. The
+RestaurantScene composes them between the background and the counter mask
+(z-10), so only the **head, shoulders, and upper torso** need to be in
+frame — the counter visually cuts them at waist height. Same crop as
+Freddy. Plain white or transparent background, no environment behind them.
+
+Asset directory: `public/images/characters/guests/`. Filename convention:
+`<guest-id>-<expression>.png`. Square 1:1.
+
+### Asset destination paths
+
+| File path | Guest | Expression |
+|---|---|---|
+| `public/images/characters/guests/maya-neutral.png` | Maya | Neutral |
+| `public/images/characters/guests/maya-frown.png` | Maya | Frown |
+| `public/images/characters/guests/maya-smile.png` | Maya | Smile |
+| `public/images/characters/guests/theo-neutral.png` | Theo | Neutral |
+| `public/images/characters/guests/theo-frown.png` | Theo | Frown |
+| `public/images/characters/guests/theo-smile.png` | Theo | Smile |
+| `public/images/characters/guests/nonna-neutral.png` | Nonna Lucia | Neutral |
+| `public/images/characters/guests/nonna-frown.png` | Nonna Lucia | Frown |
+| `public/images/characters/guests/nonna-smile.png` | Nonna Lucia | Smile |
+
+### Persona one-liners
+
+Pasted at the top of each guest's first prompt so the thread "locks" the
+character before iterating expressions.
+
+- **Maya** — A curious 9-year-old girl, light-brown skin, twin braids, bright
+  yellow t-shirt with a tiny pizza-slice logo on the chest, big round eyes,
+  freckles across the nose.
+- **Theo** — A friendly 7-year-old boy, pale skin, dark messy hair, round
+  glasses (no glare), striped blue-and-white shirt, slight gap between his
+  front teeth when he smiles.
+- **Nonna Lucia** — A warm Italian grandmother, mid-60s, silver hair pulled
+  into a low bun, soft laugh lines around her eyes, a knitted dusty-rose
+  cardigan over a cream blouse, a small gold cross on a chain.
+
+### Guest 1 — Maya
+
+#### Prompt 7 — Maya, neutral
+
+```
+A new customer named Maya walks up to Freddy's counter: a curious
+9-year-old girl with light-brown skin, twin braids, freckles across the
+nose, big round eyes, wearing a bright yellow t-shirt with a tiny
+pizza-slice logo on the chest. 3/4 front view facing forward toward the
+counter (and Freddy/the camera). Crop: head, shoulders, upper torso only —
+waist and below are out of frame. Neutral anticipating expression — eyes
+looking forward, slight curiosity in her brows, mouth in a soft resting
+line, hands visible at chest height (one resting on the counter, the
+other holding a small folded paper menu). Same Pixar/Duolingo cartoon-
+mascot style as Freddy — flat colors with soft cel-shading, warm
+welcoming mood. Isolated on a plain white or transparent background. No
+text, no signage.
+```
+
+#### Prompt 8 — Maya, smile
+
+```
+Same character Maya, identical hair / outfit / freckles / age / 3/4 front
+view crop — head, shoulders, upper torso only. Mouth OPEN in a wide
+delighted smile showing front teeth, eyes scrunched up in joy (slight
+"happy" curve), one hand raised in a small celebratory fist, the menu now
+out of frame. Same Pixar/Duolingo cartoon style as Freddy, soft cel-
+shading, warm lighting. Isolated on plain white or transparent background.
+No text.
+```
+
+#### Prompt 9 — Maya, frown
+
+```
+Same character Maya, identical hair / outfit / freckles / age / 3/4 front
+view crop — head, shoulders, upper torso only. Disappointed expression —
+brows drawn slightly down and together, mouth in a small frown (not
+crying, just sad-confused, "hm, that's not quite what I wanted"), one
+finger touching her chin in a thinking pose. Same Pixar/Duolingo
+cartoon-mascot style as Freddy, soft cel-shading, warm lighting (never
+grim or dark — kid-friendly disappointment). Isolated on plain white or
+transparent background. No text.
+```
+
+### Guest 2 — Theo
+
+#### Prompt 10 — Theo, neutral
+
+```
+A second customer named Theo walks up to Freddy's counter: a friendly
+7-year-old boy with pale skin, dark messy hair, round wire-frame glasses
+(no glare on the lenses), wearing a striped blue-and-white shirt. 3/4
+front view facing forward toward the counter. Crop: head, shoulders,
+upper torso only — waist and below are out of frame. Neutral anticipating
+expression — looking forward, mouth in a slight smile (he's a generally
+happy kid even at rest), one hand on the counter, the other holding a
+slip of paper with an order on it. Same Pixar/Duolingo cartoon-mascot
+style as Freddy — flat colors with soft cel-shading, warm welcoming
+mood. Isolated on a plain white or transparent background. No text.
+```
+
+#### Prompt 11 — Theo, smile
+
+```
+Same character Theo, identical hair / glasses / outfit / age / 3/4 front
+view crop — head, shoulders, upper torso only. Mouth OPEN in an excited
+gap-toothed smile (small visible gap between his front teeth), eyes
+sparkling, both hands raised slightly with palms up in a "yes!" gesture.
+Same Pixar/Duolingo cartoon style as Freddy, soft cel-shading, warm
+lighting. Isolated on plain white or transparent background. No text.
+```
+
+#### Prompt 12 — Theo, frown
+
+```
+Same character Theo, identical hair / glasses / outfit / age / 3/4 front
+view crop — head, shoulders, upper torso only. Disappointed expression —
+glasses adjusted slightly downward as he peers at what he was given,
+mouth in a small frown, brows knit in confusion (not angry, just
+puzzled), one hand still resting on the counter. Same Pixar/Duolingo
+cartoon-mascot style as Freddy, soft cel-shading, warm lighting (kid-
+friendly disappointment, never harsh). Isolated on plain white or
+transparent background. No text.
+```
+
+### Guest 3 — Nonna Lucia
+
+#### Prompt 13 — Nonna, neutral
+
+```
+A third customer named Nonna Lucia walks up to Freddy's counter: a warm
+Italian grandmother in her mid-60s, silver hair pulled into a low bun,
+soft laugh lines around her eyes, wearing a knitted dusty-rose cardigan
+over a cream blouse with a small gold cross necklace. 3/4 front view
+facing forward toward the counter. Crop: head, shoulders, upper torso
+only — waist and below are out of frame. Neutral expression with a gentle
+patience — eyes looking forward, mouth in a soft Mona-Lisa half-smile
+(grandmothers always look kind even at rest), one hand on the counter,
+the other holding a small fabric coin purse. Same Pixar/Duolingo cartoon-
+mascot style as Freddy — flat colors with soft cel-shading, warm
+welcoming mood. Isolated on a plain white or transparent background. No
+text.
+```
+
+#### Prompt 14 — Nonna, smile
+
+```
+Same character Nonna Lucia, identical hair / cardigan / blouse / age /
+3/4 front view crop — head, shoulders, upper torso only. Mouth OPEN in a
+delighted grandmother smile — laugh lines around the eyes crinkle up
+warmly, one hand raised to her cheek in a "bellissimo!" gesture, eyes
+half-closed in joy. Same Pixar/Duolingo cartoon style as Freddy, soft
+cel-shading, warm lighting. Isolated on plain white or transparent
+background. No text.
+```
+
+#### Prompt 15 — Nonna, frown
+
+```
+Same character Nonna Lucia, identical hair / cardigan / blouse / age /
+3/4 front view crop — head, shoulders, upper torso only. Disappointed
+expression — eyes soft and a little sad, mouth in a gentle small frown,
+one hand to her chest in a "oh dear" gesture (the opposite of the
+"bellissimo" cheek-touch in the smile variant). Same Pixar/Duolingo
+cartoon-mascot style as Freddy, soft cel-shading, warm lighting (her
+disappointment must still feel safe and loving — never cold or harsh,
+this is a grandmother gently sad about a wrong order, not an angry
+customer). Isolated on plain white or transparent background. No text.
+```
+
+### Post-generation cleanup (guests)
+
+Same as Freddy: drop each generation into remove.bg / photoroom.com to
+strip any white background; save as PNG with transparency to the path in
+the table above.
+
+### Quick-iterate prompts (if a generation drifts off-model)
+
+If ChatGPT loses character continuity mid-thread (e.g. Theo's glasses
+disappear, Maya's freckles vanish):
+
+```
+That's drifting — the [feature, e.g. "glasses"] disappeared. Please
+re-generate using the same character description from prompt N, keeping
+the [feature] visible and in the same Pixar/Duolingo cartoon-mascot
+style. Same crop, same expression brief, same plain background.
+```
+
+Most drifts are fixed by one corrective prompt before regenerating.

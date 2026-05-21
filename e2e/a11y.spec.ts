@@ -46,7 +46,7 @@ test.describe("a11y baseline", () => {
   test("landing page", async ({ page }) => {
     await page.goto("/");
     await expect(
-      page.getByRole("heading", { name: /pick a tutor/i }),
+      page.getByRole("heading", { name: /tutors for the ai generation/i }),
     ).toBeVisible();
     await waitForAnimationsToSettle(page);
     await expectNoBlockingA11yViolations(page);

@@ -25,3 +25,6 @@ export { NameInputOverlay } from "./NameInputOverlay";
 export type { NameInputOverlayProps } from "./NameInputOverlay";
 
 export { ToolSprite } from "./ToolSprite";
+
+export { Guest } from "./Guest";
+export type { GuestProps } from "./Guest";

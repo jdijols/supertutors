@@ -42,7 +42,7 @@ export function NameInputOverlay({ open, onSubmit }: NameInputOverlayProps) {
       >
         <label
           htmlFor="kid-name"
-          className="block font-mono uppercase tracking-[0.18em] text-[11px] text-sb-accent-deep mb-3 text-center"
+          className="block font-mono uppercase tracking-[0.18em] text-[11px] text-sb-ink mb-3 text-center"
         >
           What&apos;s your name?
         </label>

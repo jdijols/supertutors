@@ -14,15 +14,16 @@ import { expect, test } from "@playwright/test";
 
 test.describe("scaffold happy path", () => {
   test("landing → world → greeting → name → tools active", async ({ page }) => {
-    // 1. Landing renders
+    // 1. Landing renders — bento-layout landing (commit 11b1f3a) shows the
+    // About heading + the FreddyPoster CTA. No "pick a tutor" header anymore.
     await page.goto("/");
     await expect(
-      page.getByRole("heading", { name: /pick a tutor/i }),
+      page.getByRole("heading", { name: /tutors for the ai generation/i }),
     ).toBeVisible();
 
     // 2. Tap the Freddy CTA → navigate to /lesson
     const cta = page.getByRole("button", {
-      name: /learn fractions with freddy/i,
+      name: /start the fractions lesson with freddy/i,
     });
     await expect(cta).toBeVisible();
     await cta.click();
@@ -59,10 +60,17 @@ test.describe("scaffold happy path", () => {
     await expect(page.getByTestId("freddy-character")).toBeVisible();
   });
 
-  test("CTA cards for unbuilt tutors are non-interactive", async ({ page }) => {
+  test("landing shows only the Freddy CTA — other tutors are not yet rendered", async ({
+    page,
+  }) => {
+    // Bento landing has a single CTA (FreddyPosterCard). Earlier placeholder
+    // cards for unbuilt tutors were removed in the bento redesign — we'll
+    // re-add them as additional tutors become real, per PRD §2.4.
     await page.goto("/");
-    // The disabled placeholder cards are divs with aria-disabled, not buttons
-    const disabledCards = page.locator("[aria-disabled]");
-    await expect(disabledCards).toHaveCount(2);
+    const buttons = page.locator("button");
+    await expect(buttons).toHaveCount(1);
+    await expect(buttons.first()).toHaveAccessibleName(
+      /start the fractions lesson with freddy/i,
+    );
   });
 });

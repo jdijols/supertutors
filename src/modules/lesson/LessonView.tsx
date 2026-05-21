@@ -1,7 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useMachine } from "@xstate/react";
+import { useSearchParams } from "react-router-dom";
 import { useAppStore } from "@/store/appStore";
 import { audioEngine } from "@/modules/audio/AudioEngine";
-import { renderLine } from "@/modules/tutor/dialogue";
+import { renderLine, type DialogueKey } from "@/modules/tutor/dialogue";
+import { dialogueKeyForState } from "@/modules/tutor/dialogueForState";
+import { tutorMachine, type TutorEvent } from "@/modules/tutor/tutorMachine";
+import { AhaAnimation } from "./AhaAnimation";
+import { useDemoMode } from "@/lib/demoMode";
+import { useHoldToReset } from "@/lib/useHoldToReset";
+import { getInspectorOption } from "@/lib/inspector";
 import {
   FreddyCharacter,
   NameInputOverlay,
@@ -14,40 +22,55 @@ import {
 /**
  * LessonView — the full-bleed world.
  *
- * Layout (per design decision 2026-05-19):
- *   - RestaurantScene fills the screen (chef's POV behind the counter)
- *   - FreddyCharacter positioned right-of-center, slightly back-of-counter
- *   - Speech bubbles overlay anchored to speakers (Freddy / guests)
- *   - NumberBar bottom-LEFT (visible only when an InputField is focused)
- *   - ToolPicker bottom-RIGHT corner
- *   - NameInputOverlay: centered modal during onboarding (only place the
- *     system keyboard is allowed; one-time)
+ * Two phases:
+ *   1) Onboarding (no machine): greeting bubble → name capture → response.
+ *      Driven by local React state because the machine has no onboarding
+ *      states yet (Beat 1 / Beat 1.5 author later in Stately).
+ *   2) Lesson (machine mounted): once name is set + the response audio
+ *      ends, `LessonMachineRoot` mounts and `tutorMachine` drives Beat 6
+ *      (AHA). The bubble text comes from `dialogueKeyForState(state.value)`
+ *      so it always matches what `playDialogue` just queued.
  *
- * State (this scaffold turn): local React state simulates the onboarding
- * flow so the layout is testable end-to-end. The XState lesson machine
- * (stately/lesson.ts) wires up the real driver in the next round.
+ * Demo mode (CC.1) exposes hidden dev controls in the corner for sending
+ * SLICED / PROXIMITY / ANIMATION_DONE directly to the machine — the
+ * temporary input surface from P1.4 that the real Table will replace.
  */
 export function LessonView() {
   const name = useAppStore((s) => s.name);
   const setName = useAppStore((s) => s.setName);
+  const resetStore = useAppStore((s) => s.reset);
 
-  // Local UI state — simulates onboarding without XState for now.
   const [greetingDismissed, setGreetingDismissed] = useState(false);
   const [responseShown, setResponseShown] = useState(false);
+  const [onboardingDone, setOnboardingDone] = useState(false);
 
   const inOnboarding = !name;
   const showGreetingBubble = inOnboarding && !greetingDismissed;
-  const showResponseBubble = !inOnboarding && responseShown;
+  const showResponseBubble = !inOnboarding && responseShown && !onboardingDone;
 
   function handleNameSubmit(submitted: string) {
     setName(submitted);
     setGreetingDismissed(true);
     setResponseShown(true);
-    // Dismissal is driven by audioEngine.onDone in the response-bubble effect
-    // below — no fixed timer, so the bubble length always matches the audio.
   }
 
-  // Greeting audio: plays when the bubble is visible. User taps to dismiss.
+  // CC.2 — Tap-and-hold Freddy to restart the whole session. The hold target
+  // is an invisible div over Freddy's head area (Freddy himself is
+  // pointer-events-none to avoid eating drag events from manipulative pieces
+  // that pass over him).
+  const freddyHoldRef = useRef<HTMLDivElement>(null);
+  const { isHolding: isResetting, progress: resetProgress } = useHoldToReset({
+    ref: freddyHoldRef,
+    onReset: () => {
+      audioEngine.stop();
+      resetStore();
+      setGreetingDismissed(false);
+      setResponseShown(false);
+      setOnboardingDone(false);
+    },
+  });
+
+  // Greeting audio: plays while the bubble is visible. User taps to dismiss.
   useEffect(() => {
     if (showGreetingBubble) {
       audioEngine.play({
@@ -58,15 +81,18 @@ export function LessonView() {
     return () => audioEngine.stop();
   }, [showGreetingBubble]);
 
-  // Response audio: plays once the name is submitted; bubble dismisses when
-  // the final segment finishes (or immediately if audio fails to load).
+  // Response audio: plays after name submit; on completion, hand off to
+  // the state machine.
   useEffect(() => {
     if (showResponseBubble && name) {
       audioEngine.play({
         dialogueKey: "onboarding_response",
         hasNameSlot: true,
         name,
-        onDone: () => setResponseShown(false),
+        onDone: () => {
+          setResponseShown(false);
+          setOnboardingDone(true);
+        },
       });
     }
     return () => audioEngine.stop();
@@ -75,12 +101,6 @@ export function LessonView() {
   return (
     <main className="relative w-screen h-screen overflow-hidden bg-sb-surface">
       <RestaurantScene>
-        {/* Freddy stands BEHIND the counter — large, bottom-anchored to
-            the viewport so his lower body extends into the counter zone.
-            The RestaurantScene's foreground counter mask (z-20) cuts him
-            visually at the counter line, giving real chef-behind-bar depth.
-            Onboarding uses the OK greeting gesture; later beats swap to
-            neutral / excited / thinking via the state machine. */}
         <div className="absolute left-2 md:left-8 bottom-0 z-10">
           <FreddyCharacter
             pose="facing_student"
@@ -88,16 +108,29 @@ export function LessonView() {
             mouth={showGreetingBubble || showResponseBubble ? "open" : "closed"}
             className="h-[88vh] md:h-[100vh] w-auto"
           />
+          {/* Hold-to-reset hit area over Freddy's head/torso. Invisible so
+              kids who don't know about the gesture aren't distracted, but
+              tappable. Progress hint surfaces a moment into the hold. */}
+          <div
+            ref={freddyHoldRef}
+            data-testid="freddy-hold-target"
+            role="button"
+            aria-label="Hold to restart the lesson"
+            className="absolute top-[8vh] left-[10%] w-[55%] h-[40vh] rounded-3xl cursor-pointer"
+          />
         </div>
       </RestaurantScene>
 
-      {/* Speech bubbles — z-30 to render ABOVE the counter mask.
-          Positioned BELOW Freddy's face so the bubble partially overlaps
-          the counter, with the tail pointing UP-LEFT to his face. Avoids
-          the conflict between tail and his raised OK-gesture hand.
-          TODO (future iteration): position bubble dynamically based on
-          who's speaking (Freddy vs. guests) and what visual elements
-          are present on the counter. */}
+      {/* Hold-to-reset feedback — appears as the hold progresses. */}
+      {isResetting && resetProgress > 0.25 ? (
+        <div
+          data-testid="reset-progress-indicator"
+          className="absolute top-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-sb-ink/90 text-sb-paper-soft text-xs font-mono uppercase tracking-widest shadow-lg pointer-events-none"
+        >
+          Restart in {Math.max(1, Math.ceil((1 - resetProgress) * 1.5))}s
+        </div>
+      ) : null}
+
       <div className="absolute left-[20%] md:left-[26%] bottom-[35vh] md:bottom-[42vh] max-w-md z-30">
         <SpeechBubble
           open={showGreetingBubble}
@@ -116,9 +149,7 @@ export function LessonView() {
         </SpeechBubble>
       </div>
 
-      {/* Name input overlay — onboarding only, centered. z-50 stays above
-          everything (including the counter mask). One-time system
-          keyboard exception per PRD §3.8.1. */}
+      {/* Name input overlay — onboarding only, centered. */}
       <div className="absolute inset-0 grid place-items-center pointer-events-none z-50">
         <div className="pointer-events-auto">
           <NameInputOverlay
@@ -128,8 +159,6 @@ export function LessonView() {
         </div>
       </div>
 
-      {/* Bottom-LEFT: NumberBar (z-40 above counter mask). Hidden until
-          XState wires real input focus events in the next round. */}
       <div className="absolute bottom-6 left-6 z-40">
         <NumberBar
           open={false}
@@ -138,11 +167,140 @@ export function LessonView() {
         />
       </div>
 
-      {/* Bottom-RIGHT corner: ToolPicker (z-40 above counter mask).
-          Hidden until XState wires manipulative interaction. */}
       <div className="absolute bottom-6 right-6 z-40">
         <ToolPicker visible={false} />
       </div>
+
+      {/* Lesson machine mounts once onboarding is complete. */}
+      {onboardingDone && name ? (
+        <LessonMachineRoot name={name} />
+      ) : null}
     </main>
+  );
+}
+
+/**
+ * Mounts the tutorMachine after onboarding, drives the in-lesson bubble +
+ * (in demo mode) the dev event controls. Lives in LessonView's portal-style
+ * tree so positioning sits on top of the restaurant scene.
+ */
+function LessonMachineRoot({ name }: { name: string }) {
+  const [searchParams] = useSearchParams();
+  const { enabled: demoMode } = useDemoMode();
+  const [state, send] = useMachine(tutorMachine, {
+    input: { name },
+    inspect: getInspectorOption(),
+  });
+
+  // Respect the demo-mode `?beat=` jump so key "6" lands cleanly on Beat 6.
+  // The machine's initial state is already `aha.setup`, so a `?beat=aha`
+  // URL is a no-op today; future beats (check/win) will key off this hook
+  // once they have entry states.
+  useEffect(() => {
+    const beat = searchParams.get("beat");
+    if (beat === "aha") send({ type: "RESET" });
+  }, [searchParams, send]);
+
+  const activeDialogueKey = dialogueKeyForState(state.value);
+  const ahaTriggered = state.matches({ aha: "aha_triggered" });
+
+  return (
+    <>
+      <div className="absolute left-[20%] md:left-[26%] bottom-[35vh] md:bottom-[42vh] max-w-md z-30">
+        <SpeechBubble
+          open={activeDialogueKey !== null}
+          speaker="Freddy"
+          tailSide="top-left"
+        >
+          {activeDialogueKey
+            ? renderLine(activeDialogueKey as DialogueKey, { name })
+            : null}
+        </SpeechBubble>
+      </div>
+
+      {/* P5.11 — AHA hero animation. Fires on `aha_triggered`, auto-sends
+          ANIMATION_DONE when complete, which advances the machine into
+          `celebrating` to play the reveal line. */}
+      <AhaAnimation
+        active={ahaTriggered}
+        onDone={() => send({ type: "ANIMATION_DONE" })}
+      />
+
+      {demoMode ? (
+        <LessonDevControls
+          stateValue={JSON.stringify(state.value)}
+          onSend={send}
+        />
+      ) : null}
+    </>
+  );
+}
+
+/**
+ * Hidden dev controls — only mounted in demo mode (?demo=true). Sends
+ * synthetic SLICED / PROXIMITY / ANIMATION_DONE events so we can walk
+ * the machine through every Beat 6 branch without the Table wired up.
+ * Removed once the real Table emits these events directly.
+ */
+function LessonDevControls({
+  stateValue,
+  onSend,
+}: {
+  stateValue: string;
+  onSend: (event: TutorEvent) => void;
+}) {
+  return (
+    <div
+      data-testid="lesson-dev-controls"
+      className="absolute top-4 left-4 z-50 flex flex-col gap-1 bg-sb-ink/85 text-sb-paper-soft p-3 rounded-lg font-mono text-[11px] shadow-xl"
+    >
+      <div className="opacity-70 mb-1">State: {stateValue}</div>
+      <button
+        type="button"
+        className="px-2 py-1 rounded bg-sb-paper/10 hover:bg-sb-paper/20 text-left"
+        onClick={() =>
+          onSend({ type: "SLICED", pieceId: "dev", parentFraction: "1/2" })
+        }
+      >
+        SLICED (1/2) → correct
+      </button>
+      <button
+        type="button"
+        className="px-2 py-1 rounded bg-sb-paper/10 hover:bg-sb-paper/20 text-left"
+        onClick={() =>
+          onSend({ type: "SLICED", pieceId: "dev", parentFraction: "1/4" })
+        }
+      >
+        SLICED (1/4) → wrong
+      </button>
+      <button
+        type="button"
+        className="px-2 py-1 rounded bg-sb-paper/10 hover:bg-sb-paper/20 text-left"
+        onClick={() => onSend({ type: "PROXIMITY", comparison: "equal" })}
+      >
+        PROXIMITY (equal) → AHA
+      </button>
+      <button
+        type="button"
+        className="px-2 py-1 rounded bg-sb-paper/10 hover:bg-sb-paper/20 text-left"
+        onClick={() => onSend({ type: "PROXIMITY", comparison: "not_equal" })}
+      >
+        PROXIMITY (not_equal)
+      </button>
+      <button
+        type="button"
+        className="px-2 py-1 rounded bg-sb-paper/10 hover:bg-sb-paper/20 text-left"
+        onClick={() => onSend({ type: "ANIMATION_DONE" })}
+      >
+        ANIMATION_DONE
+      </button>
+      <button
+        type="button"
+        className="px-2 py-1 rounded bg-sb-paper/10 hover:bg-sb-paper/20 text-left"
+        onClick={() => onSend({ type: "RESET" })}
+      >
+        RESET to setup
+      </button>
+    </div>
   );
 }
