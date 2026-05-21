@@ -10,7 +10,7 @@ test.describe("CV sandbox", () => {
   test("hand-tracking toggle appears in sandbox and shows privacy notice", async ({
     page,
   }) => {
-    await page.goto("/preview/sandbox");
+    await page.goto("/lesson?skip=true");
     await expect(page.getByTestId("tool-picker")).toBeVisible();
 
     // CV toggle button is present.
@@ -35,7 +35,7 @@ test.describe("CV sandbox", () => {
   });
 
   test("?cv=true URL param opens privacy notice directly", async ({ page }) => {
-    await page.goto("/preview/sandbox?cv=true");
+    await page.goto("/lesson?skip=true&cv=true");
     const dialog = page.getByRole("dialog", {
       name: /camera permission notice/i,
     });
@@ -43,12 +43,12 @@ test.describe("CV sandbox", () => {
   });
 
   test("declining privacy notice dismisses CV mode", async ({ page }) => {
-    await page.goto("/preview/sandbox?cv=true");
+    await page.goto("/lesson?skip=true&cv=true");
     await page.getByRole("button", { name: /no thanks/i }).click();
     // Dialog goes away and URL loses ?cv param.
     await expect(
       page.getByRole("dialog", { name: /camera permission notice/i }),
     ).not.toBeVisible();
-    await expect(page).toHaveURL(/\/preview\/sandbox(?!\?cv)/);
+    await expect(page).toHaveURL(/\/lesson(?!.*\bcv=true)/);
   });
 });

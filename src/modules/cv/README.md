@@ -8,12 +8,13 @@ Browser-native hand tracking using MediaPipe Tasks Vision. Converts webcam-detec
 useHandLandmarks()        ← webcam → MediaPipe → 21 landmarks per hand
   └─ detectPinch()        ← pure gesture recognizer (thumb tip ↔ index tip)
        └─ usePointerFromHand()  ← maps pinch center → synthetic pointerdown/move/up
-            └─ existing SandboxPreview slice + drag handlers (unchanged)
+            └─ existing LessonTable slice + drag handlers (unchanged)
 ```
 
 ## How to enable
 
-Append `?cv=true` to `/preview/sandbox`, or tap the "🖐️ Hands" button in ToolPicker.
+Append `?cv=true` to `/lesson`, or tap the "🖐️ Hands" button in ToolPicker.
+In dev: `?skip=true&cv=true` drops you straight into the sandbox with CV on.
 
 ## Privacy
 

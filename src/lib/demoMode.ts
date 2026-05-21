@@ -11,14 +11,14 @@ import type { Beat } from "@/store/appStore";
  * Keys (active globally while enabled):
  *   0 — CV preview (/preview/cv — hand tracking demo)
  *   1 — Beat 1 (Splash / landing CTA)
- *   2 — Beat 2 (Sandbox preview)
+ *   2 — Beat 2 (Sandbox/Explore — skips onboarding into the lesson)
  *   3 — Beat 3 (Vocab — TBD; lands on lesson placeholder)
  *   4 — Beat 4 (First Guest — TBD)
  *   5 — Beat 5 (Two Guests — TBD)
  *   6 — Beat 6 (AHA — vertical-slice target)
  *   7 — Beat 7 (Check for Understanding — TBD)
  *   8 — Beat 8 (Win — TBD)
- *   C — Sandbox with CV mode (/preview/sandbox?cv=true)
+ *   C — Lesson with CV mode + skip-onboarding (/lesson?skip=true&cv=true)
  *   Shift+R — reload current page
  *
  * Beat 6 wiring (the only one with a state machine today) reads `?beat=aha`
@@ -40,7 +40,10 @@ interface BeatTarget {
 
 export const BEAT_TARGETS: Record<number, BeatTarget> = {
   1: { path: "/", beat: "splash" },
-  2: { path: "/preview/sandbox", beat: "sandbox" },
+  // Sandbox/Explore is now part of the unified `/lesson` experience.
+  // `?skip=true` jumps past the greeting + name input so the kid (or
+  // the dev iterating) lands directly in the manipulative.
+  2: { path: "/lesson", beatQuery: "skip=true", beat: "sandbox" },
   3: { path: "/lesson", beatQuery: "welcomeTour", beat: "welcomeTour" },
   4: { path: "/lesson", beatQuery: "firstGuest", beat: "firstGuest" },
   5: { path: "/lesson", beatQuery: "twoGuests", beat: "twoGuests" },
@@ -65,9 +68,18 @@ export function isDemoModeEnabled(): boolean {
   return window.sessionStorage.getItem(STORAGE_KEY) === "1";
 }
 
-/** Builds the URL string for a beat target (path + optional ?beat=… ). */
+/** Builds the URL string for a beat target.
+ *
+ *   - No `beatQuery` → just the path.
+ *   - `beatQuery` containing `=` → treated as a raw query string (e.g.
+ *     "skip=true" for the unified-sandbox skip-onboarding shortcut).
+ *   - Otherwise → legacy `?beat=<beatQuery>` convention.
+ */
 export function buildBeatUrl(target: BeatTarget): string {
   if (!target.beatQuery) return target.path;
+  if (target.beatQuery.includes("=")) {
+    return `${target.path}?${target.beatQuery}`;
+  }
   return `${target.path}?beat=${encodeURIComponent(target.beatQuery)}`;
 }
 
@@ -109,7 +121,7 @@ export function useDemoMode(): { enabled: boolean } {
       }
       if (e.key === 'c' || e.key === 'C') {
         e.preventDefault();
-        navigate('/preview/sandbox?cv=true');
+        navigate('/lesson?skip=true&cv=true');
         return;
       }
       const n = Number(e.key);

@@ -20,21 +20,24 @@ describe("BEAT_TARGETS", () => {
     });
   });
 
-  it("key 2 maps to /preview/sandbox without a beat query", () => {
-    expect(BEAT_TARGETS[2].path).toBe("/preview/sandbox");
-    expect(BEAT_TARGETS[2].beatQuery).toBeUndefined();
+  it("key 2 maps to /lesson with the skip-onboarding flag", () => {
+    expect(BEAT_TARGETS[2].path).toBe("/lesson");
+    expect(BEAT_TARGETS[2].beatQuery).toBe("skip=true");
   });
 });
 
 describe("buildBeatUrl", () => {
   it("returns the bare path when no beatQuery is set", () => {
     expect(buildBeatUrl(BEAT_TARGETS[1])).toBe("/");
-    expect(buildBeatUrl(BEAT_TARGETS[2])).toBe("/preview/sandbox");
   });
 
-  it("appends ?beat=<value> when beatQuery is set", () => {
+  it("appends ?beat=<value> when beatQuery is a plain string", () => {
     expect(buildBeatUrl(BEAT_TARGETS[6])).toBe("/lesson?beat=aha");
     expect(buildBeatUrl(BEAT_TARGETS[7])).toBe("/lesson?beat=check");
+  });
+
+  it("treats a beatQuery containing '=' as a raw query string", () => {
+    expect(buildBeatUrl(BEAT_TARGETS[2])).toBe("/lesson?skip=true");
   });
 
   it("URL-encodes the beat query", () => {

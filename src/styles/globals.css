@@ -55,9 +55,9 @@
    * inheritance chain. The sprite gives us total visual control with no
    * browser cursor-engine quirks.
    *
-   * The tool class on body/html is still added by SandboxPreview as a
-   * scope marker (so we can apply `cursor: none` only when in the
-   * sandbox, not on every page in the app).
+   * The tool class on body/html is added by LessonTable as a scope
+   * marker (so we can apply `cursor: none` only inside the lesson
+   * world, not on every page in the app).
    */
   html.tool-glove,
   html.tool-glove *,

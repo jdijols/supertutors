@@ -81,8 +81,8 @@ test.describe("a11y baseline", () => {
     await expectNoBlockingA11yViolations(page);
   });
 
-  test("sandbox preview with ToolPicker", async ({ page }) => {
-    await page.goto("/preview/sandbox");
+  test("lesson with ToolPicker (skip-onboarding shortcut)", async ({ page }) => {
+    await page.goto("/lesson?skip=true");
     await expect(page.getByTestId("tool-picker")).toBeVisible();
     await waitForAnimationsToSettle(page);
     await expectNoBlockingA11yViolations(page);

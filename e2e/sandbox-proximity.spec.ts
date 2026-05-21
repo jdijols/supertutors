@@ -3,15 +3,16 @@ import { expect, test } from "@playwright/test";
 /**
  * P2.10 — Slice + compare smoke test.
  *
- * Drives the sandbox preview end-to-end:
+ * Drives the unified lesson end-to-end with the `?skip=true` shortcut so
+ * we land directly in the manipulative without walking through
+ * onboarding:
  *   1. Switch to cutter, slice the whole pizza into halves.
  *   2. Switch to glove, drag the right half close to the left half.
  *   3. Verify the proximity indicator surfaces an `equal` cluster
  *      (`1/2 + 1/2 = 1` admits a partition into two halves → equal).
  *
  * Uses Playwright's native mouse events so framer-motion's pointer-capture
- * drag actually fires (this is the test surface I couldn't reach via
- * preview_eval pointer dispatch).
+ * drag actually fires.
  *
  * Desktop-Chrome only: iPad Safari emulation in Playwright can't drive
  * framer-motion's `setPointerCapture` from synthesized touch events. Real
@@ -25,7 +26,7 @@ test.describe("sandbox proximity detection", () => {
   test("slice → drag close → equal cluster indicator appears", async ({
     page,
   }) => {
-    await page.goto("/preview/sandbox");
+    await page.goto("/lesson?skip=true");
 
     const pieces = page.locator("[data-piece-id]");
     await expect(pieces).toHaveCount(1);

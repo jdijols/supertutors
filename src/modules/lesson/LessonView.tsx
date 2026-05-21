@@ -15,10 +15,8 @@ import { getInspectorOption } from "@/lib/inspector";
 import {
   FreddyCharacter,
   NameInputOverlay,
-  NumberBar,
   RestaurantScene,
   SpeechBubble,
-  ToolPicker,
 } from "@/modules/world";
 
 /**
@@ -63,6 +61,25 @@ export function LessonView() {
   // no machine, kid plays naturally and Freddy reacts to milestones.
   const beatParam = searchParams.get("beat");
   const useMachine = beatParam === "aha" || beatParam === "win";
+
+  // Skip-onboarding shortcut: `?skip=true` (with optional `?name=X`) jumps
+  // straight into the exploration without the greeting/name-entry dance.
+  // Used by e2e tests for fast iteration and by demo-mode key "2" so the
+  // dev can hop right into the manipulative without retyping a name on
+  // every reload. Production flow is unchanged.
+  const skipOnboarding = searchParams.get("skip") === "true";
+  const nameOverride = searchParams.get("name");
+  useEffect(() => {
+    if (skipOnboarding && !name) {
+      setName(nameOverride ?? "Chef");
+      setGreetingDismissed(true);
+      setResponseShown(false);
+      setOnboardingDone(true);
+    }
+    // Only fires once on mount with skip=true — subsequent renders won't
+    // re-trigger because `name` is now set.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [skipOnboarding, nameOverride]);
 
   function handleNameSubmit(submitted: string) {
     setName(submitted);
@@ -173,18 +190,6 @@ export function LessonView() {
             onSubmit={handleNameSubmit}
           />
         </div>
-      </div>
-
-      <div className="absolute bottom-6 left-6 z-40">
-        <NumberBar
-          open={false}
-          onDigit={() => undefined}
-          onDelete={() => undefined}
-        />
-      </div>
-
-      <div className="absolute bottom-6 right-6 z-40">
-        <ToolPicker visible={false} />
       </div>
 
       {/* Lesson body mounts once onboarding is complete.
