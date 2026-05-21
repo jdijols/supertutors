@@ -103,5 +103,8 @@ test.describe("sandbox proximity detection", () => {
     );
     await expect(equalIndicator).toHaveCount(1);
     await expect(equalIndicator).toContainText("≡");
+
+    // 7. The AHA animation fires once when equal pieces first come together.
+    await expect(page.getByTestId("aha-animation")).toBeVisible();
   });
 });
