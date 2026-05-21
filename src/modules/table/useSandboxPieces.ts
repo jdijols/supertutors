@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import type { PizzaFraction } from "./Pizza";
+import { fractionToNumber } from "./proximity";
 import {
   assetSrcFor,
   canSlice,
@@ -10,6 +11,25 @@ import {
   type PieceSlot,
   type PizzaVariant,
 } from "./sliceLogic";
+
+/**
+ * Sum the fractional area of all pieces currently on the table — gives
+ * the "effective pizza count" of the workspace.
+ *
+ * Examples:
+ *   - 1 whole pizza → 1.0
+ *   - 2 wholes sliced into 8 eighths each → still 2.0 (slicing preserves
+ *     mass; just more pieces with smaller fractions)
+ *   - 4 wholes added, then a 1/2 piece delivered → 3.5
+ *
+ * Used by `canAddPizza` so the add cap responds to deliveries: when the
+ * kid sends a slice (or a whole) to the delivery box, the workspace
+ * mass goes down by exactly that fraction and the add button re-enables
+ * accordingly.
+ */
+function workspaceMass(pieces: { fraction: PizzaFraction }[]): number {
+  return pieces.reduce((sum, p) => sum + fractionToNumber(p.fraction), 0);
+}
 
 /**
  * React hook managing the live state of pizza pieces on the sandbox table.
@@ -207,9 +227,6 @@ export function useSandboxPieces(
 
   const [pieces, setPieces] = useState<SandboxPiece[]>(initialPieces);
   const idCounter = useRef(initialPieces.length);
-  // Count of whole-pizzas ever added (initial + addPizza calls). NOT the
-  // current piece count — slicing doesn't increment this.
-  const pizzaCount = useRef(initialPieces.length);
 
   const nextId = useCallback(() => {
     idCounter.current += 1;
@@ -286,7 +303,11 @@ export function useSandboxPieces(
    */
   const addPizza = useCallback(
     (variant: PizzaVariant = defaultVariant): string | null => {
-      if (pizzaCount.current >= maxPizzas) return null;
+      // Mass-based cap: a fresh whole adds 1.0 to the workspace mass.
+      // Cap is `maxPizzas` whole-pizzas-worth of total mass on the
+      // table — deliveries naturally lower this (delivering a 1/4
+      // slice frees up 0.25 of cap room).
+      if (workspaceMass(pieces) + 1 > maxPizzas) return null;
 
       const viewportW =
         options.viewportWidth ??
@@ -316,7 +337,6 @@ export function useSandboxPieces(
       );
       if (!shifts) return null;
 
-      pizzaCount.current += 1;
       const newId = `piece-${++idCounter.current}`;
 
       setPieces((prev) => {
@@ -346,18 +366,20 @@ export function useSandboxPieces(
   const reset = useCallback(() => {
     setPieces(initialPieces);
     idCounter.current = initialPieces.length;
-    pizzaCount.current = initialPieces.length;
   }, [initialPieces]);
 
   /**
-   * Pre-flight check: would the next addPizza() succeed? Runs the same
-   * collision-shift math against the CURRENT pieces. Returns true if the
-   * pizza cap hasn't been reached AND the cascade shift fits within the
-   * viewport. Used to disable the AddPizzaButton when the table is too
-   * packed even though the count hasn't yet hit `maxPizzas`.
+   * Pre-flight check: would the next addPizza() succeed? Two gates:
+   *   1. Mass cap: current workspace mass + 1 must not exceed `maxPizzas`.
+   *      This naturally responds to deliveries — when a piece leaves the
+   *      table, mass drops and the gate may reopen even though no new
+   *      slicing has happened.
+   *   2. Cascade shift: a fresh whole at the entry zone must be able to
+   *      shift existing pieces rightward without pushing anything past
+   *      the viewport edge.
    */
   const canAddPizza = useCallback((): boolean => {
-    if (pizzaCount.current >= maxPizzas) return false;
+    if (workspaceMass(pieces) + 1 > maxPizzas) return false;
     const viewportW =
       options.viewportWidth ??
       (typeof window !== "undefined" ? window.innerWidth : 1980);
@@ -383,9 +405,9 @@ export function useSandboxPieces(
     addPizza,
     reset,
     canAddPizza,
-    /** Current count of whole-pizzas added (incl. initial). */
-    pizzaCount: pizzaCount.current,
-    /** Max whole-pizzas allowed before addPizza returns null. */
+    /** Current effective pizza mass on the table (sum of fractions). */
+    pizzaMass: workspaceMass(pieces),
+    /** Max effective pizza mass before addPizza returns null. */
     maxPizzas,
   };
 }
