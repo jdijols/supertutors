@@ -74,7 +74,7 @@ Every task has a **Done when** line with concrete success criteria. Patterns:
   - New preview route `/preview/cv` in `src/main.tsx` router — renders the webcam feed (mirrored) with an SVG overlay drawing the 21 landmarks as dots + the skeleton edges.
   - **Done when:** `/preview/cv` shows live webcam + landmark overlay; `npm run build` passes; committed as `[OVN.2] HandTracker + /preview/cv route`
 
-- [ ] **OVN.3 — Pinch gesture recognizer (C, loop)**
+- [x] **OVN.3 — Pinch gesture recognizer (C, loop)**
   - `src/modules/cv/gestures.ts` — pure logic. `detectPinch(landmarks): { isPinching: boolean, pinchCenter: { x, y }, strength: number }`. Strength = inverse of normalized distance between thumb tip (landmark 4) and index tip (landmark 8), normalized by palm width (landmark 0 ↔ 9).
   - Hysteresis: enter pinch when strength > 0.7, exit when < 0.4 (avoid jitter at threshold).
   - Exponential smoothing on `pinchCenter` with alpha = 0.4.

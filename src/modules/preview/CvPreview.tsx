@@ -1,4 +1,6 @@
+import { useRef } from 'react';
 import { HandTracker, useHandLandmarks } from '@/modules/cv/HandTracker';
+import { PinchRecognizer } from '@/modules/cv/gestures';
 import type { NormalizedLandmark } from '@mediapipe/tasks-vision';
 
 // MediaPipe hand skeleton connection pairs (landmark index pairs)
@@ -38,7 +40,7 @@ function LandmarkOverlay({
             const la = hand[a];
             const lb = hand[b];
             if (!la || !lb) return null;
-            // Mirror X because video is mirrored
+            // Mirror X because video is rendered mirrored
             return (
               <line
                 key={ci}
@@ -70,6 +72,17 @@ function LandmarkOverlay({
 
 function CvPreviewInner() {
   const { videoRef, result, status, error } = useHandLandmarks();
+  // One PinchRecognizer per possible hand (max 2)
+  const recognizersRef = useRef<PinchRecognizer[]>([
+    new PinchRecognizer(),
+    new PinchRecognizer(),
+  ]);
+
+  const pinchStates = result?.landmarks.map((hand, i) =>
+    recognizersRef.current[i]?.update(hand),
+  ) ?? [];
+
+  const anyPinching = pinchStates.some((s) => s?.isPinching);
 
   return (
     <div className="min-h-screen bg-sb-surface flex flex-col items-center justify-center gap-4 p-6">
@@ -92,6 +105,17 @@ function CvPreviewInner() {
             width={640}
             height={480}
           />
+        )}
+
+        {/* PINCHING badge */}
+        {anyPinching && (
+          <div
+            className="absolute top-3 left-3 px-3 py-1 rounded-full text-sm font-bold"
+            style={{ background: '#f5e6c8', color: '#1a1208' }}
+            data-testid="pinching-badge"
+          >
+            PINCHING
+          </div>
         )}
 
         {/* Status overlay */}
