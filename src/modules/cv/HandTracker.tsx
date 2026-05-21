@@ -62,15 +62,29 @@ export function HandTracker({ children }: { children: React.ReactNode }) {
           'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm',
         );
 
-        const landmarker = await HandLandmarker.createFromOptions(fileset, {
-          baseOptions: {
-            modelAssetPath:
-              'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
-            delegate: 'GPU',
-          },
-          runningMode: 'VIDEO',
-          numHands: 2,
-        });
+        // Try GPU first; fall back to CPU if WebGL isn't available.
+        let landmarker: Awaited<ReturnType<typeof HandLandmarker.createFromOptions>>;
+        try {
+          landmarker = await HandLandmarker.createFromOptions(fileset, {
+            baseOptions: {
+              modelAssetPath:
+                'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
+              delegate: 'GPU',
+            },
+            runningMode: 'VIDEO',
+            numHands: 2,
+          });
+        } catch {
+          landmarker = await HandLandmarker.createFromOptions(fileset, {
+            baseOptions: {
+              modelAssetPath:
+                'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
+              delegate: 'CPU',
+            },
+            runningMode: 'VIDEO',
+            numHands: 2,
+          });
+        }
 
         landmarkerRef.current = landmarker;
         setStatus('ready');
