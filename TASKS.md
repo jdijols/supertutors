@@ -53,6 +53,96 @@ Every task has a **Done when** line with concrete success criteria. Patterns:
 
 ---
 
+## OVERNIGHT — 2026-05-21 (CV Physical Mode pivot, autonomous loop)
+
+> Pivot decision + full context in [`Journals/May-21-0308-cv-pivot-overnight.md`](./Journals/May-21-0308-cv-pivot-overnight.md). Hybrid pivot: keep polished SuperSlice, ADD a CV "physical mode" via MediaPipe Hands so the kid slices pizzas with webcam-tracked hand gestures. Ship by noon CDT 2026-05-21.
+>
+> **Ship-ready invariant:** every commit must leave `main` deployable.
+> **Soft fallback gate at 07:00 CDT:** if OVN.2 (HandTracker) or OVN.3 (pinch recognizer) are still red, trigger OVN.11 (abandon CV, switch to polish).
+> **Hard stop at 11:00 CDT:** write a handoff journal regardless.
+> **Commit format:** `[OVN.N] {what shipped}` — one task per commit.
+
+- [ ] **OVN.1 — Install MediaPipe + scaffold cv module (C, loop)**
+  - `npm install @mediapipe/tasks-vision`
+  - Create `src/modules/cv/index.ts` (placeholder export) + `src/modules/cv/README.md` (one-paragraph overview)
+  - Confirm `npm run build` still passes after install (MediaPipe should not break bundling — if it does, mark for dynamic import only).
+  - **Done when:** package.json updated, build green, committed as `[OVN.1] install MediaPipe tasks-vision + scaffold cv module`
+
+- [ ] **OVN.2 — HandTracker component + /preview/cv route (C, loop)**
+  - `src/modules/cv/HandTracker.tsx` — opens webcam via `getUserMedia({ video: true })`, lazy-loads `HandLandmarker` from MediaPipe, runs detection loop via `requestAnimationFrame`. Exposes a `useHandLandmarks()` hook returning the latest 21 landmarks per detected hand (left/right tagged).
+  - Cleanup on unmount: stop MediaStream tracks, close MediaPipe runtime.
+  - New preview route `/preview/cv` in `src/main.tsx` router — renders the webcam feed (mirrored) with an SVG overlay drawing the 21 landmarks as dots + the skeleton edges.
+  - **Done when:** `/preview/cv` shows live webcam + landmark overlay; `npm run build` passes; committed as `[OVN.2] HandTracker + /preview/cv route`
+
+- [ ] **OVN.3 — Pinch gesture recognizer (C, loop)**
+  - `src/modules/cv/gestures.ts` — pure logic. `detectPinch(landmarks): { isPinching: boolean, pinchCenter: { x, y }, strength: number }`. Strength = inverse of normalized distance between thumb tip (landmark 4) and index tip (landmark 8), normalized by palm width (landmark 0 ↔ 9).
+  - Hysteresis: enter pinch when strength > 0.7, exit when < 0.4 (avoid jitter at threshold).
+  - Exponential smoothing on `pinchCenter` with alpha = 0.4.
+  - Unit tests at `src/modules/cv/gestures.test.ts` covering: open hand (no pinch), tight pinch (pinching), drift across threshold (hysteresis holds), palm rotation invariance.
+  - Wire to `/preview/cv` — show a live "PINCHING" badge in mozzarella-cream when active.
+  - **Done when:** unit tests green, badge visible on `/preview/cv`, committed as `[OVN.3] pinch recognizer with hysteresis + tests`
+
+- [ ] **OVN.4 — CV→pointer event bridge (C, loop)**
+  - `src/modules/cv/usePointerFromHand.ts` — hook that takes the pinch state + center and dispatches synthetic `pointerdown` / `pointermove` / `pointerup` events on the element under the pinch coords (via `document.elementFromPoint`).
+  - Coordinate mapping: webcam-normalized [0,1] → viewport pixels, mirrored on X (webcam is mirrored). Calibration constants tunable via a small overlay.
+  - Pure unit tests for the mapping at `src/modules/cv/usePointerFromHand.test.ts`.
+  - In `/preview/cv`, add a draggable test box that responds to pinch+drag.
+  - **Done when:** tests green, pinch-drag visibly moves the test box on `/preview/cv`, committed as `[OVN.4] CV→pointer bridge`
+
+- [ ] **OVN.5 — Integrate with /preview/sandbox via ?cv=true (C, loop)**
+  - In `src/modules/preview/SandboxPreview.tsx`, read `?cv=true` query flag. When set: mount `HandTracker` + `usePointerFromHand`, render a small mirrored webcam preview in the corner (`opacity: 0.5`, ~160px wide).
+  - With `toolMode === 'cutter'`: pinch + drag across a piece = slice on release (reuses the existing pointerup-driven slice path — no changes to slice logic itself).
+  - With `toolMode === 'glove'`: pinch + drag piece = move.
+  - **Done when:** local recording shows a pizza being sliced via hand gesture, no cursor touched; committed as `[OVN.5] CV mode wired into /preview/sandbox`
+
+- [ ] **OVN.6 — ToolPicker CV-mode toggle (C, loop)**
+  - Add a third button to `src/modules/world/ToolPicker.tsx`: "🖐️ Hands" (or final label TBD). Active state mirrors the existing glove/cutter chrome.
+  - Tapping it: enables CV mode (sets a Zustand flag), prompts for webcam permission if first time.
+  - Toggle also accessible via the `?cv=true` flag (URL persists state).
+  - **Done when:** UI complete, axe a11y pass, button works in both `/preview/sandbox` and `/lesson`; committed as `[OVN.6] ToolPicker CV-mode toggle`
+
+- [ ] **OVN.7 — Privacy notice + permission flow (C, loop)**
+  - One-time inline notice on first CV-mode activation: "SuperSlice uses your camera to track hand gestures. No video is recorded or sent anywhere — all processing happens on your device."
+  - Browser-native `getUserMedia` permission flow.
+  - Graceful failure: if denied, show "Hand tracking unavailable" + revert to cursor mode (don't crash).
+  - Privacy notice text isolated in a constant so it's easy to revise.
+  - **Done when:** permission denial doesn't crash; notice appears exactly once per session; committed as `[OVN.7] privacy notice + permission flow`
+
+- [ ] **OVN.8 — Visual feedback for hand position (C, loop)**
+  - Subtle on-canvas overlay (rendered in a fixed div over the table): dot at index fingertip, faint line between thumb+index, color shifts mozzarella-cream → oven-glow when pinching.
+  - Don't render the full skeleton in lesson mode — too distracting. Only render in `/preview/cv`.
+  - Small mirrored webcam preview thumbnail bottom-right at `opacity: 0.4`.
+  - **Done when:** hand position is visually clear without being distracting; committed as `[OVN.8] visual feedback for CV cursor`
+
+- [ ] **OVN.9 — README CV-mode section + portfolio framing (C, loop)**
+  - New top-level section in `README.md` (after the intro, before the tech stack): "🎥 CV mode (BEMO-style physical interaction)".
+  - One-paragraph framing: "Slice pizzas with your hands. Webcam + MediaPipe Hands in browser. No installs, no server, no data leaves your device. Inspired by Patrick Skinner's work on BEMO."
+  - Bullet links: live preview URL, MediaPipe docs, Patrick's brainlift.
+  - GIF embed if a clean recording is achievable from `/preview/sandbox?cv=true` (skip if it'd block the loop).
+  - **Done when:** README reads well from the top; committed as `[OVN.9] README CV mode section`
+
+- [ ] **OVN.10 — Deploy + verify (C, loop)**
+  - `git push` → Vercel preview updates automatically.
+  - Curl the preview URL to verify it returns 200 + HTML.
+  - Curl `/preview/sandbox?cv=true` to verify the route exists.
+  - Note the live preview URL in the handoff journal.
+  - **Done when:** Vercel deployment succeeds; preview URL works; committed as `[OVN.10] deploy + verify` (if any deploy-config tweaks were needed)
+
+- [ ] **OVN.11 — Fallback to polish-only (C, loop, conditional)**
+  - **Trigger:** OVN.2 or OVN.3 are still red past 07:00 CDT.
+  - Abandon the CV branch (don't merge OVN.5+ work). Spend remaining hours polishing SuperSlice for the noon demo: AHA animation refinement, sound, README cleanup, Vercel deploy, README without CV section.
+  - Document the abandonment in the handoff journal with cause + what was tried.
+  - **Done when:** decision documented in handoff journal, OR not triggered.
+
+- [ ] **OVN.12 — Handoff journal + hard stop (C, loop)**
+  - **Trigger:** 11:00 CDT regardless of remaining task state.
+  - Write `Journals/May-21-{time}-overnight-handoff.md` with: tasks shipped, tasks remaining, current deployable Vercel URL, anything broken, recommended last-hour actions for Jason.
+  - Commit + push the handoff journal.
+  - Stop the loop.
+  - **Done when:** handoff journal exists on `main`, loop terminated.
+
+---
+
 ## Parallel Tracks — Jason Owns
 
 These are independent of my (Claude's) build sequence and **must start ASAP** to avoid blocking later phases.
@@ -79,10 +169,8 @@ These are independent of my (Claude's) build sequence and **must start ASAP** to
   - **Blocks:** all iPad inspection tasks across P1+
   - **Target:** end of day Wednesday 2026-05-20
 
-- [ ] **PT.5 — Superbuilders brand research (S — C does the research, J validates)**
-  - Pull colors, fonts, voice from https://jobs.superbuilders.dev/jobs
-  - **Done when:** Tailwind config updated with real Superbuilders tokens; brand notes added to [PRD §2.3](./PRD.md#23-visual-language)
-  - **Target:** ~1 hour, before P5 polish starts
+- [x] **PT.5 — Superbuilders brand research (S — C does the research, J validates)**
+  - Pulled from https://jobs.superbuilders.dev/jobs; `sb:` token namespace lives in [tailwind.config.js](./tailwind.config.js) with ink/surface/card/border/muted/accent + warm-bridge paper tokens. Brand notes in [PRD §2.3](./PRD.md#23-visual-language). Mono pair (Geist Mono / Inter / PP Variant Mono placeholder) registered. Lesson UI chrome warmed via paper tokens across commits `7e31f25` and `b0ba1a2`.
 
 ---
 
@@ -143,24 +231,23 @@ Goal: prove the entire pipeline (Stately → XState → React → audio → iPad
   - Run `npm run extract-dialogue` (write this script) → updates `dialogue.json`
   - **Done when:** App compiles; `npm run typecheck` + `npm run build` pass; Vitest passes
 
-- [ ] **P1.3 — Wire AudioEngine to dialogue.json (C)**
-  - `AudioEngine.play(dialogueKey)` resolves to `/public/audio/<key>.mp3` via Howler
-  - Fires `onDone` callback after Howler `onend`
-  - Fallback: if MP3 missing/404, log + fire `onDone` after estimated duration (line length × WPM-derived ms) so the state machine never blocks
-  - **Done when:** Unit test: AudioEngine plays a stub MP3 and calls `onDone`; missing-file path also fires `onDone`
+- [x] **P1.3 — Wire AudioEngine to dialogue.json (C)** *(shipped 2026-05-20)*
+  - AudioEngine itself shipped earlier in P3.6 (Howler-backed sequential stitching with fire-immediately failure semantics so the machine never blocks).
+  - This pass wires `audioEngine.play()` into `tutorMachine.ts`'s `playDialogue` action: action reads `context.name`, uses `lineHasNameSlot(key)` to detect name-injection lines, and calls `self.send({ type: "DIALOGUE_DONE" })` from the `onDone` callback. Added `createTutorMachine({ audioEngine })` factory + `SET_NAME` event + `input` wiring so LessonView can hydrate name on actor start.
+  - Also added `stopDialogue` action firing on `RESET` so audio doesn't bleed across restarts.
+  - 10 unit tests at `src/modules/tutor/tutorMachine.test.ts`: initial play call (with input.name), SET_NAME mid-session, default `lineHasNameSlot`, DIALOGUE_DONE advancing, correct/wrong slice branching, full happy path through `aha_triggered → celebrating → done → check`, `not_equal` retry loop, RESET stopping audio, audio-failure non-blocking path.
 
-- [ ] **P1.4 — Wire state machine to React via @xstate/react (C)**
-  - `useMachine(tutorMachine)` hook in `LessonView`
-  - State transitions trigger `playDialogue` actions → AudioEngine
-  - Mock SLICED + PROXIMITY events via hidden dev-console buttons (temporary, removed in P2)
-  - **Done when:** Dev console buttons advance Beat 5 through all happy-path states; ChatPanel renders the current dialogue text
+- [x] **P1.4 — Wire state machine to React via @xstate/react (C)** *(shipped 2026-05-20)*
+  - `LessonView` is now two-phase: an onboarding stretch (local state, unchanged) and a lesson stretch (`LessonMachineRoot` mounted after `onboarding_response` audio completes). The machine hydrates with `input.name` so the very first `aha_setup` play interpolates the kid's name.
+  - Bubble text derives from `dialogueKeyForState(state.value)` — pure mapping from state value → `DialogueKey`, no duplicated strings on the machine config. Idle waits + animation + terminal states return null so the bubble closes between lines.
+  - Hidden `LessonDevControls` (visible only in demo mode) fires SLICED 1/2 + 1/4, PROXIMITY equal + not_equal, ANIMATION_DONE, RESET. State value shown live at the top of the control panel.
+  - `?beat=aha` URL flag (handed off from CC.1's demo mode) sends RESET so key "6" re-enters Beat 6 cleanly.
+  - 8 new unit tests at `src/modules/tutor/dialogueForState.test.ts` cover the state→key mapping. Live-verified in `/lesson?demo=true`: tapped greeting → submitted name "TestKid" → SLICED 1/2 → PROXIMITY equal → ANIMATION_DONE walked the machine from `aha.setup` through `aha.done` to top-level `check`. Final bubble correctly read "Whoa, TestKid! Look at that — one half is the SAME as two quarters! You just made fr…".
 
-- [ ] **P1.5 — Beat 5 happy-path Playwright smoke test (C)**
-  - Launches dev server, navigates to `/lesson`, enters name "TestKid"
-  - Fires mock events in order: SLICED(half) → PROXIMITY(equal) → ANIMATION_DONE
-  - Expects each Freddy line to render in ChatPanel in sequence
-  - Expects final state to transition out (to Beat 6 placeholder)
-  - **Done when:** `npm run test:e2e` includes the Beat 5 happy path and passes
+- [x] **P1.5 — Beat 6 happy-path Playwright smoke test (C)** *(shipped 2026-05-21)*
+  - `e2e/beat-6-aha.spec.ts` — two cases: (1) full happy path setup → SLICED 1/2 → compare prompt → PROXIMITY equal → aha_triggered → ANIMATION_DONE → celebrating (assert hero line "Whoa, TestKid! …" rendered) → top-level `check`. (2) wrong-slice recovery: SLICED 1/4 → wrong_slice → recovery audio fires DIALOGUE_DONE → back to waiting_for_slice.
+  - `beforeEach` regex-routes `/audio/*.mp3` + `/api/voice` to 404 so AudioEngine's fire-immediately-on-failure path drives DIALOGUE_DONE deterministically — keeps the test off real MP3 durations.
+  - Helper `enterLessonWithDemo` navigates via the landing CTA (direct page-load of `/lesson` leaves framer-motion's bubble animation stuck at the `initial` style — pre-existing condition reproducible in the dev preview; SPA nav from `/` clears it). Notes captured inline in the spec.
 
 - [ ] **P1.6 — Visual inspection on iPad (J — depends on PT.4)**
   - Open Vercel preview URL on real iPad Safari
@@ -205,19 +292,20 @@ Goal: the Table workspace becomes real. The hero gesture works.
   - `data-cursor-pointing` attribute triggers the pointing-glove cursor override when hovering the picker.
   - **Done:** axe a11y checks pass; visible active state for selected tool.
 
-- [ ] **P2.6 — Proximity detection (C)**
-  - When 2+ pieces are within threshold (~20pt of each other), evaluate total area
-  - Emit `PROXIMITY_DETECTED { pieceIds, totalArea, comparison: 'equal' | 'not_equal' }`
-  - **Done when:** Unit test: place pieces at known positions, verify event payload; tune threshold empirically in P2.11
+- [x] **P2.6 — Proximity detection (C)** *(shipped 2026-05-20)*
+  - `src/modules/table/proximity.ts` — pure logic: `findProximityGroups` runs union-find over a 20px-threshold edge-to-edge gap graph, then computes total fractional area + an `equal | not_equal` partition decision via brute-force subset-sum (N ≤ 8 fine). Threshold tunable per call.
+  - "Equal" means: cluster admits a partition into two non-empty subsets with the same total area. For the AHA cluster `{1/4, 1/4, 1/2}` the partition `{{1/4,1/4}, {1/2}}` makes it equal — Beat 6 hero condition.
+  - 22 unit tests at `src/modules/table/proximity.test.ts` covering: gap math (overlap/touch/diagonal/custom threshold), `admitsEqualPartition` (AHA cluster, mismatch, eighth combinations), `findProximityGroups` (singletons, transitive grouping, two distant clusters, custom threshold).
+  - Live overlay wired into `/preview/sandbox`: `≡` badge (basil-green) over equal clusters, `≠` (oven-glow) over mismatched. `data-proximity-comparison` + `data-proximity-piece-ids` attrs for Playwright assertion. Beat 6 wiring will subscribe to the same `findProximityGroups` output via the Brain instead of this overlay.
 
 - [x] **P2.7 — Toast / CounterDisplay (C)** *(toast shipped 2026-05-20; counter UI deferred)*
   - `src/modules/toast/Toast.tsx` — auto-dismissing toast with spring entrance + fade. Fires on every slice with the resulting fraction text ("You made halves! 1/2", "Now quarters! 1/4", "Eighths! 1/8") via `fractionToastMessage(fraction, isFirstTime)`. First-time copy upgrades to "Now {kind}!" on repeat.
   - Beat 3 vocab counter UI (`CounterDisplay`) intentionally deferred — different mechanic; will land with Beat 3 wiring.
 
-- [ ] **P2.8 — Guest component placeholder (C — final art in P5)**
-  - Renders guest with 3 expression states (neutral, frown, smile)
-  - State driven by Zustand store
-  - **Done when:** Demo view shows all 3 states; visual inspection
+- [x] **P2.8 — Guest component placeholder (C — final art in P5)** *(shipped 2026-05-21)*
+  - `src/modules/world/Guest.tsx` renders `<img src="/images/characters/guests/<id>-<expression>.png">` with an `onError` fallback to a styled placeholder — colored circle (per-guest tint) + first-initial + expression ASCII face (`:|`, `:(`, `:D`) + name caption. When PT.2 ships PNGs to the canonical paths, the placeholder disappears with zero code change.
+  - 5 unit tests at `src/modules/world/Guest.test.tsx`: correct asset path per expression, fallback on `onError`, displayName defaults, data-attribute targeting.
+  - `GuestPreview` at `/preview/guests` renders the full 3 guests × 3 expressions matrix (9 cells) for visual inspection. Live-verified — all 9 cells render in placeholder state.
 
 - [x] **P2.9 — Freddy avatar (C)** *(shipped earlier; final art in place)*
   - Real Freddy art rendered in `RestaurantScene` + `FreddyCharacter`. Not a placeholder — these are the production assets.
@@ -227,10 +315,10 @@ Goal: the Table workspace becomes real. The hero gesture works.
   - Variant logic: glove (open/closed) + cutter (upright/cutting) + pointing-glove when hovering `[data-cursor-pointing]` elements.
   - Replaces an earlier CSS-cursor approach that Chrome on macOS silently failed to render in certain regions despite computed styles being correct.
 
-- [ ] **P2.10 — Smoke test: slice + compare (C)**
-  - Playwright: enter name → switch to cutter → drag across pizza → expect 2 pieces with fractions 1/2 + 1/2
-  - Switch to glove → drag pieces near each other → expect "equal" UI feedback
-  - **Done when:** `npm run test:e2e` includes P2.10 and passes; all prior smoke tests still pass
+- [x] **P2.10 — Smoke test: slice + compare (C)** *(shipped 2026-05-20)*
+  - `e2e/sandbox-proximity.spec.ts` drives `/preview/sandbox`: switch to cutter → click pizza to slice into halves → assert 2 pieces with no proximity indicator (32px gap > 20px default) → switch to glove → real native mouse drag to bring halves within 10px → assert the `≡` indicator with `data-proximity-comparison="equal"` appears.
+  - Chrome-only — iPad Safari emulation can't drive framer-motion's `setPointerCapture` from synthesized touch events. Real-iPad coverage of the drag flow ships via PT.4. Test uses `test.skip` with the rationale documented inline.
+  - Also fixed two pre-existing test regressions discovered along the way: smoke spec referenced the old "pick a tutor" heading + aria-disabled placeholder cards (both gone in the bento landing redesign); a11y spec flagged two color-contrast violations (`text-sb-accent-deep` on name-input label, `text-sb-subtle` on "A SuperBuilders project" caption, `text-sb-muted` on the "Coming next" pills) — bumped to `text-sb-ink` / `text-sb-ink/70` so axe passes WCAG AA on both `desktop-chrome` and `ipad-safari`.
 
 - [ ] **P2.11 — Visual inspection on iPad (J)**
   - On iPad: slice pizzas, drag pieces, see proximity feedback
@@ -320,9 +408,11 @@ For each beat, repeat the P1 vertical-slice pattern: Stately authoring → expor
 
 - [ ] **P5.1 — Apply Superbuilders brand tokens (PT.5 + C)**
   - Update `tailwind.config.js` with real Superbuilders colors/fonts pulled from research
-- [ ] **P5.2 — Midjourney prompt library drafted (C)**
-  - Prompts for: Freddy 3–5 expressions, guests (3 chars × 3 expressions), CTA hero scene, restaurant backgrounds
-  - Committed to `assets/midjourney-prompts.md`
+- [x] **P5.2 — Midjourney prompt library drafted (C)** *(shipped 2026-05-20)*
+  - Freddy + restaurant + CTA hero already drafted; this pass filled in the guest section: 3 characters (Maya / Theo / Nonna Lucia) × 3 expressions (neutral / smile / frown) = 9 prompts. Persona one-liners locked at the top so the ChatGPT thread treats each guest as a continuous character through their 3 generations.
+  - Staging notes call out the chef's-POV composition — guests need only head/shoulders/upper-torso since the counter mask cuts them at waist height.
+  - Asset destination table maps each prompt to `public/images/characters/guests/<guest>-<expression>.png` to match the existing Freddy asset shape.
+  - Off-model recovery prompt included for when ChatGPT drifts mid-thread.
 - [ ] **P5.3 — Midjourney assets generated + placed in /public/images/ (J — see PT.2)**
   - Files in PRD §6 structure
 - [ ] **P5.4 — Replace Freddy emoji with real Freddy SVG/PNG (C)**
@@ -337,10 +427,9 @@ For each beat, repeat the P1 vertical-slice pattern: Stately authoring → expor
 - [ ] **P5.10 — Sound effects sourced + integrated (S)**
   - J sources from freesound.org / zapsplat: slice squelch, snap chime, win fanfare, tap pop
   - C wires into Howler at the right state-machine triggers
-- [ ] **P5.11 — Framer Motion polish on hero moments (C)**
-  - AHA: snap + glow + screen-flash pulse
-  - Win: character bounce + camera shake
-  - Counter tick (Beat 1.5): bounce + sparkle
+- [~] **P5.11 — Framer Motion polish on hero moments (C)** *(AHA shipped 2026-05-21; Win + Counter still pending)*
+  - **AHA done** — `src/modules/lesson/AhaAnimation.tsx` renders three stacked Framer Motion layers when state enters `aha.aha_triggered`: (1) mozzarella-cream screen flash that punches in then fades, (2) oven-glow radial pulse expanding from center, (3) bold `≡` mark scaling in with a slight rotate-into-place. After 1500ms it auto-fires `ANIMATION_DONE` so the machine advances to `celebrating` (which plays the reveal line). Cluster-anchored positioning + cheese-stretch particles still TBD when the lesson Table lands.
+  - **Win, Counter** — still TBD, will follow the same pattern once Beat 8 (Win) + Beat 3 (Vocab) are authored.
 - [ ] **P5.12 — Lottie integration for Freddy (stretch) (J + C)**
   - J finds/adapts a chef Lottie from LottieFiles; C wires `lottie-react`
 - [ ] **P5.13 — Visual inspection — full lesson with polish (J)**
@@ -376,12 +465,21 @@ For each beat, repeat the P1 vertical-slice pattern: Stately authoring → expor
 
 Pick up between phases as time allows. Not blocking the critical path.
 
-- [ ] **CC.1 — Demo mode (?demo=true) with beat-skip keyboard shortcuts (C)**
-  - 1–7 keys jump to each beat; shift+R resets
-- [ ] **CC.2 — Session reset (tap-and-hold Freddy avatar) (C)**
+- [x] **CC.1 — Demo mode (?demo=true) with beat-skip keyboard shortcuts (C)** *(shipped 2026-05-20)*
+  - `?demo=true` on any URL flips on demo mode; persisted to `sessionStorage` so it survives navigation. `?demo=false` clears it. Mounted in `App.tsx` so the keyboard listener is global.
+  - Keys 1–8 jump to each beat target: 1 → `/`, 2 → `/preview/sandbox`, 3 → `/lesson?beat=welcomeTour`, 4 → `firstGuest`, 5 → `twoGuests`, **6 → `/lesson?beat=aha` (demo hero)**, 7 → `check`, 8 → `win`. Shift+R hard-reloads. Inputs/textareas/contenteditable are excluded so name-entry isn't hijacked.
+  - `DemoBadge` floats at bottom-center so the active state is obvious during demo-video takes.
+  - 10 unit tests at `src/lib/demoMode.test.ts` covering all 8 beat targets, URL building, query encoding, the `?demo=true`/`?demo=false` flow, and sessionStorage persistence. Live-verified via preview: badge renders, key "2" navigated to `/preview/sandbox`, key "6" navigated to `/lesson?beat=aha`, badge persisted across both navigations.
+- [x] **CC.2 — Session reset (tap-and-hold Freddy avatar) (C)** *(shipped 2026-05-20)*
+  - `useHoldToReset({ ref, onReset, holdMs })` hook in `src/lib/useHoldToReset.ts` — tracks `isHolding` + 0–1 `progress` via rAF, fires `onReset` once at completion, cancels on pointerup/leave/cancel. Listener identity stable across `onReset` changes via a ref so mid-hold parent re-renders don't tear down listeners.
+  - Wired into both `LessonView` (resets the zustand store + onboarding state + stops audio) and `SandboxPreview` (re-runs the existing `handleReset` to roll pieces + seen-fractions + toast back to initial). Invisible hit-area `[data-testid="freddy-hold-target"]` sits over Freddy's head/torso so manipulative pieces dragged across his lower body don't trigger it.
+  - Subtle "Restart in Ns" indicator surfaces once `progress > 0.25` — discoverable mid-hold without distracting kids who aren't using the gesture.
+  - 6 unit tests at `src/lib/useHoldToReset.test.tsx`: full hold fires, early release cancels, pointerleave cancels, pointercancel cancels, single-fire per hold, re-arms after completion. Live-verified at `/preview/sandbox`: pizza sliced into 2 halves → hold gesture → reset fires → back to 1 whole.
 - [ ] **CC.3 — Audio preloading (Beat N+1 loads while Beat N plays) (C)**
-- [ ] **CC.4 — XState Inspector in dev mode (C)**
-  - Behind URL flag; stripped in production
+- [x] **CC.4 — XState Inspector in dev mode (C)** *(shipped 2026-05-20)*
+  - `@statelyai/inspect` installed as a devDependency. `getInspectorOption()` in `src/lib/inspector.ts` reads `?inspect=true`, lazy-creates a `createBrowserInspector` on first use, and returns the `inspect` function — or `undefined` when disabled. Threaded through `useMachine(tutorMachine, { input, inspect: getInspectorOption() })` in `LessonMachineRoot`.
+  - Stack with the rest of the URL flags: `?inspect=true&demo=true` opens demo controls + the live Stately inspector window in one shot. Auto-no-op when disabled so production builds aren't affected.
+  - 3 unit tests at `src/lib/inspector.test.ts` covering the URL flag detection + the disabled-default path. Inspector instantiation itself isn't unit-tested because `createBrowserInspector` opens a real popup pointed at stately.ai/inspect — verification of the inspector UI is manual via the browser.
 - [ ] **CC.5 — Web Speech API as ultimate audio fallback (C — backlog only)**
   - If ElevenLabs + IndexedDB both unreachable
 
