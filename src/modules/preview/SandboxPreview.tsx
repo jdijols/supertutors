@@ -11,6 +11,7 @@ import {
   PizzaPiece,
   useSandboxPieces,
 } from "@/modules/table";
+import { SliceBurst } from "@/modules/table/SliceBurst";
 import { Toast, fractionToastMessage } from "@/modules/toast";
 import { useAppStore } from "@/store/appStore";
 import { useHoldToReset } from "@/lib/useHoldToReset";
@@ -380,6 +381,9 @@ export function SandboxPreview() {
   // browsers fire after pointerup, so a single drag-cut doesn't ALSO
   // trigger a second slice via the piece's onClick.
   const didDragCutRef = useRef(false);
+  const burstIdRef = useRef(0);
+  const lastPressPosRef = useRef({ x: 0, y: 0 });
+  const [bursts, setBursts] = useState<{ id: number; x: number; y: number }[]>([]);
 
   const handlePieceTap = useCallback(
     (pieceId: string) => {
@@ -456,10 +460,12 @@ export function SandboxPreview() {
       // moving).
       pendingCutPieceRef.current = null;
       didDragCutRef.current = false;
+      lastPressPosRef.current = { x: e.clientX, y: e.clientY };
       recordPieceAt(e.clientX, e.clientY);
     }
     function onPointerMove(e: PointerEvent) {
       if (e.buttons === 0) return; // only fire while pressed
+      lastPressPosRef.current = { x: e.clientX, y: e.clientY };
       recordPieceAt(e.clientX, e.clientY);
     }
     function onPointerUp() {
@@ -471,6 +477,9 @@ export function SandboxPreview() {
       pendingCutPieceRef.current = null;
       if (!pieceId) return;
       handlePieceTapRef.current(pieceId);
+      // Particle burst at the cut point.
+      const { x, y } = lastPressPosRef.current;
+      setBursts((prev) => [...prev, { id: ++burstIdRef.current, x, y }]);
       // Flag the upcoming click event so the piece's onClick (which fires
       // after pointerup if mousedown + mouseup were on the same element)
       // doesn't double-slice. Flag is reset on the next pointerdown.
@@ -493,6 +502,7 @@ export function SandboxPreview() {
     reset();
     setSeenFractions(new Set());
     setToast({ open: false, message: "", key: toast.key + 1 });
+    setBursts([]);
   }
 
   // CC.2 — Hold-to-reset Freddy. Re-uses the sandbox `handleReset`.
@@ -689,6 +699,17 @@ export function SandboxPreview() {
           sprite follows the pointer with the right tool variant + pointing
           override over the ToolPicker. */}
       <ToolSprite toolMode={toolMode} />
+
+      {/* Slice particle bursts — fixed-position, pointer-events-none. Each
+          burst unmounts itself via onDone after the 0.45s animation. */}
+      {bursts.map((b) => (
+        <SliceBurst
+          key={b.id}
+          x={b.x}
+          y={b.y}
+          onDone={() => setBursts((prev) => prev.filter((p) => p.id !== b.id))}
+        />
+      ))}
 
       {/* CV mode overlay — mounts HandTracker + webcam thumbnail only when
           ?cv=true is in the URL. Synthetic pointer events from the pinch
