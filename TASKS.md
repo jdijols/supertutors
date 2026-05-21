@@ -448,7 +448,7 @@ For each beat, repeat the P1 vertical-slice pattern: Stately authoring → expor
 - [ ] **P6.3 — Demo video recorded (J)**
   - Use `?demo=true` beat-skip for clean takes
   - Upload to YouTube unlisted or similar; link in README
-- [ ] **P6.4 — README polish (C)**
+- [x] **P6.4 — README polish (C)**
   - Setup instructions, technical decisions table, links to PRD sections + Stately URL + demo video URL
 - [ ] **P6.5 — Final accessibility audit (C)**
   - Full Playwright + axe run; fix any new critical/serious issues
