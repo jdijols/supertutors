@@ -27,10 +27,12 @@ const SIZE_CLASSES: Record<
     gap: "gap-5 sm:gap-7 md:gap-9",
   },
   lg: {
-    line1: "text-[36px] sm:text-[64px] md:text-[88px] lg:text-[100px]",
-    line2: "text-[18px] sm:text-[32px] md:text-[44px] lg:text-[50px]",
-    mark: "w-12 h-12 sm:w-20 sm:h-20 md:w-28 md:h-28 lg:w-28 lg:h-28",
-    gap: "gap-3 sm:gap-6 md:gap-8 lg:gap-10",
+    // Tuned so the full lockup fits at iPad portrait (820w) without overflow
+    // while still scaling up convincingly on iPad Pro landscape.
+    line1: "text-[32px] sm:text-[56px] md:text-[72px] lg:text-[100px]",
+    line2: "text-[16px] sm:text-[28px] md:text-[36px] lg:text-[50px]",
+    mark: "w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-28 lg:h-28",
+    gap: "gap-3 sm:gap-5 md:gap-7 lg:gap-10",
   },
 };
 

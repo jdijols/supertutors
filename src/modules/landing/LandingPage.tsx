@@ -101,8 +101,9 @@ function FreddyPosterCard({
       className={`group relative overflow-hidden rounded-[22px] border border-sb-border bg-sb-card text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface min-h-0 ${className ?? ""}`}
       aria-label="Start the fractions lesson with Freddy"
     >
-      {/* Warm tonal background — restrained champagne gradient */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_60%_85%,#F1E5D0_0%,#EFE7DA_55%,#F5F2EC_100%)]" />
+      {/* Warm tonal background — gradient now centered on Freddy's new
+          right-side anchor so the warmth radiates outward from the character. */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_75%_80%,#F1E5D0_0%,#EFE7DA_50%,#F5F2EC_100%)]" />
 
       {/* Subtle grain / paper hatch */}
       <div
@@ -114,58 +115,56 @@ function FreddyPosterCard({
         }}
       />
 
-      <div className="relative flex flex-col h-full">
-        {/* Top text block */}
-        <div className="px-7 sm:px-10 md:px-12 pt-7 sm:pt-9 md:pt-10">
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-sb-accent-deep">
-              Lesson 01
-            </span>
-            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-sb-muted">
-              ~5 min
-            </span>
-          </div>
+      {/* Card content uses absolute positioning so Freddy can occupy the
+          full right column while the title block anchors bottom-left, like
+          an Apple TV+ show poster. */}
+      <div className="relative h-full min-h-[420px] md:min-h-[520px]">
+        {/* Top-right meta */}
+        <div className="absolute top-7 sm:top-9 md:top-10 right-7 sm:right-10 md:right-12">
+          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-sb-muted">
+            ~5 min
+          </span>
+        </div>
 
-          <h2 className="mt-4 font-mono font-bold leading-[0.95] tracking-[-0.02em] text-sb-ink text-[40px] sm:text-[52px] md:text-[60px]">
+        {/* Freddy — right-anchored, larger, fills card vertically. Capped
+            via max-w so on narrower cards (portrait iPad) he doesn't bleed
+            into the title column on the left. The stage-shadow ellipse
+            moves with him so the grounding still reads underneath. */}
+        <div
+          aria-hidden
+          className="absolute right-[2%] sm:right-[4%] bottom-0 w-[55%] h-[50%] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(26,26,26,0.10)_0%,rgba(26,26,26,0)_70%)]"
+        />
+        <img
+          src="/images/characters/freddy/facing-student-excited-open.png"
+          alt="Freddy Fractions"
+          className="absolute right-[-2%] sm:right-0 md:right-[2%] bottom-0 h-[96%] max-h-[640px] w-auto max-w-[55%] sm:max-w-[58%] md:max-w-[58%] lg:max-w-[65%] object-contain object-bottom drop-shadow-[0_24px_36px_rgba(26,26,26,0.25)] transition-transform duration-500 ease-out group-hover:translate-y-[-4px]"
+        />
+
+        {/* Bottom-left title block — eyebrow + title + subtitle + CTA, all
+            grouped as a single textual unit (movie-poster style). Width
+            and type-size scale with viewport so the title never collides
+            with Freddy's silhouette on the narrower iPad portrait. */}
+        <div className="absolute bottom-7 sm:bottom-9 md:bottom-11 left-7 sm:left-10 md:left-12 max-w-[44%] sm:max-w-[44%] md:max-w-[42%] lg:max-w-[58%]">
+          <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-sb-accent-deep">
+            Lesson 01
+          </span>
+          <h2 className="mt-2 font-mono font-bold leading-[0.95] tracking-[-0.02em] text-sb-ink text-[28px] sm:text-[36px] md:text-[40px] lg:text-[60px]">
             <span className="block">Learn</span>
             <span className="block" style={outlineStyle}>
               FRACTIONS
             </span>
           </h2>
-
-          <p className="mt-3 text-[15px] sm:text-base text-sb-muted">
+          <p className="mt-3 text-[13px] sm:text-[14px] lg:text-[15px] text-sb-muted">
             with{" "}
             <span className="text-sb-ink font-medium">Freddy Fractions</span>{" "}
             at SuperSlice Pizza.
           </p>
-        </div>
-
-        {/* Visual: Freddy alone, framed like a movie poster */}
-        <div className="relative flex-1 mt-2 min-h-[200px]">
           <div
             aria-hidden
-            className="absolute left-1/2 bottom-0 -translate-x-1/2 w-[78%] h-[70%] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(26,26,26,0.10)_0%,rgba(26,26,26,0)_70%)]"
-          />
-          <img
-            src="/images/characters/freddy/facing-student-excited-open.png"
-            alt="Freddy Fractions"
-            className="absolute left-1/2 -translate-x-1/2 bottom-0 h-full w-auto object-contain object-bottom drop-shadow-[0_24px_30px_rgba(26,26,26,0.22)] transition-transform duration-500 ease-out group-hover:translate-y-[-4px]"
-          />
-        </div>
-
-        {/* Bottom meta strip */}
-        <div className="relative px-7 sm:px-10 md:px-12 pb-6 sm:pb-7 md:pb-8">
-          <div className="flex items-center justify-between gap-4 border-t border-sb-ink/10 pt-4">
-            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-sb-muted">
-              Pizza · Slicer · Glove
-            </span>
-            <span
-              aria-hidden
-              className="font-mono text-[12px] uppercase tracking-[0.18em] text-sb-ink inline-flex items-center gap-2 group-hover:gap-3 transition-[gap] duration-300"
-            >
-              Start
-              <span>→</span>
-            </span>
+            className="mt-5 inline-flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.18em] text-sb-ink group-hover:gap-3 transition-[gap] duration-300"
+          >
+            Start
+            <span>→</span>
           </div>
         </div>
       </div>
