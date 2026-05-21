@@ -87,4 +87,32 @@ test.describe("a11y baseline", () => {
     await waitForAnimationsToSettle(page);
     await expectNoBlockingA11yViolations(page);
   });
+
+  test("lesson win state — Win confetti active", async ({ page }) => {
+    // Stub audio so DIALOGUE_DONE fires immediately and machine state is predictable.
+    await page.route(/\/audio\/.*\.mp3$/, (route) =>
+      route.fulfill({ status: 404 }),
+    );
+    await page.route(/\/api\/voice/, (route) =>
+      route.fulfill({ status: 404 }),
+    );
+    // Enable demo mode and enter lesson via landing.
+    await page.goto("/?demo=true");
+    await page
+      .getByRole("button", { name: /start the fractions lesson with freddy/i })
+      .click();
+    await expect(page).toHaveURL(/\/lesson/);
+    const greeting = page.getByTestId("speech-bubble").first();
+    await expect(greeting).toBeVisible();
+    await greeting.click();
+    await page.getByPlaceholder(/type your name/i).fill("TestKid");
+    await page
+      .getByRole("button", { name: /nice to meet you, testkid/i })
+      .click();
+    // Key 8 → WIN_DEMO event → win confetti visible.
+    await page.keyboard.press("8");
+    await expect(page.getByTestId("win-confetti")).toBeVisible();
+    await waitForAnimationsToSettle(page);
+    await expectNoBlockingA11yViolations(page);
+  });
 });
