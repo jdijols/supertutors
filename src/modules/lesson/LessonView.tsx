@@ -8,6 +8,7 @@ import { dialogueKeyForState } from "@/modules/tutor/dialogueForState";
 import { tutorMachine, type TutorEvent } from "@/modules/tutor/tutorMachine";
 import { AhaAnimation } from "./AhaAnimation";
 import { WinConfetti } from "./WinConfetti";
+import { LessonExploration } from "./LessonExploration";
 import { useDemoMode } from "@/lib/demoMode";
 import { useHoldToReset } from "@/lib/useHoldToReset";
 import { getInspectorOption } from "@/lib/inspector";
@@ -27,19 +28,26 @@ import {
  *   1) Onboarding (no machine): greeting bubble → name capture → response.
  *      Driven by local React state because the machine has no onboarding
  *      states yet (Beat 1 / Beat 1.5 author later in Stately).
- *   2) Lesson (machine mounted): once name is set + the response audio
- *      ends, `LessonMachineRoot` mounts and `tutorMachine` drives Beat 6
- *      (AHA). The bubble text comes from `dialogueKeyForState(state.value)`
- *      so it always matches what `playDialogue` just queued.
+ *   2) Lesson: once name is set + the response audio ends, the right
+ *      sub-component mounts:
+ *        - **Default path** (no beat= flag): `LessonExploration` renders
+ *          the manipulative workspace via `<LessonTable />` with Freddy
+ *          reaction bubbles on slice / AHA / Win. This is Act 1 (Explore)
+ *          of the 3-act demo arc — proximity-driven, no state machine.
+ *        - **Demo / QA path** (?beat=aha or ?beat=win): `LessonMachineRoot`
+ *          mounts the XState `tutorMachine` so beat-skip keyboard shortcuts
+ *          and the existing e2e tests (beat-6-aha, beat-8-win) keep working.
+ *          The bubble text comes from `dialogueKeyForState(state.value)`.
  *
  * Demo mode (CC.1) exposes hidden dev controls in the corner for sending
  * SLICED / PROXIMITY / ANIMATION_DONE directly to the machine — the
- * temporary input surface from P1.4 that the real Table will replace.
+ * temporary input surface from P1.4 the real Table will replace.
  */
 export function LessonView() {
   const name = useAppStore((s) => s.name);
   const setName = useAppStore((s) => s.setName);
   const resetStore = useAppStore((s) => s.reset);
+  const [searchParams] = useSearchParams();
 
   const [greetingDismissed, setGreetingDismissed] = useState(false);
   const [responseShown, setResponseShown] = useState(false);
@@ -48,6 +56,13 @@ export function LessonView() {
   const inOnboarding = !name;
   const showGreetingBubble = inOnboarding && !greetingDismissed;
   const showResponseBubble = !inOnboarding && responseShown && !onboardingDone;
+
+  // Demo / QA path: `?beat=aha` and `?beat=win` route through the XState
+  // machine (preserves beat-6 + beat-8 e2e coverage and demo-mode beat
+  // skipping). Default path uses proximity-driven LessonExploration —
+  // no machine, kid plays naturally and Freddy reacts to milestones.
+  const beatParam = searchParams.get("beat");
+  const useMachine = beatParam === "aha" || beatParam === "win";
 
   function handleNameSubmit(submitted: string) {
     setName(submitted);
@@ -172,9 +187,15 @@ export function LessonView() {
         <ToolPicker visible={false} />
       </div>
 
-      {/* Lesson machine mounts once onboarding is complete. */}
+      {/* Lesson body mounts once onboarding is complete.
+          Beat URL flag routes through the XState machine; default path
+          uses proximity-driven exploration. */}
       {onboardingDone && name ? (
-        <LessonMachineRoot name={name} />
+        useMachine ? (
+          <LessonMachineRoot name={name} />
+        ) : (
+          <LessonExploration name={name} />
+        )
       ) : null}
     </main>
   );

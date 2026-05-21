@@ -54,6 +54,12 @@ test.describe("Beat 6 (AHA) happy path", () => {
     await page
       .getByRole("button", { name: /nice to meet you, testkid/i })
       .click();
+    // The default lesson body is now `<LessonExploration>` (proximity-driven
+    // Act 1). Beat 6 lives behind the `?beat=aha` URL flag — demo-mode key
+    // "6" navigates there. Press it after onboarding so `<LessonMachineRoot>`
+    // mounts and the dev controls become available.
+    await page.keyboard.press("6");
+    await expect(page).toHaveURL(/beat=aha/);
   }
   test("setup → slice → compare → animation → reveal → check", async ({
     page,
