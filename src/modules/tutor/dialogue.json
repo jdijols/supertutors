@@ -18,6 +18,11 @@
     "aha_stuck_compare": "Slide the quarters right up against the half, {{NAME}}. You'll see it.",
     "aha_reveal": "Whoa, {{NAME}}! Look at that — one half is the SAME as two quarters! You just made fraction equivalence! Bellissimo!",
     "lesson_play_intro": "Pizza's right there on the counter, {{NAME}}. Go ahead — see what you can do with it!",
-    "lesson_win": "Bellissimo, {{NAME}}! You put it back together — just like a real pizza chef!"
+    "lesson_win": "Bellissimo, {{NAME}}! You put it back together — just like a real pizza chef!",
+    "react_halves": "Boom — halves, {{NAME}}!",
+    "react_quarters": "Quarters! Four equal pieces.",
+    "react_eighths": "Eighths! Look at all those slices.",
+    "react_new_pizza": "Fresh outta the oven, {{NAME}}!",
+    "react_delivered": "Delivered! On its way."
   }
 }

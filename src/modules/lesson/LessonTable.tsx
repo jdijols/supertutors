@@ -7,7 +7,13 @@ import {
   useRef,
   useState,
 } from "react";
-import { ToolPicker, ToolSprite } from "@/modules/world";
+import {
+  AddPizzaButton,
+  DeliveryBox,
+  ToolPicker,
+  ToolSprite,
+  type DeliveryBoxHandle,
+} from "@/modules/world";
 import {
   buildWholePiece,
   findProximityGroups,
@@ -17,7 +23,6 @@ import {
 import { SliceBurst } from "@/modules/table/SliceBurst";
 import { AhaAnimation } from "@/modules/lesson/AhaAnimation";
 import { WinConfetti } from "@/modules/lesson/WinConfetti";
-import { Toast, fractionToastMessage } from "@/modules/toast";
 import { useAppStore } from "@/store/appStore";
 import { HandTracker, useHandLandmarks } from "@/modules/cv/HandTracker";
 import { PinchRecognizer } from "@/modules/cv/gestures";
@@ -25,6 +30,7 @@ import { usePointerFromHand } from "@/modules/cv/usePointerFromHand";
 import type {
   PieceSlot,
   PizzaFraction,
+  PizzaVariant,
   ProximityGroup,
   SandboxPiece,
 } from "@/modules/table";
@@ -314,6 +320,13 @@ export interface LessonTableSliceEvent {
   isFirstTime: boolean;
 }
 
+/** Payload for the parent's `onPizzaAdded` callback. */
+export interface LessonTableAddEvent {
+  variant: PizzaVariant;
+  /** Total pizzas added so far this session (incl. initial + this one). */
+  totalCount: number;
+}
+
 export interface LessonTableProps {
   /** Initial pizza position. Defaults to viewport-centered, ~28% from top. */
   initialPiecePosition?: { x: number; y: number };
@@ -323,8 +336,12 @@ export interface LessonTableProps {
    * pass false to avoid duplication.
    */
   renderHeroAnimations?: boolean;
-  /** Fired immediately after a slice — useful for Freddy reactions / toast overrides. */
+  /** Fired immediately after a slice — used for Freddy milestone reactions. */
   onSlice?: (event: LessonTableSliceEvent) => void;
+  /** Fired when the kid adds a fresh pizza via the AddPizzaButton. */
+  onPizzaAdded?: (event: LessonTableAddEvent) => void;
+  /** Fired when a piece is delivered (dropped onto the DeliveryBox). */
+  onDelivered?: (pieceId: string) => void;
   /**
    * Fired the FIRST time per reset cycle that proximity finds an
    * equal-area cluster. (Beat 6 AHA condition.)
@@ -364,6 +381,8 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
       initialPiecePosition,
       renderHeroAnimations = true,
       onSlice,
+      onPizzaAdded,
+      onDelivered,
       onAha,
       onWin,
     },
@@ -394,35 +413,30 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
 
     const viewport = useViewport();
 
-    const { pieces, slice, move, reset } = useSandboxPieces(
-      [
-        buildWholePiece({
-          id: "piece-1",
-          x: initialPos.x,
-          y: initialPos.y,
-          baseSize: BASE_SIZE,
-        }),
-      ],
-      { baseSize: BASE_SIZE },
-    );
+    const { pieces, slice, move, remove, addPizza, reset, canAddPizza } =
+      useSandboxPieces(
+        [
+          buildWholePiece({
+            id: "piece-1",
+            x: initialPos.x,
+            y: initialPos.y,
+            baseSize: BASE_SIZE,
+          }),
+        ],
+        { baseSize: BASE_SIZE, maxPizzas: 4 },
+      );
+
+    // Count of whole-pizzas ever added in this session — used to fire
+    // onPizzaAdded with the running total.
+    const [pizzaCount, setPizzaCount] = useState(1);
+    // Pre-flight: can we add another pizza? Uses the same collision-shift
+    // math addPizza would run, so the button disables exactly when the
+    // table is too packed even before hitting the hard pizza cap.
+    const cantAddMore = !canAddPizza();
 
     const [seenFractions, setSeenFractions] = useState<Set<PizzaFraction>>(
       new Set(),
     );
-
-    const [toast, setToast] = useState<{
-      open: boolean;
-      message: string;
-      key: number;
-    }>({ open: false, message: "", key: 0 });
-
-    function showToast(message: string) {
-      setToast((prev) => ({
-        open: true,
-        message,
-        key: prev.key + 1,
-      }));
-    }
 
     const [ahaActive, setAhaActive] = useState(false);
     const ahaFiredRef = useRef(false);
@@ -435,6 +449,47 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
     const [bursts, setBursts] = useState<
       { id: number; x: number; y: number }[]
     >([]);
+
+    // DeliveryBox ref — used by the drag-end handler to test if a release
+    // happened over the box (deliver) versus on the table (move).
+    const deliveryBoxRef = useRef<DeliveryBoxHandle>(null);
+
+    const handleAddPizza = useCallback(
+      (variant: PizzaVariant) => {
+        const newId = addPizza(variant);
+        if (!newId) return;
+        const newCount = pizzaCount + 1;
+        setPizzaCount(newCount);
+        onPizzaAdded?.({ variant, totalCount: newCount });
+      },
+      [addPizza, pizzaCount, onPizzaAdded],
+    );
+
+    /**
+     * Drag-end gate: if the release happened over the DeliveryBox, send
+     * the piece away (animate the box, remove the piece). Otherwise apply
+     * the normal `move(id, x, y)` to update the piece's resting position.
+     */
+    const handlePieceDragEnd = useCallback(
+      (id: string, x: number, y: number) => {
+        const piece = pieces.find((p) => p.id === id);
+        if (!piece) return;
+        const centerX = x + piece.width / 2;
+        const centerY = y + piece.height / 2;
+        if (deliveryBoxRef.current?.contains(centerX, centerY)) {
+          // Fire delivery: trigger box animation then remove the piece.
+          // The remove runs in parallel with the box animation so the
+          // piece disappears immediately on drop (the box flying off
+          // is the visual receipt).
+          remove(id);
+          onDelivered?.(id);
+          deliveryBoxRef.current.receive();
+          return;
+        }
+        move(id, x, y);
+      },
+      [pieces, move, remove, onDelivered],
+    );
 
     const handlePieceTap = useCallback(
       (pieceId: string) => {
@@ -450,15 +505,6 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
             next.add(result.childrenFraction);
             return next;
           });
-        }
-        if (
-          result.childrenFraction === "1/2" ||
-          result.childrenFraction === "1/4" ||
-          result.childrenFraction === "1/8"
-        ) {
-          showToast(
-            fractionToastMessage(result.childrenFraction, isFirstTime),
-          );
         }
         onSlice?.({
           childrenFraction: result.childrenFraction,
@@ -533,7 +579,7 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
     const handleReset = useCallback(() => {
       reset();
       setSeenFractions(new Set());
-      setToast((prev) => ({ ...prev, open: false, key: prev.key + 1 }));
+      setPizzaCount(1);
       setBursts([]);
       ahaFiredRef.current = false;
       setAhaActive(false);
@@ -609,6 +655,7 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
               height={piece.height}
               draggable={piecesDraggable}
               clipPath={clipPathForSlot(piece.slot)}
+              enterFromX={piece.enterFromX}
               dragConstraints={{
                 left: 0,
                 top: 24,
@@ -616,7 +663,7 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
                 bottom: viewport.h - piece.height,
               }}
               onTap={handlePieceTap}
-              onDragEnd={move}
+              onDragEnd={handlePieceDragEnd}
             />
           ))}
         </div>
@@ -653,18 +700,12 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
           <ToolPicker visible />
         </div>
 
-        {/* Toast top-center. */}
-        <div
-          className="absolute top-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none"
-          aria-live="polite"
-        >
-          <Toast
-            key={toast.key}
-            open={toast.open}
-            message={toast.message}
-            onDismiss={() => setToast((prev) => ({ ...prev, open: false }))}
-          />
-        </div>
+        {/* Add-pizza button top-left (oven side). */}
+        <AddPizzaButton onAdd={handleAddPizza} disabled={cantAddMore} />
+
+        {/* Delivery box right-side. Pulses when the table is too packed to
+            accept another pizza — signal "send a pizza away to make room." */}
+        <DeliveryBox ref={deliveryBoxRef} pulseHint={cantAddMore} />
 
         {/* Pointer-following tool sprite. */}
         <ToolSprite toolMode={toolMode} />

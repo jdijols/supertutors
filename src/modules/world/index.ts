@@ -28,3 +28,9 @@ export { ToolSprite } from "./ToolSprite";
 
 export { Guest } from "./Guest";
 export type { GuestProps } from "./Guest";
+
+export { AddPizzaButton } from "./AddPizzaButton";
+export type { AddPizzaButtonProps } from "./AddPizzaButton";
+
+export { DeliveryBox } from "./DeliveryBox";
+export type { DeliveryBoxHandle, DeliveryBoxProps } from "./DeliveryBox";

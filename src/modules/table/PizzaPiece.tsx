@@ -1,4 +1,4 @@
-import { motion, useMotionValue, type PanInfo } from "framer-motion";
+import { animate, motion, useMotionValue, type PanInfo } from "framer-motion";
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { Pizza, type PizzaFraction } from "./Pizza";
 
@@ -71,6 +71,12 @@ export interface PizzaPieceProps {
   clipPath?: string;
   /** Optional className for additional styling. */
   className?: string;
+  /**
+   * If provided, the motion value initializes at this x (off-screen) and
+   * springs into `initialX` on mount — produces the "pizza slides in from
+   * the oven side" feel when adding a new pizza. Undefined = no slide-in.
+   */
+  enterFromX?: number;
 }
 
 export function PizzaPiece({
@@ -88,18 +94,24 @@ export function PizzaPiece({
   dragConstraints,
   clipPath,
   className = "",
+  enterFromX,
 }: PizzaPieceProps) {
-  const x = useMotionValue(initialX);
+  // Initialize motion values:
+  //   - With `enterFromX`: start off-screen so the mount-effect's animate()
+  //     produces a slide-in. Used when `addPizza()` adds a fresh pizza.
+  //   - Without: start at `initialX` directly. Used for slice-spawned
+  //     children + reset.
+  const x = useMotionValue(enterFromX ?? initialX);
   const y = useMotionValue(initialY);
 
-  // Sync external position updates (slice spawn, reset, etc.) back into the
-  // motion values. The deps are the prop values; during a drag, those don't
-  // change, so this effect doesn't interfere with the drag gesture. After
-  // drag end the parent updates initialX/initialY to match what the motion
-  // values already hold, so this effect's `set` calls are no-ops.
+  // Sync external position updates back into the motion values. Uses
+  // animate() (not set()) so prop-driven repositioning is SMOOTH —
+  // critical for the shift-existing-pieces-rightward animation when a
+  // new pizza enters. No-op visually if the motion value is already at
+  // the target (drag-end case, slice-spawn case, reset case).
   useEffect(() => {
-    x.set(initialX);
-    y.set(initialY);
+    animate(x, initialX, { duration: 0.3, ease: "easeOut" });
+    animate(y, initialY, { duration: 0.3, ease: "easeOut" });
   }, [initialX, initialY, x, y]);
 
   const dragMovedRef = useRef(false);
