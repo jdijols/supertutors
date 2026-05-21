@@ -418,8 +418,8 @@ For each beat, repeat the P1 vertical-slice pattern: Stately authoring → expor
 - [ ] **P5.4 — Replace Freddy emoji with real Freddy SVG/PNG (C)**
 - [ ] **P5.5 — Replace guest placeholders with real guest art (C)**
 - [ ] **P5.6 — Landing CTA hero illustration in place (C)**
-- [ ] **P5.7 — Re-integrate particles (C)**
-  - Try `@tsparticles/react` with version pinning; fall back to DIY Framer Motion particles if blocked again
+- [x] **P5.7 — Re-integrate particles (C)** *(shipped 2026-05-21 — DIY Framer Motion used for P5.8 + P5.9 instead; tsparticles not needed)*
+  - Fell back to DIY Framer Motion; no new dependency needed
 - [x] **P5.8 — Slice particle effect (C)** *(shipped 2026-05-21)*
   - Cheese stretch + sauce splatter on every slice; tuned for "juicy" feel
 - [x] **P5.9 — Win confetti (C)** *(shipped 2026-05-21)*
