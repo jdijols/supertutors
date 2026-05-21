@@ -38,8 +38,33 @@ interface AppState {
   guests: GuestState[];
   upsertGuest: (guest: GuestState) => void;
 
+  // Audio mute — global, persisted across sessions
+  muted: boolean;
+  toggleMute: () => void;
+  setMuted: (muted: boolean) => void;
+
   // Session reset
   reset: () => void;
+}
+
+const MUTED_STORAGE_KEY = "supertutors:muted";
+
+function readPersistedMuted(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.localStorage.getItem(MUTED_STORAGE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function writePersistedMuted(muted: boolean): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(MUTED_STORAGE_KEY, muted ? "1" : "0");
+  } catch {
+    /* localStorage may be unavailable in private mode — ignore */
+  }
 }
 
 const initialState = {
@@ -47,6 +72,7 @@ const initialState = {
   currentBeat: "splash" as Beat,
   toolMode: "cutter" as ToolMode,
   guests: [] as GuestState[],
+  muted: readPersistedMuted(),
 };
 
 export const useAppStore = create<AppState>((set) => ({
@@ -60,5 +86,15 @@ export const useAppStore = create<AppState>((set) => ({
         ? state.guests.map((g) => (g.id === guest.id ? guest : g))
         : [...state.guests, guest],
     })),
-  reset: () => set(initialState),
+  toggleMute: () =>
+    set((state) => {
+      const next = !state.muted;
+      writePersistedMuted(next);
+      return { muted: next };
+    }),
+  setMuted: (muted) => {
+    writePersistedMuted(muted);
+    set({ muted });
+  },
+  reset: () => set({ ...initialState, muted: readPersistedMuted() }),
 }));
