@@ -454,7 +454,7 @@ For each beat, repeat the P1 vertical-slice pattern: Stately authoring → expor
   - Full Playwright + axe run; fix any new critical/serious issues
 - [ ] **P6.6 — Final iPad-Safari device test (J)**
   - Walk through full lesson on real iPad; no crashes, no jank, audio works
-- [ ] **P6.7 — Tag v1.0 commit + push (C)**
+- [x] **P6.7 — Tag v1.0 commit + push (C)**
   - `git tag v1.0 -m "Demo-ready release"` and push
 - [ ] **P6.8 — Submit to hiring partner (J)**
   - Friday 2026-05-22 noon — share URL, demo video, README link, GitLab + Stately URLs
