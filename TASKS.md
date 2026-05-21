@@ -475,7 +475,8 @@ Pick up between phases as time allows. Not blocking the critical path.
   - Wired into both `LessonView` (resets the zustand store + onboarding state + stops audio) and `SandboxPreview` (re-runs the existing `handleReset` to roll pieces + seen-fractions + toast back to initial). Invisible hit-area `[data-testid="freddy-hold-target"]` sits over Freddy's head/torso so manipulative pieces dragged across his lower body don't trigger it.
   - Subtle "Restart in Ns" indicator surfaces once `progress > 0.25` — discoverable mid-hold without distracting kids who aren't using the gesture.
   - 6 unit tests at `src/lib/useHoldToReset.test.tsx`: full hold fires, early release cancels, pointerleave cancels, pointercancel cancels, single-fire per hold, re-arms after completion. Live-verified at `/preview/sandbox`: pizza sliced into 2 halves → hold gesture → reset fires → back to 1 whole.
-- [ ] **CC.3 — Audio preloading (Beat N+1 loads while Beat N plays) (C)**
+- [x] **CC.3 — Audio preloading (Beat N+1 loads while Beat N plays) (C)** *(shipped 2026-05-21)*
+  - `audioEngine.preloadDialogue(key)` uses `fetch(cache:'force-cache')` to warm the HTTP cache while the current beat plays. LessonMachineRoot preloads `aha_compare_prompt` + `aha_wrong_slice` on `aha.setup` entry.
 - [x] **CC.4 — XState Inspector in dev mode (C)** *(shipped 2026-05-20)*
   - `@statelyai/inspect` installed as a devDependency. `getInspectorOption()` in `src/lib/inspector.ts` reads `?inspect=true`, lazy-creates a `createBrowserInspector` on first use, and returns the `inspect` function — or `undefined` when disabled. Threaded through `useMachine(tutorMachine, { input, inspect: getInspectorOption() })` in `LessonMachineRoot`.
   - Stack with the rest of the URL flags: `?inspect=true&demo=true` opens demo controls + the live Stately inspector window in one shot. Auto-no-op when disabled so production builds aren't affected.
