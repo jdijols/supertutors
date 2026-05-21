@@ -45,3 +45,6 @@ playwright/.cache/
 # public/audio/*.mp3
 .vercel
 .env*.local
+
+# Claude Code harness state
+.claude/
