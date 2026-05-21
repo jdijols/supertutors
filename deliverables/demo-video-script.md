@@ -34,23 +34,27 @@ What if you could do the same thing with just an iPad and a web browser?"
 
 > "That equals sign means the cluster admits an equal partition — 2/4 = 2/4. That's the AHA condition."
 
+*Watch — the AHA animation fires automatically: screen flash, radial glow, equivalence mark locking in.*
+
+> "The animation fires right here in the sandbox — same component as the lesson, same state trigger, zero extra code."
+
 ---
 
-## Part 2 (1:30 – 2:30) — The AHA moment
+## Part 2 (1:30 – 2:30) — The full lesson machine
 
 **Show:** Navigate to `/lesson?beat=aha&demo=true`
 
-> "The tutor — Freddy Fractions, Jersey-Shore Italian-American chef energy — walks the kid through the discovery."
+> "The full lesson machine adds Freddy's voice. Same AHA moment, now with a state machine choreographing it: Freddy gives instructions, waits for the student to act, reacts to the result."
 
 *In dev controls, click SLICED 1/2, then PROXIMITY equal.*
 
-> "Freddy reacts. The animation fires — a flash, an expand pulse, then the equivalence symbol locks in."
+> "Freddy delivers the reveal line: 'Whoa, [kid's name]! Look at that — one half IS the same as two quarters. You just made fractions.'"
 
-*Watch AHA animation play.*
+> "The state machine is deterministic — no LLM, no latency, no hallucinations. Every child gets the same choreographed aha moment, delivered with their name spoken in Freddy's voice via ElevenLabs."
 
-> "Then Freddy delivers the reveal line: 'Whoa, [kid's name]! Look at that — one half IS the same as two quarters. You just made fractions.'"
+*Press key 8 to show Win confetti.*
 
-> "The state machine advances. The lesson is deterministic — no LLM, no latency, no hallucinations. Every child gets the same choreographed aha moment, delivered with their name spoken in Freddy's voice via ElevenLabs."
+> "Beat 8 — the Win moment. Also already animated and ready, just waiting for the lesson arc to be authored in Stately."
 
 ---
 
@@ -114,8 +118,9 @@ useHandLandmarks()        ← webcam → MediaPipe → 21 landmarks
 - Use `?demo=true` on any URL to enable keyboard shortcuts during recording
   - `0` → `/preview/cv` (hand tracking debug view)
   - `C` → `/preview/sandbox?cv=true` (CV sandbox — the hero demo)
-  - `6` → `/lesson?beat=aha` (AHA state machine vertical slice)
-  - `2` → `/preview/sandbox` (plain sandbox)
+  - `2` → `/preview/sandbox` (plain sandbox — slice + AHA in-sandbox)
+  - `6` → `/lesson?beat=aha` (AHA state machine vertical slice with voice)
+  - `8` → `/lesson?beat=win` (Win confetti celebration moment)
 - For CV section: have webcam permissions already granted (click through the privacy notice once before recording)
 - If MediaPipe WASM loads slowly on first visit, do a warm-up load before recording and keep the tab open
 - Audio is muted in the lesson view by default in local dev — use Vercel preview URL for sound, or toggle with the mute button top-right
