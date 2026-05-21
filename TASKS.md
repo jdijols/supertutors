@@ -68,7 +68,7 @@ Every task has a **Done when** line with concrete success criteria. Patterns:
   - Confirm `npm run build` still passes after install (MediaPipe should not break bundling — if it does, mark for dynamic import only).
   - **Done when:** package.json updated, build green, committed as `[OVN.1] install MediaPipe tasks-vision + scaffold cv module`
 
-- [ ] **OVN.2 — HandTracker component + /preview/cv route (C, loop)**
+- [x] **OVN.2 — HandTracker component + /preview/cv route (C, loop)**
   - `src/modules/cv/HandTracker.tsx` — opens webcam via `getUserMedia({ video: true })`, lazy-loads `HandLandmarker` from MediaPipe, runs detection loop via `requestAnimationFrame`. Exposes a `useHandLandmarks()` hook returning the latest 21 landmarks per detected hand (left/right tagged).
   - Cleanup on unmount: stop MediaStream tracks, close MediaPipe runtime.
   - New preview route `/preview/cv` in `src/main.tsx` router — renders the webcam feed (mirrored) with an SVG overlay drawing the 21 landmarks as dots + the skeleton edges.
@@ -420,7 +420,7 @@ For each beat, repeat the P1 vertical-slice pattern: Stately authoring → expor
 - [ ] **P5.6 — Landing CTA hero illustration in place (C)**
 - [ ] **P5.7 — Re-integrate particles (C)**
   - Try `@tsparticles/react` with version pinning; fall back to DIY Framer Motion particles if blocked again
-- [ ] **P5.8 — Slice particle effect (C)**
+- [x] **P5.8 — Slice particle effect (C)** *(shipped 2026-05-21)*
   - Cheese stretch + sauce splatter on every slice; tuned for "juicy" feel
 - [ ] **P5.9 — Win confetti (C)**
   - Full-screen tsparticles confetti preset
