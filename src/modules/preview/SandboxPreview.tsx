@@ -14,11 +14,66 @@ import {
 import { Toast, fractionToastMessage } from "@/modules/toast";
 import { useAppStore } from "@/store/appStore";
 import { useHoldToReset } from "@/lib/useHoldToReset";
+import { HandTracker, useHandLandmarks } from "@/modules/cv/HandTracker";
+import { PinchRecognizer } from "@/modules/cv/gestures";
+import { usePointerFromHand } from "@/modules/cv/usePointerFromHand";
 import type {
   PizzaFraction,
   ProximityGroup,
   SandboxPiece,
 } from "@/modules/table";
+
+// ---------------------------------------------------------------------------
+// CV mode overlay — self-contained; renders only when ?cv=true in the URL.
+// Wraps HandTracker internally so the sandbox doesn't know about webcam
+// lifecycle. Synthetic pointer events drive existing cut + drag handlers.
+// ---------------------------------------------------------------------------
+
+function CvModeOverlayInner() {
+  const { videoRef, result, status } = useHandLandmarks();
+  const recognizersRef = useRef<PinchRecognizer[]>([
+    new PinchRecognizer(),
+    new PinchRecognizer(),
+  ]);
+  const { update: updatePointer } = usePointerFromHand();
+
+  // Drive synthetic pointer events on every detection frame
+  if (result?.landmarks) {
+    result.landmarks.forEach((hand, i) => {
+      const state = recognizersRef.current[i]?.update(hand);
+      if (state) updatePointer(state);
+    });
+  }
+
+  return (
+    <div
+      className="absolute bottom-24 left-1/2 -translate-x-1/2 z-50 rounded-xl overflow-hidden shadow-xl border-2 border-mozzarella-100/60"
+      style={{ width: 160, opacity: 0.5 }}
+      title={status === 'ready' ? 'CV mode active' : 'Loading hand tracker…'}
+    >
+      <video
+        ref={videoRef}
+        className="w-full block"
+        style={{ transform: 'scaleX(-1)' }}
+        playsInline
+        muted
+      />
+      {status === 'loading' && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-white text-[10px] text-center px-1">
+          Loading…
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CvModeOverlay() {
+  return (
+    <HandTracker>
+      <CvModeOverlayInner />
+    </HandTracker>
+  );
+}
 
 /**
  * CSS clip-path for each eighth slot so the wrapper is clipped to just
@@ -135,6 +190,7 @@ function getInitialPiecePosition() {
 export function SandboxPreview() {
   const [initialPos] = useState(getInitialPiecePosition);
   const toolMode = useAppStore((s) => s.toolMode);
+  const cvMode = new URLSearchParams(window.location.search).has('cv');
   const viewport = useViewport();
 
   const { pieces, slice, move, reset } = useSandboxPieces(
@@ -487,6 +543,11 @@ export function SandboxPreview() {
           sprite follows the pointer with the right tool variant + pointing
           override over the ToolPicker. */}
       <ToolSprite toolMode={toolMode} />
+
+      {/* CV mode overlay — mounts HandTracker + webcam thumbnail only when
+          ?cv=true is in the URL. Synthetic pointer events from the pinch
+          bridge drive the existing cut + drag handlers transparently. */}
+      {cvMode && <CvModeOverlay />}
     </main>
   );
 }

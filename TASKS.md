@@ -89,7 +89,7 @@ Every task has a **Done when** line with concrete success criteria. Patterns:
   - In `/preview/cv`, add a draggable test box that responds to pinch+drag.
   - **Done when:** tests green, pinch-drag visibly moves the test box on `/preview/cv`, committed as `[OVN.4] CV→pointer bridge`
 
-- [ ] **OVN.5 — Integrate with /preview/sandbox via ?cv=true (C, loop)**
+- [x] **OVN.5 — Integrate with /preview/sandbox via ?cv=true (C, loop)**
   - In `src/modules/preview/SandboxPreview.tsx`, read `?cv=true` query flag. When set: mount `HandTracker` + `usePointerFromHand`, render a small mirrored webcam preview in the corner (`opacity: 0.5`, ~160px wide).
   - With `toolMode === 'cutter'`: pinch + drag across a piece = slice on release (reuses the existing pointerup-driven slice path — no changes to slice logic itself).
   - With `toolMode === 'glove'`: pinch + drag piece = move.
