@@ -205,6 +205,16 @@ function LessonMachineRoot({ name }: { name: string }) {
   const ahaTriggered = state.matches({ aha: "aha_triggered" });
   const winActive = state.matches("win");
 
+  // CC.3 — preload Beat 6's most likely next line while the setup line plays.
+  // aha_setup plays while the kid is reading; by the time they slice,
+  // aha_compare_prompt is already in the HTTP cache.
+  useEffect(() => {
+    if (state.matches({ aha: "setup" })) {
+      audioEngine.preloadDialogue("aha_compare_prompt");
+      audioEngine.preloadDialogue("aha_wrong_slice");
+    }
+  }, [state]);
+
   return (
     <>
       <div className="absolute left-[20%] md:left-[26%] bottom-[35vh] md:bottom-[42vh] max-w-md z-30">

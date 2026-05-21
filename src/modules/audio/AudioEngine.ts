@@ -63,12 +63,39 @@ export class AudioEngine {
   private readonly basePath: string;
   private active: HowlLike[] = [];
   private generation = 0;
+  private preloaded: Set<string> = new Set();
 
   constructor(deps: AudioEngineDeps = {}) {
     this.createHowl = deps.createHowl ?? defaultCreateHowl;
     this.resolveNameUrl =
       deps.resolveNameUrl ?? ((name) => getNameAudioUrl(name));
     this.basePath = deps.audioBasePath ?? "/audio";
+  }
+
+  /**
+   * Prime the HTTP cache for a dialogue key's MP3(s) so the beat's first
+   * line plays with minimal latency. Call from the preceding beat's
+   * DIALOGUE_DONE handler. Name-slotted lines: pass `hasNameSlot: true`
+   * to prefetch the flanking `_a` + `_b` segments (the name audio itself
+   * is fetched/cached separately by getNameAudioUrl).
+   *
+   * Uses `fetch()` with `cache: 'force-cache'` — no Howl objects created,
+   * no audio decoded — just warms the browser HTTP cache so Howler's later
+   * XHR/HTML5 load is a cache hit.
+   */
+  preloadDialogue(dialogueKey: string, opts?: { hasNameSlot?: boolean }): void {
+    const urls = opts?.hasNameSlot
+      ? [
+          `${this.basePath}/${dialogueKey}_a.mp3`,
+          `${this.basePath}/${dialogueKey}_b.mp3`,
+        ]
+      : [`${this.basePath}/${dialogueKey}.mp3`];
+
+    for (const url of urls) {
+      if (this.preloaded.has(url)) continue;
+      this.preloaded.add(url);
+      fetch(url, { cache: 'force-cache' }).catch(() => { /* ignore — preload is best-effort */ });
+    }
   }
 
   async play(opts: PlayOptions): Promise<void> {
