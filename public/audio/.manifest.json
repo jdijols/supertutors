@@ -11,5 +11,9 @@
   "aha_reveal_a.mp3": "4c7452094be3d62d997d10086708d9ed42a47a22444f123bf2425f8880afb144",
   "aha_reveal_b.mp3": "9ed95bd5ab7e4a4e18aacc630c2a3115b2bdd1e48e3d23906d502c24fccd6c26",
   "onboarding_greeting.mp3": "691ba9e69c397d86c4924b545d4e34e6f815edddf4f29283f4790daf3790dbe7",
-  "onboarding_response_b.mp3": "7349c2b9e1f2bcd0ca145403d0a41a63390e2e1ca1e1798365a507e8b5754cf4"
+  "onboarding_response_b.mp3": "7349c2b9e1f2bcd0ca145403d0a41a63390e2e1ca1e1798365a507e8b5754cf4",
+  "lesson_play_intro_a.mp3": "38073c34206d1787fa6e65ffa481d5ef6d4eeee6256e34f7f5cd1616a9962334",
+  "lesson_play_intro_b.mp3": "25c85ba4f3012a578cba875a1563d126dd07db77cc9fa90049ebf6b044faa432",
+  "lesson_win_a.mp3": "6914e0771d604fb302db43c9e1edb3a0f7279ee14202348a9aae21f4d2e9a60a",
+  "lesson_win_b.mp3": "106ee22afa6b71260e0ce75260df4b2d0c3974ec85c7f47d4fdca0858054f970"
 }
