@@ -80,4 +80,11 @@ test.describe("a11y baseline", () => {
     await waitForAnimationsToSettle(page);
     await expectNoBlockingA11yViolations(page);
   });
+
+  test("sandbox preview with ToolPicker", async ({ page }) => {
+    await page.goto("/preview/sandbox");
+    await expect(page.getByTestId("tool-picker")).toBeVisible();
+    await waitForAnimationsToSettle(page);
+    await expectNoBlockingA11yViolations(page);
+  });
 });
