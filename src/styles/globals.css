@@ -27,6 +27,26 @@
 
 @layer utilities {
   /*
+   * Delivery-box pulse — used as a "send a pizza away" hint when the
+   * table is at the pizza cap. We use CSS keyframes (not framer-motion)
+   * because it survives HMR remounts and doesn't compete with the
+   * inner motion.div's scale/filter animations. Applied to a plain
+   * wrapper that sits outside the AnimatePresence tree.
+   */
+  @keyframes deliveryBoxPulse {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.06);
+    }
+  }
+  .delivery-pulse {
+    animation: deliveryBoxPulse 1.4s ease-in-out infinite;
+  }
+
+  /*
    * Tool cursor strategy: HIDE the OS cursor entirely and use a DOM-based
    * `ToolSprite` (in /modules/world/ToolSprite.tsx) that follows the
    * pointer. We made this pivot 2026-05-20 after Chrome on macOS was

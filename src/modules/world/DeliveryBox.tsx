@@ -46,9 +46,17 @@ export interface DeliveryBoxProps {
 
 type Phase = "open" | "closed" | "sliding-off";
 
-// 50% larger than original 140 — more presence as a drop target, and
-// fits a 256px whole pizza scaled to ~50% (128px) comfortably inside.
-const BOX_SIZE = 210;
+// Open box is 20% larger than the closed box. The closed variant is only
+// visible briefly during the receive → slide-off animation; the open
+// variant is the primary visual + drop target.
+const CLOSED_SIZE = 210;
+const OPEN_SIZE = Math.round(CLOSED_SIZE * 1.2); // 252
+
+// Wrapper sizes to OPEN_SIZE so `contains()` bounds match the visible
+// open box (the most common drop-detection case). The closed motion.div
+// centers itself within this wrapper via absolute positioning + offsets.
+const WRAPPER_SIZE = OPEN_SIZE;
+const CLOSED_OFFSET = (WRAPPER_SIZE - CLOSED_SIZE) / 2;
 
 function sleep(ms: number): Promise<void> {
   return new Promise((res) => setTimeout(res, ms));
@@ -133,57 +141,61 @@ export const DeliveryBox = forwardRef<DeliveryBoxHandle, DeliveryBoxProps>(
         data-testid="delivery-box"
         data-phase={phase}
         data-drag-over={isDragOver}
+        // z-25 — DELIBERATELY below the pieces layer (z-30). Pizzas
+        // dragged over the box render ON TOP of the box, matching the
+        // physical metaphor "I'm placing this into the open box."
         className={`
-          fixed right-4 sm:right-6 z-[55]
+          fixed right-4 sm:right-6 z-[25]
           ${className}
         `}
         style={{
-          // Vertically aligned with the lower half of the viewport so the
-          // box sits near the pizza's resting height — kid drags
-          // horizontally to deliver, not diagonally up.
-          top: "55%",
+          // Vertically positioned in the middle-upper region of the
+          // counter so it sits near the pizza's resting height but isn't
+          // crammed into the bottom corner. `55% - 100px` matches the
+          // shift the user dialed in.
+          top: "calc(55% - 100px)",
           transform: "translateY(-25%)",
-          width: BOX_SIZE,
-          height: BOX_SIZE,
+          width: WRAPPER_SIZE,
+          height: WRAPPER_SIZE,
         }}
         role="region"
         aria-label="Send pizza to delivery"
       >
         <AnimatePresence mode="wait">
           {phase === "open" && (
-            <motion.div
-              key="open"
-              // Slide in from off-screen right when (a) first mount and
-              // (b) replenishing after a delivery. Same spring as the
-              // pizza slide-in for consistency.
-              initial={{ x: BOX_SIZE + 80, opacity: 0 }}
-              animate={{
-                x: 0,
-                opacity: 1,
-                // Pulse hint: gentle scale loop while idle + pulseHint.
-                scale: showPulse ? [1, 1.06, 1] : 1,
-                // Drag-over glow — same filter as PizzaPiece hover.
-                filter: showGlow
-                  ? "drop-shadow(0 0 24px rgba(255, 251, 242, 0.95))"
-                  : "drop-shadow(0 0 0px rgba(255, 251, 242, 0))",
-              }}
-              transition={{
-                x: { type: "spring", stiffness: 220, damping: 24 },
-                opacity: { duration: 0.2 },
-                scale: showPulse
-                  ? { duration: 1.4, repeat: Infinity, ease: "easeInOut" }
-                  : { duration: 0.2 },
-                filter: { duration: 0.18 },
-              }}
-              style={{ width: BOX_SIZE, height: BOX_SIZE }}
+            // Outer wrapper carries the CSS `.delivery-pulse` class when
+            // showPulse is true — pulse uses CSS keyframes (HMR-immune,
+            // doesn't compete with framer-motion transforms inside).
+            <div
+              key="open-wrapper"
+              data-pulse={showPulse}
+              className={showPulse ? "delivery-pulse" : ""}
+              style={{ width: OPEN_SIZE, height: OPEN_SIZE }}
             >
-              <img
-                src="/images/ui/delivery-box-opened.png"
-                alt="Open delivery box"
-                className="w-full h-full object-contain pointer-events-none select-none"
-                draggable={false}
-              />
-            </motion.div>
+              <motion.div
+                key="open"
+                data-glow={showGlow}
+                initial={{
+                  filter: "drop-shadow(0 0 0px rgba(255, 251, 242, 0))",
+                }}
+                animate={{
+                  // Drag-over glow — same filter as PizzaPiece hover.
+                  // Scale lives on the outer CSS wrapper, not here.
+                  filter: showGlow
+                    ? "drop-shadow(0 0 24px rgba(255, 251, 242, 0.95))"
+                    : "drop-shadow(0 0 0px rgba(255, 251, 242, 0))",
+                }}
+                transition={{ filter: { duration: 0.18 } }}
+                style={{ width: OPEN_SIZE, height: OPEN_SIZE }}
+              >
+                <img
+                  src="/images/ui/delivery-box-opened.png"
+                  alt="Open delivery box"
+                  className="w-full h-full object-contain pointer-events-none select-none"
+                  draggable={false}
+                />
+              </motion.div>
+            </div>
           )}
 
           {phase === "closed" && (
@@ -192,7 +204,15 @@ export const DeliveryBox = forwardRef<DeliveryBoxHandle, DeliveryBoxProps>(
               initial={{ x: 0, opacity: 1, scale: 1 }}
               animate={{ x: 0, opacity: 1, scale: 0.96 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
-              style={{ width: BOX_SIZE, height: BOX_SIZE }}
+              // Closed box is smaller than the wrapper — center it within
+              // the wrapper so the visual stays where the open box was.
+              style={{
+                position: "absolute",
+                top: CLOSED_OFFSET,
+                left: CLOSED_OFFSET,
+                width: CLOSED_SIZE,
+                height: CLOSED_SIZE,
+              }}
             >
               <img
                 src="/images/ui/delivery-box-closed.png"
@@ -207,9 +227,15 @@ export const DeliveryBox = forwardRef<DeliveryBoxHandle, DeliveryBoxProps>(
             <motion.div
               key="sliding-off"
               initial={{ x: 0, opacity: 1 }}
-              animate={{ x: BOX_SIZE + 200, opacity: 0 }}
+              animate={{ x: CLOSED_SIZE + 200, opacity: 0 }}
               transition={{ duration: 0.4, ease: "easeIn" }}
-              style={{ width: BOX_SIZE, height: BOX_SIZE }}
+              style={{
+                position: "absolute",
+                top: CLOSED_OFFSET,
+                left: CLOSED_OFFSET,
+                width: CLOSED_SIZE,
+                height: CLOSED_SIZE,
+              }}
             >
               <img
                 src="/images/ui/delivery-box-closed.png"
