@@ -24,18 +24,34 @@ import type {
 } from "@/modules/table";
 
 // ---------------------------------------------------------------------------
-// CV mode overlay — self-contained; renders only when ?cv=true in the URL.
+// CV mode overlay — self-contained; renders only when cvMode is true.
 // Wraps HandTracker internally so the sandbox doesn't know about webcam
 // lifecycle. Synthetic pointer events drive existing cut + drag handlers.
 // ---------------------------------------------------------------------------
 
+const PRIVACY_NOTICE =
+  "SuperSlice uses your camera to track hand gestures. No video is recorded or sent anywhere — all processing happens on your device.";
+
+const CV_NOTICE_KEY = "supertutors:cv-notice-shown";
+
 function CvModeOverlayInner() {
-  const { videoRef, result, status } = useHandLandmarks();
+  const { videoRef, result, status, error } = useHandLandmarks();
+  const setCvMode = useAppStore((s) => s.setCvMode);
   const recognizersRef = useRef<PinchRecognizer[]>([
     new PinchRecognizer(),
     new PinchRecognizer(),
   ]);
   const { update: updatePointer } = usePointerFromHand();
+
+  // Revert CV mode if webcam is denied or unavailable
+  useEffect(() => {
+    if (status === 'error') {
+      setCvMode(false);
+      const url = new URL(window.location.href);
+      url.searchParams.delete('cv');
+      window.history.replaceState(null, '', url.toString());
+    }
+  }, [status, setCvMode]);
 
   // Drive synthetic pointer events on every detection frame
   if (result?.landmarks) {
@@ -45,11 +61,20 @@ function CvModeOverlayInner() {
     });
   }
 
+  if (status === 'error') {
+    return (
+      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 py-3 rounded-xl bg-mozzarella-50/95 border-2 border-terracotta-300 text-terracotta-600 text-xs text-center max-w-xs shadow-xl">
+        Hand tracking unavailable
+        {error ? `: ${error}` : ''}
+      </div>
+    );
+  }
+
   return (
     <div
       className="absolute bottom-24 left-1/2 -translate-x-1/2 z-50 rounded-xl overflow-hidden shadow-xl border-2 border-mozzarella-100/60"
       style={{ width: 160, opacity: 0.5 }}
-      title={status === 'ready' ? 'CV mode active' : 'Loading hand tracker…'}
+      title={status === 'ready' ? 'CV mode active — hand tracking on' : 'Loading hand tracker…'}
     >
       <video
         ref={videoRef}
@@ -68,6 +93,57 @@ function CvModeOverlayInner() {
 }
 
 function CvModeOverlay() {
+  const [noticeAccepted, setNoticeAccepted] = useState(() =>
+    typeof window !== 'undefined'
+      ? window.sessionStorage.getItem(CV_NOTICE_KEY) === '1'
+      : false,
+  );
+  const setCvMode = useAppStore((s) => s.setCvMode);
+
+  function handleAccept() {
+    window.sessionStorage.setItem(CV_NOTICE_KEY, '1');
+    setNoticeAccepted(true);
+  }
+
+  function handleDecline() {
+    setCvMode(false);
+    const url = new URL(window.location.href);
+    url.searchParams.delete('cv');
+    window.history.replaceState(null, '', url.toString());
+  }
+
+  if (!noticeAccepted) {
+    return (
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Camera permission notice"
+        className="absolute inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+      >
+        <div className="mx-4 max-w-sm bg-sb-paper rounded-2xl shadow-2xl border-2 border-sb-ink p-6 flex flex-col gap-4">
+          <p className="text-2xl text-center">🖐️</p>
+          <p className="text-sb-ink text-sm leading-relaxed">{PRIVACY_NOTICE}</p>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={handleDecline}
+              className="flex-1 py-2 rounded-xl border-2 border-sb-ink text-sb-ink text-sm font-medium hover:bg-sb-card focus:outline-none focus:ring-2 focus:ring-sb-accent"
+            >
+              No thanks
+            </button>
+            <button
+              type="button"
+              onClick={handleAccept}
+              className="flex-1 py-2 rounded-xl bg-sb-ink text-sb-paper text-sm font-medium hover:bg-sb-ink/90 focus:outline-none focus:ring-2 focus:ring-sb-accent"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <HandTracker>
       <CvModeOverlayInner />

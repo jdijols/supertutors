@@ -101,7 +101,7 @@ Every task has a **Done when** line with concrete success criteria. Patterns:
   - Toggle also accessible via the `?cv=true` flag (URL persists state).
   - **Done when:** UI complete, axe a11y pass, button works in both `/preview/sandbox` and `/lesson`; committed as `[OVN.6] ToolPicker CV-mode toggle`
 
-- [ ] **OVN.7 — Privacy notice + permission flow (C, loop)**
+- [x] **OVN.7 — Privacy notice + permission flow (C, loop)**
   - One-time inline notice on first CV-mode activation: "SuperSlice uses your camera to track hand gestures. No video is recorded or sent anywhere — all processing happens on your device."
   - Browser-native `getUserMedia` permission flow.
   - Graceful failure: if denied, show "Hand tracking unavailable" + revert to cursor mode (don't crash).
