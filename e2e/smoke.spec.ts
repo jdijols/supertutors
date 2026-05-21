@@ -63,14 +63,16 @@ test.describe("scaffold happy path", () => {
   test("landing shows only the Freddy CTA — other tutors are not yet rendered", async ({
     page,
   }) => {
-    // Bento landing has a single CTA (FreddyPosterCard). Earlier placeholder
-    // cards for unbuilt tutors were removed in the bento redesign — we'll
-    // re-add them as additional tutors become real, per PRD §2.4.
+    // Bento landing has a single tutor CTA (FreddyPosterCard). Earlier
+    // placeholder cards for unbuilt tutors were removed in the bento redesign.
+    // We check by accessible name rather than button count since global chrome
+    // (mute toggle, etc.) adds additional buttons.
     await page.goto("/");
-    const buttons = page.locator("button");
-    await expect(buttons).toHaveCount(1);
-    await expect(buttons.first()).toHaveAccessibleName(
-      /start the fractions lesson with freddy/i,
-    );
+    const freddyCta = page.getByRole("button", {
+      name: /start the fractions lesson with freddy/i,
+    });
+    await expect(freddyCta).toBeVisible();
+    // No second tutor CTA should exist
+    await expect(page.getByRole("button", { name: /learn with/i })).toHaveCount(0);
   });
 });
