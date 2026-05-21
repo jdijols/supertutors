@@ -38,6 +38,10 @@ What if you could do the same thing with just an iPad and a web browser?"
 
 > "The animation fires right here in the sandbox — same component as the lesson, same state trigger, zero extra code."
 
+*Drag both halves back together.*
+
+> "And when you put the whole pizza back together — Win confetti. The sandbox has a complete arc: explore, discover, celebrate."
+
 ---
 
 ## Part 2 (1:30 – 2:30) — The full lesson machine
