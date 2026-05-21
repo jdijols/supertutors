@@ -193,3 +193,46 @@ describe("AudioEngine — stop()", () => {
     expect(secondDone).toHaveBeenCalledOnce();
   });
 });
+
+describe("AudioEngine — preloadDialogue()", () => {
+  let fetchSpy: ReturnType<typeof vi.spyOn>;
+  beforeEach(() => {
+    fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(null, { status: 200 }),
+    );
+  });
+  afterEach(() => fetchSpy.mockRestore());
+
+  it("fetches the static MP3 with cache:force-cache", () => {
+    const engine = new AudioEngine();
+    engine.preloadDialogue("aha_compare_prompt");
+    expect(fetchSpy).toHaveBeenCalledWith("/audio/aha_compare_prompt.mp3", {
+      cache: "force-cache",
+    });
+  });
+
+  it("fetches _a and _b segments for name-slotted keys", () => {
+    const engine = new AudioEngine();
+    engine.preloadDialogue("aha_setup", { hasNameSlot: true });
+    expect(fetchSpy).toHaveBeenCalledWith("/audio/aha_setup_a.mp3", {
+      cache: "force-cache",
+    });
+    expect(fetchSpy).toHaveBeenCalledWith("/audio/aha_setup_b.mp3", {
+      cache: "force-cache",
+    });
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not fetch the same URL twice (deduplication)", () => {
+    const engine = new AudioEngine();
+    engine.preloadDialogue("aha_compare_prompt");
+    engine.preloadDialogue("aha_compare_prompt");
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("swallows fetch errors silently (best-effort preload)", async () => {
+    fetchSpy.mockRejectedValue(new Error("network error"));
+    const engine = new AudioEngine();
+    expect(() => engine.preloadDialogue("aha_compare_prompt")).not.toThrow();
+  });
+});
