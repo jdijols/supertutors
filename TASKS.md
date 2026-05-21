@@ -95,7 +95,7 @@ Every task has a **Done when** line with concrete success criteria. Patterns:
   - With `toolMode === 'glove'`: pinch + drag piece = move.
   - **Done when:** local recording shows a pizza being sliced via hand gesture, no cursor touched; committed as `[OVN.5] CV mode wired into /preview/sandbox`
 
-- [ ] **OVN.6 — ToolPicker CV-mode toggle (C, loop)**
+- [x] **OVN.6 — ToolPicker CV-mode toggle (C, loop)**
   - Add a third button to `src/modules/world/ToolPicker.tsx`: "🖐️ Hands" (or final label TBD). Active state mirrors the existing glove/cutter chrome.
   - Tapping it: enables CV mode (sets a Zustand flag), prompts for webcam permission if first time.
   - Toggle also accessible via the `?cv=true` flag (URL persists state).

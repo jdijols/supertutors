@@ -34,6 +34,10 @@ interface AppState {
   toolMode: ToolMode;
   setToolMode: (mode: ToolMode) => void;
 
+  // CV physical mode (webcam hand tracking)
+  cvMode: boolean;
+  setCvMode: (enabled: boolean) => void;
+
   // Guests (populated as they arrive in beats 3+)
   guests: GuestState[];
   upsertGuest: (guest: GuestState) => void;
@@ -71,6 +75,7 @@ const initialState = {
   name: null as string | null,
   currentBeat: "splash" as Beat,
   toolMode: "cutter" as ToolMode,
+  cvMode: false,
   guests: [] as GuestState[],
   muted: readPersistedMuted(),
 };
@@ -80,6 +85,7 @@ export const useAppStore = create<AppState>((set) => ({
   setName: (name) => set({ name }),
   setCurrentBeat: (currentBeat) => set({ currentBeat }),
   setToolMode: (toolMode) => set({ toolMode }),
+  setCvMode: (cvMode) => set({ cvMode }),
   upsertGuest: (guest) =>
     set((state) => ({
       guests: state.guests.some((g) => g.id === guest.id)

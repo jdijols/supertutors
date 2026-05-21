@@ -2,10 +2,11 @@ import { motion } from "framer-motion";
 import { useAppStore, type ToolMode } from "@/store/appStore";
 
 /**
- * ToolPicker — bottom-RIGHT corner picker between Glove and Cutter tools.
+ * ToolPicker — bottom-RIGHT corner picker between Glove, Cutter, and Hands (CV).
  *
- * Kid-driven (Figma-style, not context-gated per PRD §3.3). Both tools
- * always available; tap to switch.
+ * Kid-driven (Figma-style, not context-gated per PRD §3.3). All tools always
+ * available; tap to switch. "🖐️ Hands" button enables CV physical mode via
+ * MediaPipe; the glove/cutter selection persists alongside it.
  *
  * Hidden during onboarding (no manipulative interaction expected yet).
  */
@@ -13,12 +14,6 @@ export interface ToolPickerProps {
   visible?: boolean;
 }
 
-/**
- * Tool icon sources. We use the same artwork as the active cursor / touch
- * sprite (open-glove and upright-cutter) so the picker visually mirrors
- * what the kid sees when the tool is in use. Closed/cutting variants are
- * NOT used here — those are only for the active interaction state.
- */
 const TOOLS: { mode: ToolMode; src: string; label: string }[] = [
   {
     mode: "glove",
@@ -32,23 +27,36 @@ const TOOLS: { mode: ToolMode; src: string; label: string }[] = [
   },
 ];
 
+/** Sync ?cv=true / remove ?cv from the URL without triggering a navigation. */
+function syncCvParam(enabled: boolean) {
+  const url = new URL(window.location.href);
+  if (enabled) {
+    url.searchParams.set("cv", "true");
+  } else {
+    url.searchParams.delete("cv");
+  }
+  window.history.replaceState(null, "", url.toString());
+}
+
 export function ToolPicker({ visible = true }: ToolPickerProps) {
   const toolMode = useAppStore((s) => s.toolMode);
   const setToolMode = useAppStore((s) => s.setToolMode);
+  const cvMode = useAppStore((s) => s.cvMode);
+  const setCvMode = useAppStore((s) => s.setCvMode);
 
   if (!visible) return null;
+
+  function handleCvToggle() {
+    const next = !cvMode;
+    setCvMode(next);
+    syncCvParam(next);
+  }
 
   return (
     <div
       data-testid="tool-picker"
       role="group"
       aria-label="Pick a tool"
-      // `data-cursor-pointing` triggers the pointing-glove cursor override
-      // in globals.css whenever the cursor is over the picker (or its
-      // children), regardless of which tool is the currently-active one.
-      // The kid sees the pointing-finger glove on the picker, signalling
-      // "this UI is clickable" — then the active-tool cursor returns as
-      // soon as they leave the picker.
       data-cursor-pointing
       className="flex items-center gap-2 p-2 bg-sb-paper/95 backdrop-blur rounded-2xl shadow-xl shadow-sb-accent-deep/25 border-2 border-sb-ink"
     >
@@ -83,6 +91,25 @@ export function ToolPicker({ visible = true }: ToolPickerProps) {
           </motion.button>
         );
       })}
+
+      {/* CV hands-mode toggle */}
+      <motion.button
+        type="button"
+        onClick={handleCvToggle}
+        whileTap={{ scale: 0.9 }}
+        transition={{ type: "spring", stiffness: 600, damping: 20 }}
+        aria-label="Hand tracking (CV mode)"
+        aria-pressed={cvMode}
+        data-active={cvMode}
+        data-testid="cv-mode-button"
+        className={`
+          w-14 h-14 md:w-16 md:h-16 rounded-xl grid place-items-center text-2xl
+          focus:outline-none focus:ring-2 focus:ring-sb-accent focus:ring-offset-2 focus:ring-offset-sb-paper
+          ${cvMode ? "bg-sb-ink shadow-inner" : "bg-sb-card hover:bg-sb-paper-deep"}
+        `}
+      >
+        🖐️
+      </motion.button>
     </div>
   );
 }

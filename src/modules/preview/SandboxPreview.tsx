@@ -190,7 +190,20 @@ function getInitialPiecePosition() {
 export function SandboxPreview() {
   const [initialPos] = useState(getInitialPiecePosition);
   const toolMode = useAppStore((s) => s.toolMode);
-  const cvMode = new URLSearchParams(window.location.search).has('cv');
+  // CV mode: prefer Zustand flag (toggled via ToolPicker) but also honour
+  // the ?cv=true URL param for direct-link access (e.g. portfolio links).
+  const cvModeStore = useAppStore((s) => s.cvMode);
+  const setCvMode = useAppStore((s) => s.setCvMode);
+  const cvMode = cvModeStore || new URLSearchParams(window.location.search).has('cv');
+
+  // Sync Zustand when the URL param is the initial source (direct link).
+  // Only runs once on mount — thereafter the ToolPicker toggle owns the state.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).has('cv') && !cvModeStore) {
+      setCvMode(true);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const viewport = useViewport();
 
   const { pieces, slice, move, reset } = useSandboxPieces(
