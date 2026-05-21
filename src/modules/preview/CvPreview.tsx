@@ -1,21 +1,16 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { HandTracker, useHandLandmarks } from '@/modules/cv/HandTracker';
 import { PinchRecognizer } from '@/modules/cv/gestures';
+import { usePointerFromHand } from '@/modules/cv/usePointerFromHand';
 import type { NormalizedLandmark } from '@mediapipe/tasks-vision';
 
 // MediaPipe hand skeleton connection pairs (landmark index pairs)
 const HAND_CONNECTIONS: [number, number][] = [
-  // Thumb
   [0, 1], [1, 2], [2, 3], [3, 4],
-  // Index
   [0, 5], [5, 6], [6, 7], [7, 8],
-  // Middle
   [0, 9], [9, 10], [10, 11], [11, 12],
-  // Ring
   [0, 13], [13, 14], [14, 15], [15, 16],
-  // Pinky
   [0, 17], [17, 18], [18, 19], [19, 20],
-  // Palm
   [5, 9], [9, 13], [13, 17],
 ];
 
@@ -40,7 +35,6 @@ function LandmarkOverlay({
             const la = hand[a];
             const lb = hand[b];
             if (!la || !lb) return null;
-            // Mirror X because video is rendered mirrored
             return (
               <line
                 key={ci}
@@ -70,17 +64,72 @@ function LandmarkOverlay({
   );
 }
 
+/** A simple box that can be dragged via mouse or synthetic pointer events. */
+function DraggableTestBox() {
+  const [pos, setPos] = useState({ x: 200, y: 200 });
+  const dragging = useRef(false);
+  const dragStart = useRef({ mx: 0, my: 0, bx: 0, by: 0 });
+
+  function onPointerDown(e: React.PointerEvent) {
+    dragging.current = true;
+    dragStart.current = { mx: e.clientX, my: e.clientY, bx: pos.x, by: pos.y };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  }
+
+  function onPointerMove(e: React.PointerEvent) {
+    if (!dragging.current) return;
+    setPos({
+      x: dragStart.current.bx + e.clientX - dragStart.current.mx,
+      y: dragStart.current.by + e.clientY - dragStart.current.my,
+    });
+  }
+
+  function onPointerUp() {
+    dragging.current = false;
+  }
+
+  return (
+    <div
+      data-testid="cv-drag-box"
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      style={{
+        position: 'fixed',
+        left: pos.x,
+        top: pos.y,
+        width: 80,
+        height: 80,
+        background: '#f5e6c8',
+        border: '2px solid #ff8c42',
+        borderRadius: 12,
+        cursor: 'grab',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 28,
+        userSelect: 'none',
+        zIndex: 50,
+      }}
+    >
+      🍕
+    </div>
+  );
+}
+
 function CvPreviewInner() {
   const { videoRef, result, status, error } = useHandLandmarks();
-  // One PinchRecognizer per possible hand (max 2)
   const recognizersRef = useRef<PinchRecognizer[]>([
     new PinchRecognizer(),
     new PinchRecognizer(),
   ]);
+  const { update: updatePointer } = usePointerFromHand();
 
-  const pinchStates = result?.landmarks.map((hand, i) =>
-    recognizersRef.current[i]?.update(hand),
-  ) ?? [];
+  const pinchStates = result?.landmarks.map((hand, i) => {
+    const state = recognizersRef.current[i]?.update(hand);
+    if (state) updatePointer(state);
+    return state;
+  }) ?? [];
 
   const anyPinching = pinchStates.some((s) => s?.isPinching);
 
@@ -89,7 +138,6 @@ function CvPreviewInner() {
       <h1 className="text-sb-ink text-2xl font-bold">CV Preview — Hand Tracking</h1>
 
       <div className="relative w-full max-w-2xl aspect-video bg-black rounded-xl overflow-hidden shadow-xl">
-        {/* Mirrored webcam feed */}
         <video
           ref={videoRef}
           className="w-full h-full object-cover"
@@ -97,17 +145,9 @@ function CvPreviewInner() {
           playsInline
           muted
         />
-
-        {/* Landmark overlay */}
         {result && result.landmarks.length > 0 && (
-          <LandmarkOverlay
-            landmarks={result.landmarks}
-            width={640}
-            height={480}
-          />
+          <LandmarkOverlay landmarks={result.landmarks} width={640} height={480} />
         )}
-
-        {/* PINCHING badge */}
         {anyPinching && (
           <div
             className="absolute top-3 left-3 px-3 py-1 rounded-full text-sm font-bold"
@@ -117,8 +157,6 @@ function CvPreviewInner() {
             PINCHING
           </div>
         )}
-
-        {/* Status overlay */}
         {status === 'loading' && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-white text-sm">
             Loading hand tracker…
@@ -134,10 +172,16 @@ function CvPreviewInner() {
       <div className="text-sb-muted text-sm text-center max-w-md">
         {status === 'ready' && result
           ? result.landmarks.length > 0
-            ? `Detecting ${result.landmarks.length} hand${result.landmarks.length > 1 ? 's' : ''} — ${result.handedness.map((h) => h[0]?.categoryName).join(', ')}`
-            : 'No hands detected — try moving your hand into frame'
+            ? `${result.landmarks.length} hand${result.landmarks.length > 1 ? 's' : ''} — ${result.handedness.map((h) => h[0]?.categoryName).join(', ')}${anyPinching ? ' — pinching' : ''}`
+            : 'No hands detected — move your hand into frame'
           : null}
       </div>
+
+      <p className="text-sb-muted text-xs">
+        Pinch + drag the 🍕 tile below with your hand — or use your mouse.
+      </p>
+
+      <DraggableTestBox />
     </div>
   );
 }

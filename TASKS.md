@@ -82,7 +82,7 @@ Every task has a **Done when** line with concrete success criteria. Patterns:
   - Wire to `/preview/cv` — show a live "PINCHING" badge in mozzarella-cream when active.
   - **Done when:** unit tests green, badge visible on `/preview/cv`, committed as `[OVN.3] pinch recognizer with hysteresis + tests`
 
-- [ ] **OVN.4 — CV→pointer event bridge (C, loop)**
+- [x] **OVN.4 — CV→pointer event bridge (C, loop)**
   - `src/modules/cv/usePointerFromHand.ts` — hook that takes the pinch state + center and dispatches synthetic `pointerdown` / `pointermove` / `pointerup` events on the element under the pinch coords (via `document.elementFromPoint`).
   - Coordinate mapping: webcam-normalized [0,1] → viewport pixels, mirrored on X (webcam is mirrored). Calibration constants tunable via a small overlay.
   - Pure unit tests for the mapping at `src/modules/cv/usePointerFromHand.test.ts`.
