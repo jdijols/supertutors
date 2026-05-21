@@ -61,14 +61,14 @@ function AboutCard({ className }: { className?: string }) {
             {["Reading", "Science", "Writing", "Music"].map((subject) => (
               <li
                 key={subject}
-                className="font-mono text-[12px] sm:text-[13px] px-3 py-1.5 rounded-full border border-sb-border text-sb-muted bg-sb-surface"
+                className="font-mono text-[12px] sm:text-[13px] px-3 py-1.5 rounded-full border border-sb-border text-sb-ink bg-sb-surface"
               >
                 {subject}
               </li>
             ))}
           </ul>
         </div>
-        <p className="pt-2 font-mono text-[10px] uppercase tracking-[0.22em] text-sb-subtle">
+        <p className="pt-2 font-mono text-[10px] uppercase tracking-[0.22em] text-sb-ink/70">
           A SuperBuilders project
         </p>
       </div>
@@ -115,40 +115,37 @@ function FreddyPosterCard({
         }}
       />
 
-      {/* Card content uses absolute positioning so Freddy can occupy the
-          full right column while the title block anchors bottom-left, like
-          an Apple TV+ show poster. */}
+      {/* Card uses absolute positioning so Freddy occupies the right column
+          while the original top eyebrow row + bottom meta strip stay in
+          place; only the title text drops to the bottom-left. */}
       <div className="relative h-full min-h-[420px] md:min-h-[520px]">
-        {/* Top-right meta */}
-        <div className="absolute top-7 sm:top-9 md:top-10 right-7 sm:right-10 md:right-12">
+        {/* Top eyebrow row — LESSON 01 (left) + ~5 MIN (right) */}
+        <div className="absolute top-7 sm:top-9 md:top-10 left-7 sm:left-10 md:left-12 right-7 sm:right-10 md:right-12 flex items-center justify-between">
+          <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-sb-accent-deep">
+            Lesson 01
+          </span>
           <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-sb-muted">
             ~5 min
           </span>
         </div>
 
-        {/* Freddy — right-anchored, larger, fills card vertically. Capped
-            via max-w so on narrower cards (portrait iPad) he doesn't bleed
-            into the title column on the left. The stage-shadow ellipse
-            moves with him so the grounding still reads underneath. */}
+        {/* Freddy — right-anchored, larger. max-w cap keeps him from
+            bleeding into the title column on portrait iPad. */}
         <div
           aria-hidden
-          className="absolute right-[2%] sm:right-[4%] bottom-0 w-[55%] h-[50%] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(26,26,26,0.10)_0%,rgba(26,26,26,0)_70%)]"
+          className="absolute right-[2%] sm:right-[4%] bottom-[58px] sm:bottom-[64px] md:bottom-[72px] w-[55%] h-[40%] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(26,26,26,0.10)_0%,rgba(26,26,26,0)_70%)]"
         />
         <img
           src="/images/characters/freddy/facing-student-excited-open.png"
           alt="Freddy Fractions"
-          className="absolute right-[-2%] sm:right-0 md:right-[2%] bottom-0 h-[96%] max-h-[640px] w-auto max-w-[55%] sm:max-w-[58%] md:max-w-[58%] lg:max-w-[65%] object-contain object-bottom drop-shadow-[0_24px_36px_rgba(26,26,26,0.25)] transition-transform duration-500 ease-out group-hover:translate-y-[-4px]"
+          className="absolute right-[-2%] sm:right-0 md:right-[2%] bottom-[56px] sm:bottom-[64px] md:bottom-[72px] h-[80%] max-h-[560px] w-auto max-w-[55%] sm:max-w-[58%] md:max-w-[58%] lg:max-w-[65%] object-contain object-bottom drop-shadow-[0_24px_36px_rgba(26,26,26,0.25)] transition-transform duration-500 ease-out group-hover:translate-y-[-4px]"
         />
 
-        {/* Bottom-left title block — eyebrow + title + subtitle + CTA, all
-            grouped as a single textual unit (movie-poster style). Width
-            and type-size scale with viewport so the title never collides
-            with Freddy's silhouette on the narrower iPad portrait. */}
-        <div className="absolute bottom-7 sm:bottom-9 md:bottom-11 left-7 sm:left-10 md:left-12 max-w-[44%] sm:max-w-[44%] md:max-w-[42%] lg:max-w-[58%]">
-          <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-sb-accent-deep">
-            Lesson 01
-          </span>
-          <h2 className="mt-2 font-mono font-bold leading-[0.95] tracking-[-0.02em] text-sb-ink text-[28px] sm:text-[36px] md:text-[40px] lg:text-[60px]">
+        {/* Center-left title block — JUST the headline + subtitle.
+            Vertically centered so "FRACTIONS" lines up roughly with
+            Freddy's armpit (the natural visual center). */}
+        <div className="absolute left-7 sm:left-10 md:left-12 top-1/2 -translate-y-1/2 max-w-[44%] sm:max-w-[44%] md:max-w-[42%] lg:max-w-[58%]">
+          <h2 className="font-mono font-bold leading-[0.95] tracking-[-0.02em] text-sb-ink text-[28px] sm:text-[36px] md:text-[40px] lg:text-[60px]">
             <span className="block">Learn</span>
             <span className="block" style={outlineStyle}>
               FRACTIONS
@@ -159,12 +156,21 @@ function FreddyPosterCard({
             <span className="text-sb-ink font-medium">Freddy Fractions</span>{" "}
             at SuperSlice Pizza.
           </p>
-          <div
-            aria-hidden
-            className="mt-5 inline-flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.18em] text-sb-ink group-hover:gap-3 transition-[gap] duration-300"
-          >
-            Start
-            <span>→</span>
+        </div>
+
+        {/* Bottom meta strip — PIZZA · SLICER · GLOVE (left) + START → (right) */}
+        <div className="absolute bottom-0 left-0 right-0 px-7 sm:px-10 md:px-12 pb-6 sm:pb-7 md:pb-8">
+          <div className="flex items-center justify-between gap-4 border-t border-sb-ink/10 pt-4">
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-sb-muted">
+              Pizza · Slicer · Glove
+            </span>
+            <span
+              aria-hidden
+              className="font-mono text-[12px] uppercase tracking-[0.18em] text-sb-ink inline-flex items-center gap-2 group-hover:gap-3 transition-[gap] duration-300"
+            >
+              Start
+              <span>→</span>
+            </span>
           </div>
         </div>
       </div>
