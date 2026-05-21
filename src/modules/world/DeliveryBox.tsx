@@ -46,7 +46,9 @@ export interface DeliveryBoxProps {
 
 type Phase = "open" | "closed" | "sliding-off";
 
-const BOX_SIZE = 140;
+// 50% larger than original 140 — more presence as a drop target, and
+// fits a 256px whole pizza scaled to ~50% (128px) comfortably inside.
+const BOX_SIZE = 210;
 
 function sleep(ms: number): Promise<void> {
   return new Promise((res) => setTimeout(res, ms));
@@ -136,7 +138,11 @@ export const DeliveryBox = forwardRef<DeliveryBoxHandle, DeliveryBoxProps>(
           ${className}
         `}
         style={{
-          top: "40%",
+          // Vertically aligned with the lower half of the viewport so the
+          // box sits near the pizza's resting height — kid drags
+          // horizontally to deliver, not diagonally up.
+          top: "55%",
+          transform: "translateY(-25%)",
           width: BOX_SIZE,
           height: BOX_SIZE,
         }}

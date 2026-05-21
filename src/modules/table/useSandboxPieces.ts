@@ -294,11 +294,12 @@ export function useSandboxPieces(
 
       // Entry zone: just right of the oven (rough left margin), vertical
       // position matches the default whole-pizza Y so it lands "on the
-      // counter."
+      // counter" rather than mid-air covering Freddy's face. Keep this
+      // in sync with `defaultInitialPosition` in LessonTable.
       const entryX = 40;
       const entryY = Math.max(
-        140,
-        (typeof window !== "undefined" ? window.innerHeight : 1080) * 0.28,
+        280,
+        (typeof window !== "undefined" ? window.innerHeight : 1080) * 0.55,
       );
       const dims = dimsForSlot("whole", baseSize);
       const entryRect = {
@@ -361,8 +362,8 @@ export function useSandboxPieces(
       options.viewportWidth ??
       (typeof window !== "undefined" ? window.innerWidth : 1980);
     const entryY = Math.max(
-      140,
-      (typeof window !== "undefined" ? window.innerHeight : 1080) * 0.28,
+      280,
+      (typeof window !== "undefined" ? window.innerHeight : 1080) * 0.55,
     );
     const dims = dimsForSlot("whole", baseSize);
     const entryRect = {

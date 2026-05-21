@@ -77,6 +77,13 @@ export interface PizzaPieceProps {
    * the oven side" feel when adding a new pizza. Undefined = no slide-in.
    */
   enterFromX?: number;
+  /**
+   * Optional predicate called during drag with the pointer's client
+   * coords. When it returns true (e.g. pointer is over the delivery box),
+   * the piece scales down to ~50% so it visually "fits inside" the drop
+   * target. Resets to normal scale on drag-end.
+   */
+  dropZoneTest?: (x: number, y: number) => boolean;
 }
 
 export function PizzaPiece({
@@ -95,6 +102,7 @@ export function PizzaPiece({
   clipPath,
   className = "",
   enterFromX,
+  dropZoneTest,
 }: PizzaPieceProps) {
   // Initialize motion values:
   //   - With `enterFromX`: start off-screen so the mount-effect's animate()
@@ -123,8 +131,16 @@ export function PizzaPiece({
   // is more predictable.
   const [isHovering, setIsHovering] = useState(false);
 
+  // Scale-down state for "piece dragged over the delivery box." Tracked
+  // via a ref to avoid render thrash during drag, then mirrored to state
+  // only on transitions so the visual animation updates.
+  const isOverDropZoneRef = useRef(false);
+  const [isOverDropZone, setIsOverDropZone] = useState(false);
+
   function handleDragStart() {
     dragMovedRef.current = false;
+    isOverDropZoneRef.current = false;
+    setIsOverDropZone(false);
   }
 
   /**
@@ -159,6 +175,15 @@ export function PizzaPiece({
     if (Math.abs(info.offset.x) > 4 || Math.abs(info.offset.y) > 4) {
       dragMovedRef.current = true;
     }
+    // Drop-zone hover check — only re-render when transitioning across
+    // the boundary so the drag stays smooth.
+    if (dropZoneTest) {
+      const over = dropZoneTest(info.point.x, info.point.y);
+      if (over !== isOverDropZoneRef.current) {
+        isOverDropZoneRef.current = over;
+        setIsOverDropZone(over);
+      }
+    }
     // framer-motion's built-in `dragConstraints` with numeric bounds wasn't
     // reliably clamping top/bottom in our setup, so we enforce bounds
     // manually on every drag frame. The piece can never escape the bounds
@@ -171,6 +196,8 @@ export function PizzaPiece({
   function handleDragEnd() {
     // Final guard in case the last drag event was missed.
     clampToBounds();
+    isOverDropZoneRef.current = false;
+    setIsOverDropZone(false);
     onDragEnd?.(id, x.get(), y.get());
   }
 
@@ -200,15 +227,20 @@ export function PizzaPiece({
           pointerEvents: "none",
         }}
         animate={{
-          // Hover affordance — bright mozzarella-cream glow + subtle scale
-          // so the kid knows "this piece is interactive." Color picked
-          // from the design tokens (mozzarella-50 #FFFBF2). Both states
-          // are explicit (transparent shadow + scale 1 at rest) so
-          // framer-motion has a clear target to animate back to.
-          scale: isHovering ? 1.04 : 1,
-          filter: isHovering
-            ? "drop-shadow(0 0 20px rgba(255, 251, 242, 0.95))"
-            : "drop-shadow(0 0 0px rgba(255, 251, 242, 0))",
+          // Scale priority:
+          //   - Over a drop zone (delivery box) → shrink to 50% so it
+          //     looks like the piece is "fitting inside" the box.
+          //   - Hovering normally → subtle 4% bump as an "I'm interactive"
+          //     affordance.
+          //   - Otherwise → rest scale 1.
+          // Glow filter (mozzarella-cream drop-shadow) only on the
+          // normal hover state — when shrinking into the box the box
+          // itself glows instead.
+          scale: isOverDropZone ? 0.5 : isHovering ? 1.04 : 1,
+          filter:
+            isHovering && !isOverDropZone
+              ? "drop-shadow(0 0 20px rgba(255, 251, 242, 0.95))"
+              : "drop-shadow(0 0 0px rgba(255, 251, 242, 0))",
         }}
         transition={{ duration: 0.18, ease: "easeOut" }}
       >

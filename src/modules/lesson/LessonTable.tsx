@@ -298,15 +298,21 @@ function clusterCentroid(
   return { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
 }
 
-const BASE_SIZE = 320;
+// 20% smaller than the original 320 — fits 4 pizzas across a 1280-wide
+// viewport with breathing room (40 + 4*(256+4) - 4 = 1076 ≤ 1280) and
+// keeps slices in proportion through the bisect tree.
+const BASE_SIZE = 256;
 
 function defaultInitialPosition() {
   if (typeof window === "undefined") {
-    return { x: 430, y: 220 };
+    return { x: 430, y: 460 };
   }
   return {
     x: window.innerWidth / 2 - BASE_SIZE / 2,
-    y: Math.max(140, window.innerHeight * 0.28),
+    // Shift down — pizzas live in the lower half of the viewport so they
+    // sit on the table instead of covering Freddy's face. ~55% of vh
+    // puts the pizza's top edge below the counter line.
+    y: Math.max(280, window.innerHeight * 0.55),
   };
 }
 
@@ -451,8 +457,15 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
     >([]);
 
     // DeliveryBox ref — used by the drag-end handler to test if a release
-    // happened over the box (deliver) versus on the table (move).
+    // happened over the box (deliver) versus on the table (move), and by
+    // every PizzaPiece's `dropZoneTest` so the dragged piece shrinks when
+    // hovered over the box.
     const deliveryBoxRef = useRef<DeliveryBoxHandle>(null);
+
+    const dropZoneTest = useCallback(
+      (x: number, y: number) => !!deliveryBoxRef.current?.contains(x, y),
+      [],
+    );
 
     const handleAddPizza = useCallback(
       (variant: PizzaVariant) => {
@@ -664,6 +677,7 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
               }}
               onTap={handlePieceTap}
               onDragEnd={handlePieceDragEnd}
+              dropZoneTest={dropZoneTest}
             />
           ))}
         </div>
