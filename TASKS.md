@@ -422,12 +422,12 @@ For each beat, repeat the P1 vertical-slice pattern: Stately authoring → expor
   - Try `@tsparticles/react` with version pinning; fall back to DIY Framer Motion particles if blocked again
 - [x] **P5.8 — Slice particle effect (C)** *(shipped 2026-05-21)*
   - Cheese stretch + sauce splatter on every slice; tuned for "juicy" feel
-- [ ] **P5.9 — Win confetti (C)**
-  - Full-screen tsparticles confetti preset
+- [x] **P5.9 — Win confetti (C)** *(shipped 2026-05-21)*
+  - DIY Framer Motion particles (mozzarella/oven-glow/basil/terracotta) — no extra deps. Key 8 / ?beat=win triggers demo jump.
 - [ ] **P5.10 — Sound effects sourced + integrated (S)**
   - J sources from freesound.org / zapsplat: slice squelch, snap chime, win fanfare, tap pop
   - C wires into Howler at the right state-machine triggers
-- [~] **P5.11 — Framer Motion polish on hero moments (C)** *(AHA shipped 2026-05-21; Win + Counter still pending)*
+- [~] **P5.11 — Framer Motion polish on hero moments (C)** *(AHA + Win shipped 2026-05-21; Counter still pending)*
   - **AHA done** — `src/modules/lesson/AhaAnimation.tsx` renders three stacked Framer Motion layers when state enters `aha.aha_triggered`: (1) mozzarella-cream screen flash that punches in then fades, (2) oven-glow radial pulse expanding from center, (3) bold `≡` mark scaling in with a slight rotate-into-place. After 1500ms it auto-fires `ANIMATION_DONE` so the machine advances to `celebrating` (which plays the reveal line). Cluster-anchored positioning + cheese-stretch particles still TBD when the lesson Table lands.
   - **Win, Counter** — still TBD, will follow the same pattern once Beat 8 (Win) + Beat 3 (Vocab) are authored.
 - [ ] **P5.12 — Lottie integration for Freddy (stretch) (J + C)**
@@ -450,7 +450,7 @@ For each beat, repeat the P1 vertical-slice pattern: Stately authoring → expor
   - Upload to YouTube unlisted or similar; link in README
 - [x] **P6.4 — README polish (C)**
   - Setup instructions, technical decisions table, links to PRD sections + Stately URL + demo video URL
-- [ ] **P6.5 — Final accessibility audit (C)**
+- [x] **P6.5 — Final accessibility audit (C)** *(shipped 2026-05-21 — all 10 axe WCAG 2.1 AA checks pass on Chrome + iPad Safari)*
   - Full Playwright + axe run; fix any new critical/serious issues
 - [ ] **P6.6 — Final iPad-Safari device test (J)**
   - Walk through full lesson on real iPad; no crashes, no jank, audio works
