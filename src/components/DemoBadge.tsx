@@ -10,7 +10,7 @@ export function DemoBadge() {
       className="fixed bottom-2 left-1/2 -translate-x-1/2 z-[100] pointer-events-none select-none rounded-full bg-sb-ink/85 text-sb-paper-soft px-3 py-1 text-[10px] font-mono uppercase tracking-widest shadow-lg"
       aria-hidden="true"
     >
-      Demo · 1–8 jump · Shift+R reset
+      Demo · 0=CV · C=CV sandbox · 1–8 beats · Shift+R reset
     </div>
   );
 }
