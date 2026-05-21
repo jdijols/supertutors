@@ -2,7 +2,7 @@
 
 > A conversational AI math tutor that teaches fraction equivalence to 9-year-olds through a Sicilian-pizza manipulative. Built for the Week 4 Gauntlet challenger project (clone Synthesis Tutor).
 
-**Live:** [supertutors.vercel.app](https://supertutors.vercel.app) — Beat 6 (AHA) + full sandbox mechanics + CV physical mode
+**Live:** [supertutors.vercel.app](https://supertutors.vercel.app) — Beat 6 (AHA) + Win confetti + sandbox with AHA animation + CV physical mode
 
 ---
 
@@ -62,8 +62,9 @@ useHandLandmarks()       ← webcam → MediaPipe → 21 landmarks/30fps
 |---|---|
 | `0` | CV preview (`/preview/cv`) |
 | `1` | Landing |
-| `2` | Sandbox |
-| `6` | Beat 6 (AHA) — the hero demo moment |
+| `2` | Sandbox (slice + AHA animation on equal pieces) |
+| `6` | Beat 6 (AHA) — the hero demo moment with voice |
+| `8` | Beat 8 (Win) — confetti celebration |
 | `C` | CV sandbox (`?cv=true`) |
 | `Shift+R` | Reload current page |
 
