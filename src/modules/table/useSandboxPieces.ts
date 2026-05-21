@@ -303,11 +303,13 @@ export function useSandboxPieces(
    */
   const addPizza = useCallback(
     (variant: PizzaVariant = defaultVariant): string | null => {
-      // Mass-based cap: a fresh whole adds 1.0 to the workspace mass.
-      // Cap is `maxPizzas` whole-pizzas-worth of total mass on the
-      // table — deliveries naturally lower this (delivering a 1/4
-      // slice frees up 0.25 of cap room).
-      if (workspaceMass(pieces) + 1 > maxPizzas) return null;
+      // Rule: only add another whole pizza if the workspace mass is at
+      // most `maxPizzas - 1`. With maxPizzas=4 that means: mass ≤ 3
+      // → button enabled; mass > 3 → button disabled. A fresh whole
+      // brings the table to exactly maxPizzas (4.0) in the boundary
+      // case. Deliveries lower the mass by the delivered piece's
+      // fraction, so the cap reopens automatically.
+      if (workspaceMass(pieces) > maxPizzas - 1) return null;
 
       const viewportW =
         options.viewportWidth ??
@@ -370,16 +372,16 @@ export function useSandboxPieces(
 
   /**
    * Pre-flight check: would the next addPizza() succeed? Two gates:
-   *   1. Mass cap: current workspace mass + 1 must not exceed `maxPizzas`.
-   *      This naturally responds to deliveries — when a piece leaves the
-   *      table, mass drops and the gate may reopen even though no new
-   *      slicing has happened.
+   *   1. Mass cap: current workspace mass must be ≤ `maxPizzas - 1`
+   *      (so adding a fresh whole brings the table to at most
+   *      `maxPizzas`). With maxPizzas=4, that's `mass ≤ 3`. Deliveries
+   *      lower the mass and reopen the gate automatically.
    *   2. Cascade shift: a fresh whole at the entry zone must be able to
    *      shift existing pieces rightward without pushing anything past
    *      the viewport edge.
    */
   const canAddPizza = useCallback((): boolean => {
-    if (workspaceMass(pieces) + 1 > maxPizzas) return false;
+    if (workspaceMass(pieces) > maxPizzas - 1) return false;
     const viewportW =
       options.viewportWidth ??
       (typeof window !== "undefined" ? window.innerWidth : 1980);
