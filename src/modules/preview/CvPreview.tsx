@@ -169,10 +169,38 @@ function CvPreviewInner() {
         )}
       </div>
 
+      {/* Pinch strength meters — one per detected hand */}
+      {result && result.landmarks.length > 0 && (
+        <div className="flex gap-6 items-end">
+          {pinchStates.map((state, i) => {
+            if (!state) return null;
+            const handName = result.handedness[i]?.[0]?.categoryName ?? `Hand ${i + 1}`;
+            const pct = Math.round(state.strength * 100);
+            const isPinching = state.isPinching;
+            return (
+              <div key={i} className="flex flex-col items-center gap-1">
+                <div className="text-xs font-mono text-sb-ink">
+                  {handName} — {pct}%{isPinching ? ' 🤌' : ''}
+                </div>
+                <div className="w-32 h-2 bg-sb-card rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{
+                      width: `${pct}%`,
+                      background: isPinching ? '#ff8c42' : '#f5e6c8',
+                    }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       <div className="text-sb-muted text-sm text-center max-w-md">
         {status === 'ready' && result
           ? result.landmarks.length > 0
-            ? `${result.landmarks.length} hand${result.landmarks.length > 1 ? 's' : ''} — ${result.handedness.map((h) => h[0]?.categoryName).join(', ')}${anyPinching ? ' — pinching' : ''}`
+            ? `${result.landmarks.length} hand${result.landmarks.length > 1 ? 's' : ''} detected`
             : 'No hands detected — move your hand into frame'
           : null}
       </div>
