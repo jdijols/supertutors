@@ -6,6 +6,33 @@
 
 ---
 
+## 🎥 CV mode (BEMO-style physical interaction)
+
+Slice pizzas with your hands. SuperSlice ships an opt-in "physical mode" powered by [MediaPipe Hands](https://developers.google.com/mediapipe/solutions/vision/hand_landmarker/web_js) running entirely in the browser via WebAssembly. No installs. No server. No video data leaves your device — all hand-landmark inference runs locally.
+
+Inspired by [Patrick Skinner's work on BEMO](https://playbemo.com/) — the thesis that CV-driven physical manipulatives make math learning qualitatively different from pointing at a screen.
+
+**Try it:**
+
+- [Sandbox with CV mode](https://supertutors.vercel.app/preview/sandbox?cv=true) — slice pizzas by pinching + dragging in front of your webcam
+
+**How it works:**
+
+- **Open hand** → index fingertip drives the on-screen cursor (highlighted orange)
+- **Pinch (thumb tip ↔ index tip)** → pointer-down; drag begins
+- **Pinch release** → pointer-up; cut or move completes
+- Hysteresis prevents jitter: enter pinch at 70% finger closure, exit at 40%
+- Exponential smoothing (α = 0.4) on pinch center for stable dragging
+
+**Privacy:** webcam permission is requested once per session. No frames leave the device.
+
+**Further reading:**
+
+- [MediaPipe Hands docs](https://developers.google.com/mediapipe/solutions/vision/hand_landmarker/web_js)
+- [CV in Education brainlift](./References/Education-via-Computer-Vision.md)
+
+---
+
 ## Project Brief
 
 Build a single, self-contained math lesson on **fraction equivalence (1/2 = 2/4)** for a Grade 3 student, runnable in a browser on iPad. Demo by Friday noon, 2026-05-22.

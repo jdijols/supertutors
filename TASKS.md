@@ -114,7 +114,7 @@ Every task has a **Done when** line with concrete success criteria. Patterns:
   - Small mirrored webcam preview thumbnail bottom-right at `opacity: 0.4`.
   - **Done when:** hand position is visually clear without being distracting; committed as `[OVN.8] visual feedback for CV cursor`
 
-- [ ] **OVN.9 — README CV-mode section + portfolio framing (C, loop)**
+- [x] **OVN.9 — README CV-mode section + portfolio framing (C, loop)**
   - New top-level section in `README.md` (after the intro, before the tech stack): "🎥 CV mode (BEMO-style physical interaction)".
   - One-paragraph framing: "Slice pizzas with your hands. Webcam + MediaPipe Hands in browser. No installs, no server, no data leaves your device. Inspired by Patrick Skinner's work on BEMO."
   - Bullet links: live preview URL, MediaPipe docs, Patrick's brainlift.
