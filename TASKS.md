@@ -62,7 +62,7 @@ Every task has a **Done when** line with concrete success criteria. Patterns:
 > **Hard stop at 11:00 CDT:** write a handoff journal regardless.
 > **Commit format:** `[OVN.N] {what shipped}` — one task per commit.
 
-- [ ] **OVN.1 — Install MediaPipe + scaffold cv module (C, loop)**
+- [x] **OVN.1 — Install MediaPipe + scaffold cv module (C, loop)**
   - `npm install @mediapipe/tasks-vision`
   - Create `src/modules/cv/index.ts` (placeholder export) + `src/modules/cv/README.md` (one-paragraph overview)
   - Confirm `npm run build` still passes after install (MediaPipe should not break bundling — if it does, mark for dynamic import only).

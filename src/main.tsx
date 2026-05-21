@@ -10,6 +10,7 @@ import { PizzaPreview } from "@/modules/preview/PizzaPreview";
 import { GuestPreview } from "@/modules/preview/GuestPreview";
 import { SandboxPreview } from "@/modules/preview/SandboxPreview";
 import { VoicePreview } from "@/modules/preview/VoicePreview";
+import { CvPreview } from "@/modules/preview/CvPreview";
 import "@/styles/globals.css";
 
 const router = createBrowserRouter([
@@ -24,6 +25,7 @@ const router = createBrowserRouter([
       { path: "preview/sandbox", element: <SandboxPreview /> },
       { path: "preview/guests", element: <GuestPreview /> },
       { path: "preview/voice", element: <VoicePreview /> },
+      { path: "preview/cv", element: <CvPreview /> },
     ],
   },
 ]);
