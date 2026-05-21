@@ -9,6 +9,7 @@ import type { Beat } from "@/store/appStore";
  * `?demo=false` or by closing the tab.
  *
  * Keys (active globally while enabled):
+ *   0 — CV preview (/preview/cv — hand tracking demo)
  *   1 — Beat 1 (Splash / landing CTA)
  *   2 — Beat 2 (Sandbox preview)
  *   3 — Beat 3 (Vocab — TBD; lands on lesson placeholder)
@@ -17,6 +18,7 @@ import type { Beat } from "@/store/appStore";
  *   6 — Beat 6 (AHA — vertical-slice target)
  *   7 — Beat 7 (Check for Understanding — TBD)
  *   8 — Beat 8 (Win — TBD)
+ *   C — Sandbox with CV mode (/preview/sandbox?cv=true)
  *   Shift+R — reload current page
  *
  * Beat 6 wiring (the only one with a state machine today) reads `?beat=aha`
@@ -97,6 +99,17 @@ export function useDemoMode(): { enabled: boolean } {
       if (e.shiftKey && (e.key === "R" || e.key === "r")) {
         e.preventDefault();
         window.location.reload();
+        return;
+      }
+      // Key 0 → CV preview; key C → sandbox with CV mode
+      if (e.key === '0') {
+        e.preventDefault();
+        navigate('/preview/cv');
+        return;
+      }
+      if (e.key === 'c' || e.key === 'C') {
+        e.preventDefault();
+        navigate('/preview/sandbox?cv=true');
         return;
       }
       const n = Number(e.key);
