@@ -13,6 +13,7 @@ import {
 } from "@/modules/table";
 import { SliceBurst } from "@/modules/table/SliceBurst";
 import { AhaAnimation } from "@/modules/lesson/AhaAnimation";
+import { WinConfetti } from "@/modules/lesson/WinConfetti";
 import { Toast, fractionToastMessage } from "@/modules/toast";
 import { useAppStore } from "@/store/appStore";
 import { useHoldToReset } from "@/lib/useHoldToReset";
@@ -384,6 +385,9 @@ export function SandboxPreview() {
   // AHA animation fires once per reset cycle when equal pieces first come together.
   const [ahaActive, setAhaActive] = useState(false);
   const ahaFiredRef = useRef(false);
+  // Win confetti fires once per reset cycle when all pieces reassemble into a whole.
+  const [winActive, setWinActive] = useState(false);
+  const winFiredRef = useRef(false);
 
   const didDragCutRef = useRef(false);
   const burstIdRef = useRef(0);
@@ -510,6 +514,8 @@ export function SandboxPreview() {
     setBursts([]);
     ahaFiredRef.current = false;
     setAhaActive(false);
+    winFiredRef.current = false;
+    setWinActive(false);
   }
 
   // CC.2 — Hold-to-reset Freddy. Re-uses the sandbox `handleReset`.
@@ -536,12 +542,22 @@ export function SandboxPreview() {
   }, [pieces]);
 
   // Fire the AHA animation once per reset cycle when equal pieces first land together.
+  // Fire Win confetti once per reset cycle when ALL pieces total a whole pizza.
   useEffect(() => {
-    if (ahaFiredRef.current) return;
-    const hasEqual = proximityGroups.some((g) => g.comparison === "equal");
-    if (hasEqual) {
-      ahaFiredRef.current = true;
-      setAhaActive(true);
+    const WHOLE = 1 - 1e-9;
+    if (!ahaFiredRef.current) {
+      const hasEqual = proximityGroups.some((g) => g.comparison === "equal");
+      if (hasEqual) {
+        ahaFiredRef.current = true;
+        setAhaActive(true);
+      }
+    }
+    if (!winFiredRef.current) {
+      const hasWhole = proximityGroups.some((g) => g.totalArea >= WHOLE);
+      if (hasWhole) {
+        winFiredRef.current = true;
+        setWinActive(true);
+      }
     }
   }, [proximityGroups]);
 
@@ -723,6 +739,13 @@ export function SandboxPreview() {
         active={ahaActive}
         onDone={() => setAhaActive(false)}
         durationMs={1500}
+      />
+
+      {/* Win confetti — fires when all pieces are dragged back together into
+          a whole pizza (totalArea ≥ 1). The "you put it back!" moment. */}
+      <WinConfetti
+        active={winActive}
+        onDone={() => setWinActive(false)}
       />
 
       {/* Slice particle bursts — fixed-position, pointer-events-none. Each
