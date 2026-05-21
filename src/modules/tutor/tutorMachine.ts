@@ -25,7 +25,8 @@ export type TutorEvent =
   | { type: "PROXIMITY"; comparison: "equal" | "not_equal" }
   | { type: "TAPPED"; pieceId: string; hasTopping: boolean }
   | { type: "DELIVERED"; pieceId: string; guestId: string }
-  | { type: "RESET" };
+  | { type: "RESET" }
+  | { type: "WIN_DEMO" };
 
 export interface TutorContext {
   name: string | null;
@@ -102,6 +103,7 @@ export function createTutorMachine(deps: CreateTutorMachineDeps = {}) {
         target: ".aha",
         actions: "stopDialogue",
       },
+      WIN_DEMO: { target: ".win", actions: "stopDialogue" },
     },
     states: {
       /**

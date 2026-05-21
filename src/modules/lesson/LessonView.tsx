@@ -7,6 +7,7 @@ import { renderLine, type DialogueKey } from "@/modules/tutor/dialogue";
 import { dialogueKeyForState } from "@/modules/tutor/dialogueForState";
 import { tutorMachine, type TutorEvent } from "@/modules/tutor/tutorMachine";
 import { AhaAnimation } from "./AhaAnimation";
+import { WinConfetti } from "./WinConfetti";
 import { useDemoMode } from "@/lib/demoMode";
 import { useHoldToReset } from "@/lib/useHoldToReset";
 import { getInspectorOption } from "@/lib/inspector";
@@ -192,17 +193,17 @@ function LessonMachineRoot({ name }: { name: string }) {
     inspect: getInspectorOption(),
   });
 
-  // Respect the demo-mode `?beat=` jump so key "6" lands cleanly on Beat 6.
-  // The machine's initial state is already `aha.setup`, so a `?beat=aha`
-  // URL is a no-op today; future beats (check/win) will key off this hook
-  // once they have entry states.
+  // Respect the demo-mode `?beat=` jump so key "6" lands cleanly on Beat 6,
+  // key "8" jumps to the Win confetti.
   useEffect(() => {
     const beat = searchParams.get("beat");
     if (beat === "aha") send({ type: "RESET" });
+    if (beat === "win") send({ type: "WIN_DEMO" });
   }, [searchParams, send]);
 
   const activeDialogueKey = dialogueKeyForState(state.value);
   const ahaTriggered = state.matches({ aha: "aha_triggered" });
+  const winActive = state.matches("win");
 
   return (
     <>
@@ -224,6 +225,13 @@ function LessonMachineRoot({ name }: { name: string }) {
       <AhaAnimation
         active={ahaTriggered}
         onDone={() => send({ type: "ANIMATION_DONE" })}
+      />
+
+      {/* P5.9 — Win confetti. Fires when machine enters `win` state
+          (Beat 8, authored later in Stately). Accessible via ?beat=win. */}
+      <WinConfetti
+        active={winActive}
+        onDone={() => send({ type: "RESET" })}
       />
 
       {demoMode ? (
