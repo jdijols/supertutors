@@ -108,7 +108,7 @@ Every task has a **Done when** line with concrete success criteria. Patterns:
   - Privacy notice text isolated in a constant so it's easy to revise.
   - **Done when:** permission denial doesn't crash; notice appears exactly once per session; committed as `[OVN.7] privacy notice + permission flow`
 
-- [ ] **OVN.8 — Visual feedback for hand position (C, loop)**
+- [x] **OVN.8 — Visual feedback for hand position (C, loop)**
   - Subtle on-canvas overlay (rendered in a fixed div over the table): dot at index fingertip, faint line between thumb+index, color shifts mozzarella-cream → oven-glow when pinching.
   - Don't render the full skeleton in lesson mode — too distracting. Only render in `/preview/cv`.
   - Small mirrored webcam preview thumbnail bottom-right at `opacity: 0.4`.

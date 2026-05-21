@@ -34,6 +34,14 @@ const PRIVACY_NOTICE =
 
 const CV_NOTICE_KEY = "supertutors:cv-notice-shown";
 
+// Landmark indices used for in-sandbox visual feedback
+const THUMB_TIP = 4;
+const INDEX_TIP = 8;
+
+// Mozzarella cream → oven glow (when pinching)
+const CURSOR_COLOR_IDLE = '#f5e6c8';
+const CURSOR_COLOR_PINCH = '#ff8c42';
+
 function CvModeOverlayInner() {
   const { videoRef, result, status, error } = useHandLandmarks();
   const setCvMode = useAppStore((s) => s.setCvMode);
@@ -53,42 +61,91 @@ function CvModeOverlayInner() {
     }
   }, [status, setCvMode]);
 
-  // Drive synthetic pointer events on every detection frame
-  if (result?.landmarks) {
-    result.landmarks.forEach((hand, i) => {
-      const state = recognizersRef.current[i]?.update(hand);
-      if (state) updatePointer(state);
-    });
-  }
+  // Drive synthetic pointer events + compute pinch state for visual feedback
+  const pinchStates = result?.landmarks.map((hand, i) => {
+    const state = recognizersRef.current[i]?.update(hand);
+    if (state) updatePointer(state);
+    return state;
+  }) ?? [];
 
   if (status === 'error') {
     return (
       <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 py-3 rounded-xl bg-mozzarella-50/95 border-2 border-terracotta-300 text-terracotta-600 text-xs text-center max-w-xs shadow-xl">
-        Hand tracking unavailable
-        {error ? `: ${error}` : ''}
+        Hand tracking unavailable{error ? `: ${error}` : ''}
       </div>
     );
   }
 
+  const vw = typeof window !== 'undefined' ? window.innerWidth : 1280;
+  const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
+
   return (
-    <div
-      className="absolute bottom-24 left-1/2 -translate-x-1/2 z-50 rounded-xl overflow-hidden shadow-xl border-2 border-mozzarella-100/60"
-      style={{ width: 160, opacity: 0.5 }}
-      title={status === 'ready' ? 'CV mode active — hand tracking on' : 'Loading hand tracker…'}
-    >
-      <video
-        ref={videoRef}
-        className="w-full block"
-        style={{ transform: 'scaleX(-1)' }}
-        playsInline
-        muted
-      />
-      {status === 'loading' && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-white text-[10px] text-center px-1">
-          Loading…
-        </div>
+    <>
+      {/* Full-viewport SVG hand cursor — subtle, not the full skeleton */}
+      {result && result.landmarks.length > 0 && (
+        <svg
+          className="fixed inset-0 pointer-events-none"
+          style={{ width: vw, height: vh, zIndex: 55 }}
+          viewBox={`0 0 ${vw} ${vh}`}
+        >
+          {result.landmarks.map((hand, hi) => {
+            const isPinching = pinchStates[hi]?.isPinching ?? false;
+            const color = isPinching ? CURSOR_COLOR_PINCH : CURSOR_COLOR_IDLE;
+            const thumbTip = hand[THUMB_TIP];
+            const indexTip = hand[INDEX_TIP];
+            if (!thumbTip || !indexTip) return null;
+            const tx = (1 - thumbTip.x) * vw;
+            const ty = thumbTip.y * vh;
+            const ix = (1 - indexTip.x) * vw;
+            const iy = indexTip.y * vh;
+            return (
+              <g key={hi}>
+                {/* Thumb↔index connecting line — shows pinch gap */}
+                <line
+                  x1={tx} y1={ty} x2={ix} y2={iy}
+                  stroke={color}
+                  strokeWidth={isPinching ? 3 : 2}
+                  strokeOpacity={0.7}
+                  strokeLinecap="round"
+                />
+                {/* Index fingertip dot — the "pointer" location */}
+                <circle
+                  cx={ix} cy={iy} r={isPinching ? 10 : 7}
+                  fill={color}
+                  fillOpacity={0.85}
+                />
+                {/* Thumb tip dot */}
+                <circle
+                  cx={tx} cy={ty} r={5}
+                  fill={color}
+                  fillOpacity={0.6}
+                />
+              </g>
+            );
+          })}
+        </svg>
       )}
-    </div>
+
+      {/* Webcam thumbnail — bottom-right, 160px, opacity 0.4 */}
+      <div
+        className="absolute bottom-24 right-6 z-50 rounded-xl overflow-hidden shadow-xl border-2 border-mozzarella-100/60"
+        style={{ width: 160, opacity: 0.4 }}
+        title={status === 'ready' ? 'CV mode active' : 'Loading…'}
+      >
+        <video
+          ref={videoRef}
+          className="w-full block"
+          style={{ transform: 'scaleX(-1)' }}
+          playsInline
+          muted
+        />
+        {status === 'loading' && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-white text-[10px] text-center px-1">
+            Loading…
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 
