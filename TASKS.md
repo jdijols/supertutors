@@ -134,7 +134,7 @@ Every task has a **Done when** line with concrete success criteria. Patterns:
   - Document the abandonment in the handoff journal with cause + what was tried.
   - **Done when:** decision documented in handoff journal, OR not triggered.
 
-- [ ] **OVN.12 — Handoff journal + hard stop (C, loop)**
+- [x] **OVN.12 — Handoff journal + hard stop (C, loop)** *(shipped 2026-05-21 08:28 CDT)*
   - **Trigger:** 11:00 CDT regardless of remaining task state.
   - Write `Journals/May-21-{time}-overnight-handoff.md` with: tasks shipped, tasks remaining, current deployable Vercel URL, anything broken, recommended last-hour actions for Jason.
   - Commit + push the handoff journal.
