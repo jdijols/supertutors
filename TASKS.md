@@ -121,7 +121,7 @@ Every task has a **Done when** line with concrete success criteria. Patterns:
   - GIF embed if a clean recording is achievable from `/preview/sandbox?cv=true` (skip if it'd block the loop).
   - **Done when:** README reads well from the top; committed as `[OVN.9] README CV mode section`
 
-- [ ] **OVN.10 — Deploy + verify (C, loop)**
+- [x] **OVN.10 — Deploy + verify (C, loop)**
   - `git push` → Vercel preview updates automatically.
   - Curl the preview URL to verify it returns 200 + HTML.
   - Curl `/preview/sandbox?cv=true` to verify the route exists.
