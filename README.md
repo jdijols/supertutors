@@ -2,7 +2,7 @@
 
 > A conversational AI math tutor that teaches fraction equivalence to 9-year-olds through a Sicilian-pizza manipulative. Built for the Week 4 Gauntlet challenger project (clone Synthesis Tutor).
 
-**Status:** Planning phase. App scaffolding starts after PRD lock.
+**Status:** Build in progress. Onboarding + voice pipeline shipped to production (`supertutors.vercel.app`). Sandbox preview live at `/preview/sandbox` with full slice mechanics + JS-driven tool cursor. Beat 6 (AHA) state-machine wiring awaits Stately authoring.
 
 ---
 
@@ -29,9 +29,7 @@ Build a single, self-contained math lesson on **fraction equivalence (1/2 = 2/4)
 
 ## Tech Stack (locked)
 
-Vite + React + TypeScript · Tailwind CSS · Framer Motion · tsparticles · React Router · XState (tutor brain) · Zustand · Howler.js · ElevenLabs (hybrid TTS) · Midjourney + LottieFiles (assets) · Vercel
-
-See PRD §3.10 for rationale per layer.
+Vite + React + TypeScript · Tailwind CSS · Framer Motion · tsparticles · React Router · XState (tutor brain) · Zustand · Howler.js · ElevenLabs (hybrid TTS) · ChatGPT/gpt-image-1 (raster character + pizza + tool art) · LottieFiles (stretch animation) · Vercel
 
 See PRD §3.10 for rationale per layer.
 

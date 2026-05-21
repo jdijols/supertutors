@@ -37,15 +37,17 @@ Every task has a **Done when** line with concrete success criteria. Patterns:
 
 > Update this section at the start/end of each session so any new Claude session can ramp in 30 seconds.
 
-**Active phase:** P2 in motion. Raster pizza pipeline shipped (pivoted from SVG 2026-05-19 — SVG couldn't match the Pixar aesthetic). `pepperoni-v1` asset matrix complete (1 whole + 2 halves + 4 quarters + 8 eighths = 15 PNGs, all in `public/images/pizza/pepperoni-v1/`). Building sandbox mechanics next (PizzaPiece + slicer + Toast + `/preview/sandbox`).
+**Active phase:** P2 sandbox preview shipped end-to-end at `/preview/sandbox`. Both pizza variants complete: `pepperoni-v1` (15 PNGs) and `cheese-v1` (18 PNGs — adds 3 vertical-strip thirds for Beat 3 vocab). Tool assets complete: 5-finger palm-down white glove in 3 states (open, closed, pointing) + wood-handle chrome-blade pizza cutter in 2 states (upright, cutting), each with a 1000×1000 sprite + 64×64 cursor variant. Sandbox mechanics live: drag-to-move (glove), drag-to-cut + tap-to-cut (cutter fires on pointer-UP), 32px gap between sliced children, mozzarella-cream hover glow, triangle hit targets for eighths via clip-path, JS-driven `ToolSprite` cursor (OS cursor hidden), pointing-glove cursor over ToolPicker.
 
 **Beat order updated (2026-05-19):** Sandbox/Explore now comes BEFORE Vocab (was Beat 1.5, now Beat 3) to match the project brief's *explore → instruct → check* model. Full updated order in [PRD §3.9](./PRD.md#39-lesson-arc--8-beats).
 
 **Removed mechanic:** "Tap individual pepperoni discs" was eliminated 2026-05-20 — Beat 3 (Vocab) counts pizza SLICES that have pepperoni, not individual pepperoni discs on a slice.
 
-**Active session owner:** Jason → generating plain (no pepperoni) pizza variant in same ChatGPT thread; Claude → building sandbox mechanics in parallel.
+**Cursor architecture pivot (2026-05-20):** Custom CSS cursor URLs silently failed to render in some regions on Chrome/macOS despite the computed style being correct on every element in the inheritance chain. Pivoted to a DOM-based `ToolSprite` component in `src/modules/world/` that follows the pointer with `pointer-events: none` and renders the tool art directly. OS cursor hidden via `cursor: none` on body. Total visual control, no browser cursor-engine quirks.
 
-**Blockers:** None on critical path. PT.4 (iPad) blocks iPad inspection only.
+**Active session owner:** Jason → next chat for Stately Beat 6 authoring (PT.3); Claude → sandbox preview stable, awaiting next workstream.
+
+**Blockers:** None on critical path. PT.4 (iPad) blocks iPad inspection only. PT.3 (Stately authoring) blocks P1.3 / Beat 6 wiring.
 
 **Safeguard:** Beat 6 (AHA — was Beat 5 in old numbering) must be authored + wired by end-of-day Thursday 2026-05-21. If tracking behind by Thursday morning, jump-skip to Beat 6 next to lock the demo hero.
 
@@ -66,10 +68,10 @@ These are independent of my (Claude's) build sequence and **must start ASAP** to
   - **Blocks:** P5 (polish)
 
 - [ ] **PT.3 — Stately authoring (J)**
-  - Beat 5 (AHA) fully authored with all wrong-answer recoveries in Jersey-Shore voice (continuing from the C-drafted skeleton)
-  - Then Beats 1, 1.5, 2, 3, 4, 6, 7 as P4 sub-tasks unlock
+  - Beat 6 (AHA — old "Beat 5" in pre-2026-05-19 numbering) fully authored with all wrong-answer recoveries in Jersey-Shore voice (continuing from the C-drafted skeleton). Internal `aha_*` dialogue keys + state-machine `aha:` state name kept as-is to avoid invalidating the 11 already-generated MP3s.
+  - Then Beats 1, 2 (Sandbox), 3 (Vocab), 4 (First Guest), 5 (Two Guests), 7 (Check), 8 (Win) as P4 sub-tasks unlock.
   - **Done when:** Stately machine exports cleanly to XState v5 TS for each beat; URL is public-shareable
-  - **Blocks:** P1 (Beat 5), P4 (rest of beats)
+  - **Blocks:** P1 (Beat 6 vertical slice), P4 (rest of beats)
 
 - [ ] **PT.4 — Physical iPad in hand (J)**
   - For real-device testing of touch, viewport, audio playback
@@ -174,49 +176,56 @@ Goal: the Table workspace becomes real. The hero gesture works.
 
 - [x] **P2.1 — Pizza component (raster) (C)**
   - Originally scoped as procedural SVG; pivoted to raster on 2026-05-19 after the SVG aesthetic couldn't match Freddy's Pixar style.
-  - Shipped: `src/modules/table/Pizza.tsx` renders `<img>` from a `src` prop with optional `fraction` (1, 1/2, 1/4, 1/8) and width/height. Asset-agnostic — works with any PNG.
-  - Asset matrix `pepperoni-v1` complete (15 PNGs): whole, half-left/right, quarter-tl/tr/bl/br, eighth-{tl,tr,bl,br}{t,r,b,l}.
-  - Unit tests green at `src/modules/table/Pizza.test.tsx`; visual preview at [/preview/pizza](src/modules/preview/PizzaPreview.tsx); in-scene preview at [/preview/scene](src/modules/preview/PizzaInScene.tsx).
-  - Plain (no-pepperoni) variant in progress by Jason via ChatGPT.
+  - Shipped: `src/modules/table/Pizza.tsx` renders `<img>` from a `src` prop with optional `fraction` (1, 1/2, 1/3, 1/4, 1/8) and width/height. Asset-agnostic — works with any PNG.
+  - Asset matrices complete:
+    - `pepperoni-v1` (15 PNGs): whole, half-left/right, quarter-tl/tr/bl/br, eighth-{tl,tr,bl,br}-{t,r,b,l}
+    - `cheese-v1` (18 PNGs): same matrix + 3 vertical-strip thirds (third-left/center/right) for Beat 3 vocab. Thirds are display-only — NOT part of the bisect slicing tree.
+  - Unit tests green at `src/modules/table/Pizza.test.tsx`; visual preview at [/preview/pizza](src/modules/preview/PizzaPreview.tsx) (both variants); in-scene preview at [/preview/scene](src/modules/preview/PizzaInScene.tsx).
 
-- [ ] **P2.2 — Slice (Piece) component (C)**
-  - Represents one piece of a sliced pizza; knows its fraction value
-  - Draggable via Framer Motion `drag` props
-  - **Done when:** Unit test renders Slice with correct fraction prop; drag emits position-changed events
+- [x] **P2.2 — Slice (Piece) component (C)** *(shipped 2026-05-20 as PizzaPiece)*
+  - `src/modules/table/PizzaPiece.tsx` — draggable wrapper around `Pizza` with two-layer architecture: visual layer (drop-shadow glow, no clip-path, pointer-events: none) + interactive layer (clip-path for triangle hit targets on eighths, captures drag/tap/hover). Both share `x`/`y` motion values for synced position.
+  - Manual viewport clamping in `onDrag` (framer-motion's built-in dragConstraints was unreliable on top/bottom in our setup).
+  - Tap-after-drag suppression via `dragMovedRef`.
+  - **Done:** unit tests green; drag-to-move works in `/preview/sandbox`.
 
-- [ ] **P2.3 — Slicer tool — bisect mechanic (C)**
-  - When ToolMode is `cutter`, drag across a piece → split into two equal halves
-  - Emits `SLICED { pieceId, parentFraction, resultingFractions }` event
-  - Framer Motion `layout` animation on the split + spring-bounce of the new pieces
-  - **Done when:** Drag slicer across whole pizza → two halves with animation; unit test on bisect math (1 → [1/2, 1/2], 1/2 → [1/4, 1/4])
+- [x] **P2.3 — Slicer tool — bisect mechanic (C)** *(shipped 2026-05-20)*
+  - When `toolMode === 'cutter'`, drag-to-cut and tap-to-cut both work. Cut materializes on pointer-UP (not during drag) — realistic "roll the cutter, release, cut appears" feel.
+  - Window-level `pointermove` listener tracks the first piece the cursor crosses during a press, slices it on `pointerup`. Click-after-drag suppression flag prevents double-slicing.
+  - Slice geometry (`src/modules/table/sliceLogic.ts`): children spawn at parent's area split with 32px gap. Whole→halves splits left/right with `parent.width/2 + halfGap` offset; half→quarters splits top/bottom; quarter→eighths uses "corner-pair" diagonal scheme so triangles don't overlap into X-pattern recombination.
+  - **Done:** unit tests green; full whole→halves→quarters→eighths slicing works in `/preview/sandbox`.
 
-- [ ] **P2.4 — Glove tool — grab/move (C)**
-  - When ToolMode is `glove`, drag pieces freely on the table; pieces stay where dropped
-  - **Done when:** Drag a slice → piece moves and persists position; visual inspection
+- [x] **P2.4 — Glove tool — grab/move (C)** *(shipped 2026-05-20)*
+  - When `toolMode === 'glove'`, pieces are draggable; on cutter mode they're not (slicer-only).
+  - Drag uses motion-value-driven transform (not `left`/`top`) to avoid double-positioning with framer-motion's drag transforms.
+  - Manual viewport clamp keeps pieces fully on-screen on all 4 edges (24px top buffer, exact viewport elsewhere).
+  - **Done:** drag-to-move works smoothly with no inertia/momentum at any drag speed.
 
-- [ ] **P2.5 — ToolPicker UI (C)**
-  - Two-button toggle (glove / cutter); tap to switch
-  - 44pt minimum tap targets; clear active state
-  - **Done when:** Tap glove → `toolMode='glove'`; tap cutter → `toolMode='cutter'`; visual inspection; axe a11y check passes
+- [x] **P2.5 — ToolPicker UI (C)** *(shipped 2026-05-20)*
+  - Two-button picker in `src/modules/world/ToolPicker.tsx`. Real artwork (open-glove + upright-cutter thumbnails) replaces the emoji placeholders.
+  - `data-cursor-pointing` attribute triggers the pointing-glove cursor override when hovering the picker.
+  - **Done:** axe a11y checks pass; visible active state for selected tool.
 
 - [ ] **P2.6 — Proximity detection (C)**
   - When 2+ pieces are within threshold (~20pt of each other), evaluate total area
   - Emit `PROXIMITY_DETECTED { pieceIds, totalArea, comparison: 'equal' | 'not_equal' }`
   - **Done when:** Unit test: place pieces at known positions, verify event payload; tune threshold empirically in P2.11
 
-- [ ] **P2.7 — Toast / CounterDisplay (C)**
-  - Fraction toast on every slice ("you made halves! 1/2")
-  - Counter UI component (used later in Beat 1.5)
-  - **Done when:** Visual inspection — toast appears on each slice with correct fraction; auto-dismisses after 2s
+- [x] **P2.7 — Toast / CounterDisplay (C)** *(toast shipped 2026-05-20; counter UI deferred)*
+  - `src/modules/toast/Toast.tsx` — auto-dismissing toast with spring entrance + fade. Fires on every slice with the resulting fraction text ("You made halves! 1/2", "Now quarters! 1/4", "Eighths! 1/8") via `fractionToastMessage(fraction, isFirstTime)`. First-time copy upgrades to "Now {kind}!" on repeat.
+  - Beat 3 vocab counter UI (`CounterDisplay`) intentionally deferred — different mechanic; will land with Beat 3 wiring.
 
 - [ ] **P2.8 — Guest component placeholder (C — final art in P5)**
   - Renders guest with 3 expression states (neutral, frown, smile)
   - State driven by Zustand store
   - **Done when:** Demo view shows all 3 states; visual inspection
 
-- [ ] **P2.9 — Freddy avatar placeholder (C — final art in P5)**
-  - Static SVG/emoji placeholder; lives in ChatPanel
-  - **Done when:** Placeholder visible in ChatPanel; visual inspection
+- [x] **P2.9 — Freddy avatar (C)** *(shipped earlier; final art in place)*
+  - Real Freddy art rendered in `RestaurantScene` + `FreddyCharacter`. Not a placeholder — these are the production assets.
+
+- [x] **P2.12 — Tool sprite + cursor system (C)** *(shipped 2026-05-20, not originally scoped)*
+  - `src/modules/world/ToolSprite.tsx` — DOM-based pointer-following sprite that replaces the OS cursor (hidden via `cursor: none` in `globals.css`). Updates `style.transform` directly on every `pointermove` for zero render lag.
+  - Variant logic: glove (open/closed) + cutter (upright/cutting) + pointing-glove when hovering `[data-cursor-pointing]` elements.
+  - Replaces an earlier CSS-cursor approach that Chrome on macOS silently failed to render in certain regions despite computed styles being correct.
 
 - [ ] **P2.10 — Smoke test: slice + compare (C)**
   - Playwright: enter name → switch to cutter → drag across pizza → expect 2 pieces with fractions 1/2 + 1/2

@@ -24,3 +24,29 @@
     user-select: none;
   }
 }
+
+@layer utilities {
+  /*
+   * Tool cursor strategy: HIDE the OS cursor entirely and use a DOM-based
+   * `ToolSprite` (in /modules/world/ToolSprite.tsx) that follows the
+   * pointer. We made this pivot 2026-05-20 after Chrome on macOS was
+   * silently failing to render custom `cursor: url(...)` in some regions
+   * even though the computed cursor was correct on every element in the
+   * inheritance chain. The sprite gives us total visual control with no
+   * browser cursor-engine quirks.
+   *
+   * The tool class on body/html is still added by SandboxPreview as a
+   * scope marker (so we can apply `cursor: none` only when in the
+   * sandbox, not on every page in the app).
+   */
+  html.tool-glove,
+  html.tool-glove *,
+  html.tool-cutter,
+  html.tool-cutter *,
+  body.tool-glove,
+  body.tool-glove *,
+  body.tool-cutter,
+  body.tool-cutter * {
+    cursor: none !important;
+  }
+}

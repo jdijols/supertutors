@@ -5,6 +5,10 @@ import App from "@/App";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { LandingPage } from "@/modules/landing/LandingPage";
 import { LessonView } from "@/modules/lesson/LessonView";
+import { PizzaInScene } from "@/modules/preview/PizzaInScene";
+import { PizzaPreview } from "@/modules/preview/PizzaPreview";
+import { SandboxPreview } from "@/modules/preview/SandboxPreview";
+import { VoicePreview } from "@/modules/preview/VoicePreview";
 import "@/styles/globals.css";
 
 const router = createBrowserRouter([
@@ -14,6 +18,10 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <LandingPage /> },
       { path: "lesson", element: <LessonView /> },
+      { path: "preview/pizza", element: <PizzaPreview /> },
+      { path: "preview/scene", element: <PizzaInScene /> },
+      { path: "preview/sandbox", element: <SandboxPreview /> },
+      { path: "preview/voice", element: <VoicePreview /> },
     ],
   },
 ]);

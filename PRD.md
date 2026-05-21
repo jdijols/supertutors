@@ -50,27 +50,27 @@
 - **Slicing mechanic v1:** Bisect-only. Kid drags slicer across any piece, it splits in half. Stackable: 1 → 1/2 → 1/4 → 1/8. Pedagogically clean for the equivalence target.
 - **No combining gesture:** Splitting alone teaches equivalence. Brief permits ("like combining, splitting, or smashing" — OR list).
 - **Drag-to-compare via proximity:** When two or more pieces/groups are placed near each other on the table, the system auto-compares and shows equal/not-equal feedback. This is the "prove it" mechanic for the check phase.
-- **Progressive learning within one lesson** (woven into a single continuous narrative, not separate lessons):
-  1. **Beat 1.5 (Welcome Tour):** explicit numerator/denominator vocabulary via counting pepperoni slices — modeled on Synthesis's pre-equivalence "Numerator/Denominator" lesson but compressed and narrative-integrated.
-  2. **Beat 2 (Sandbox):** vocabulary practice through free play, tool mastery.
-  3. **Beats 3–4 (First/Two Guests):** application of vocab in narrative context.
-  4. **Beat 5 (AHA):** synthesis to equivalence.
-  5. **Beat 6 (Check):** mastery.
-  6. **Beat 7 (Win):** celebration.
+- **Progressive learning within one lesson** (woven into a single continuous narrative, not separate lessons). Order updated 2026-05-19 to match the project brief's *explore → instruct → check* model: free play comes first so the kid learns the UI before any formal lesson:
+  1. **Beat 2 (Sandbox / Explore):** free play with slicer + glove, kid learns the UI, observes pizzas getting sliced into halves/quarters/eighths via the toast labels. No formal vocab lesson yet — discovery mode.
+  2. **Beat 3 (Vocab — Numerator/Denominator):** formal instruction begins. Freddy explains the parts: *"The top number is how many slices have pepperoni. The bottom number is ALL the slices. Put them together and that's a fraction!"* Kid taps SLICES (not individual pepperoni discs) to count which slices have pepperoni → numerator, then all slices → denominator. 1–2 variations to lock in vocab.
+  3. **Beats 4–5 (First/Two Guests):** application of vocab in narrative context.
+  4. **Beat 6 (AHA):** synthesis to equivalence.
+  5. **Beat 7 (Check):** mastery.
+  6. **Beat 8 (Win):** celebration.
 
-  Mirrors Synthesis's multi-lesson curriculum (Numerator/Denominator → Share the Cookies) compressed into one continuous restaurant story.
+  Mirrors Synthesis's multi-lesson curriculum (Numerator/Denominator → Share the Cookies) compressed into one continuous restaurant story — with the order flipped from Synthesis's "instruct then explore" to the brief-aligned "explore then instruct."
 
 ### 3.2 The Table (workspace)
 - Persistent canvas where the manipulative lives — pizzas and slices stay where the kid puts them and are freely movable.
 - Game-feel: more like a play space than a lesson UI.
 - Multiple whole pizzas can coexist on the table.
-- Supports **counting mode** (Beat 1.5): individual slices are tappable to highlight + increment a visible counter; same component, different mode.
+- Supports **counting mode** (Beat 3 — Vocab): individual pizza SLICES are tappable to highlight + increment a visible counter (kid taps slices that have pepperoni → numerator; then taps all slices → denominator). Same component, different mode. **Not** tapping individual pepperoni discs.
 
 ### 3.3 Tools (Figma-style picker — kid-driven, not context-gated)
 - 🧤 **Glove** — grab and move pieces (deliver to guests, rearrange on table)
 - 🍕 **Pizza cutter wheel** — slice (bisect)
 - Kid can swap tools freely at any time, like Figma Move vs. Pencil. No "right tool for the task" gating — the kid decides.
-- **Beat 1.5 exception:** during the welcome tour, tools are hidden — the only interaction is tapping slices to count. Tools fade in as kid enters Beat 2 (Sandbox).
+- **Beat 3 exception:** during the formal vocab lesson, tools are temporarily backgrounded — the primary interaction is tapping slices to count. Tools remain accessible but de-emphasized. (They were already in-use during Beat 2 Sandbox, which now comes first.)
 
 ### 3.4 Guests
 - Three facial expression states (modeled on Synthesis):
@@ -79,7 +79,7 @@
   - **Smile** (their specific order is satisfied — whatever amount they asked for, met or exceeded)
 - **The core trigger is per-guest requirement satisfaction**, NOT inter-guest equality. A single guest asking for 1/2 and receiving 1/2 should smile, even though there's no equivalency comparison happening.
 - In multi-guest equal-share scenarios this naturally creates a fairness ↔ equivalence emotional loop as a *side effect*, but the system works for any guest order independently.
-- Guests do not appear until Beat 3. Beats 1–2 are pre-service prep with Freddy alone.
+- Guests do not appear until Beat 4. Beats 1–3 are pre-service prep with Freddy alone (Splash → Sandbox → Vocab).
 
 ### 3.5 Tutor Brain
 - **Pure scripted state machine** — no LLM, deeply authored branching. Implemented as XState (see §3.10 Tech Stack).
@@ -121,23 +121,25 @@ Future tutors would appear here as additional CTA cards (one per subject/tutor) 
 Kid-facing splash, ~10 sec inside the lesson world.
 
 1. Freddy intro + "What's your name?" — single input, autofocus, big tap target. Character voice in full effect ("Heyyy, welcome to SuperSlice! What's your name, kid?").
-2. "Ready to slice some pizza, [Name]?" — giant button → straight into Beat 1.5
-3. **Behind the scenes:** name submit triggers ElevenLabs name-audio generation in parallel (see §3.11 Audio Architecture); ready by Beat 1.5 start
+2. "Ready to slice some pizza, [Name]?" — giant button → straight into Beat 2 (Sandbox)
+3. **Behind the scenes:** name submit triggers ElevenLabs name-audio generation in parallel (see §3.11 Audio Architecture); ready by Beat 2 start
 
 No parent flow, no audio check, no presence gate, no dashboard. Personalization (using the kid's name throughout, in text AND audio) gives us the warmth win.
 
 ### 3.9 Lesson Arc — 8 Beats
 
+> **Reordered 2026-05-19** to match the project brief's *explore → instruct → check* model. Beat 2 (Sandbox/Explore) now comes BEFORE Beat 3 (Vocab) so the kid learns the UI through discovery before any formal lesson. Previously the lesson started with vocab via "counting pepperoni" — that pattern was flipped because (a) the brief explicitly calls for exploration-first, (b) Synthesis's instruct-first pattern isn't gospel, and (c) Beat 6's AHA lands harder when the kid already owns the tools.
+
 | # | Beat | Duration | What happens |
 |---|---|---|---|
 | 1 | **Splash** | ~10s | Freddy greets, name capture, table opens |
-| **1.5** | **Welcome Tour — "Count the Pepperoni"** | 60–90s (expandable) | Freddy welcomes the kid INTO the restaurant. Shows a pizza with some pepperoni slices, some plain. *"Before our guests arrive, let me show you how we talk about pizzas around here."* Kid taps pepperoni slices to count (numerator) — counter increments visibly. Then taps remaining slices for the total (denominator). Freddy names the parts: *"The top number is the pepperoni slices. The bottom number is ALL the slices. Put them together and that's a fraction!"* 1–2 quick variations (different topping counts) to lock in vocab. *(Progressive: explicit vocabulary acquisition. Stretch: can grow to 2 min with more variations / a "build your own pizza" mini-game if time permits.)* |
-| 2 | **Sandbox / Explore** | 2–3 min | Tools fade in. Empty table + 1–2 whole pizzas. Free play with both tools. Toast labels fractions on every slice ("you made halves! 1/2"), now using the vocab from Beat 1.5. Freddy reacts warmly. Doubles as tutorial-by-doing for controls. *(Progressive: vocab practice + tool mastery)* |
-| 3 | **First guest** | ~30s | First guest arrives at the door. Asks for a simple share ("I'd love half!"). Kid slices, delivers via glove, guest smiles. First win. *(Application begins)* |
-| 4 | **Two guests, equal share** | ~45s | Second guest arrives. Both want equal pizza. Kid figures out halves. Both smile. *(Application deepens)* |
-| 5 | **The AHA — equivalence reveal** | ~60s | Freddy proposes: *"Hey [Name], want to see something cool? Try slicing one of those halves once more."* Kid slices a delivered 1/2 into two 1/4s. Drag-to-compare: the two quarters snap-align with a remaining half. Freddy names it cinematically: *"Whoa, [Name] — 1/2 is the SAME as 2/4!"* *(Synthesis to equivalence)* |
-| 6 | **Check for understanding** | ~90s | 2–3 short problems using drag-to-compare proximity mechanic ("Prove these two groups are equal"). Branching dialogue on wrong answers. *(Mastery)* |
-| 7 | **Win moment** | ~15s | All guests smile, confetti, Freddy celebrates by name. End. |
+| 2 | **Sandbox / Explore** | 2–3 min | Tools available. 1–2 whole pizzas on the counter. Free play with both glove + cutter. Toast labels fractions on every slice ("You made halves! 1/2", "Now quarters! 1/4", "Eighths! 1/8"). Freddy reacts warmly to discovery moments. Doubles as tutorial-by-doing for controls. Kid signals readiness for the formal lesson when they're ready. *(Progressive: tool mastery + intuitive number sense before vocab)* |
+| 3 | **Vocab — Numerator/Denominator** | 60–90s (expandable) | Formal instruction begins. Shows a pizza with some pepperoni slices, some plain. *"Now let me show you how we talk about pizzas around here."* Kid taps SLICES (not individual pepperoni discs) that have pepperoni → counter increments → numerator. Then taps all slices → denominator. Freddy names the parts: *"The top number is how many slices have pepperoni. The bottom number is ALL the slices. Put them together and that's a fraction!"* 1–2 variations to lock in vocab. *(Progressive: explicit vocabulary acquisition AFTER tool intuition. Stretch: can grow with more variations.)* |
+| 4 | **First guest** | ~30s | First guest arrives at the door. Asks for a simple share ("I'd love half!"). Kid slices, delivers via glove, guest smiles. First win. *(Application begins)* |
+| 5 | **Two guests, equal share** | ~45s | Second guest arrives. Both want equal pizza. Kid figures out halves. Both smile. *(Application deepens)* |
+| 6 | **The AHA — equivalence reveal** | ~60s | Freddy proposes: *"Hey [Name], want to see something cool? Try slicing one of those halves once more."* Kid slices a delivered 1/2 into two 1/4s. Drag-to-compare: the two quarters snap-align with a remaining half. Freddy names it cinematically: *"Whoa, [Name] — 1/2 is the SAME as 2/4!"* *(Synthesis to equivalence)* |
+| 7 | **Check for understanding** | ~90s | 2–3 short problems using drag-to-compare proximity mechanic ("Prove these two groups are equal"). Branching dialogue on wrong answers. *(Mastery)* |
+| 8 | **Win moment** | ~15s | All guests smile, confetti, Freddy celebrates by name. End. |
 
 **Total kid time:** ~7–10 minutes. Compresses Synthesis's ~39 min multi-lesson curriculum into a single focused arc.
 
@@ -149,7 +151,7 @@ No parent flow, no audio check, no presence gate, no dashboard. Personalization 
 | Language | **TypeScript** | Type safety for state machine + complex prop chains |
 | Styling | **Tailwind CSS** | Fast prototyping, easy Superbuilders design token application, utility-first matches iteration speed |
 | Animation | **Framer Motion** | Drag/snap/gesture primitives built-in, React-first, declarative |
-| Manipulative rendering | **SVG + Framer Motion** | Accessible (ARIA), scalable, easy proximity hit-detection, easy to animate |
+| Manipulative rendering | **Raster PNG (ChatGPT-generated) wrapped in `<img>` + Framer Motion** | Pivoted from SVG-only on 2026-05-19 — hand-coded SVG couldn't match Freddy's Pixar-painted aesthetic in our timeframe. ChatGPT/gpt-image-1 produces pixel-perfect style continuity with the character art. Proximity hit-detection still works via `getBoundingClientRect`; Framer Motion handles drag + position-swap animations between slice states. |
 | Tutor brain | **XState v5** | Literally a finite state machine — our scripted tutor architecture *is* an XState machine. Defensible. Authored visually in Stately Editor (see §5), exported to TS, and dropped into the repo. |
 | App state | **Zustand** | Lightweight, no boilerplate, easy to integrate with XState |
 | Routing | **React Router DOM** | Two URL routes (landing `/` and lesson `/lesson`); standard, ~10KB; supports deep-linking and browser back button — important for shareable URLs and natural navigation between SuperTutors portal and the lesson world |
@@ -205,9 +207,9 @@ No parent flow, no audio check, no presence gate, no dashboard. Personalization 
 |---|---|---|---|
 | **Freddy** (3–5 expressions) | Midjourney → Figma refine → SVG export (v1). Lottie from LottieFiles as stretch (Thursday). | SVG inline (v1) → Lottie JSON (stretch) | Framer Motion cross-fade/bounce on state change (v1) → lottie-react for facial anim (stretch) |
 | **Guests** (3 expressions × N) | Midjourney → Figma → SVG | SVG inline | Framer Motion (spring on state change) |
-| **Pizza** (procedural) | Hand-coded SVG components (Crust, Sauce, Cheese, Pepperoni) | SVG | Framer Motion `layout` animations for slice transitions |
+| **Pizza** (raster, compositional) | ChatGPT (gpt-image-1) in same thread as Freddy for style continuity. Sequential decomposition: whole → 2 halves → 4 quarters → 8 eighths = 15 PNGs per variant. Shipping variants: `pepperoni-v1` (15 PNGs) and `cheese-v1` (18 PNGs — adds 3 vertical-strip thirds for Beat 3 vocab; thirds are display-only, NOT part of the bisect slicing tree). Triangle eighths use CSS `clip-path: polygon(...)` so pointer-event hit area matches the visible triangle, not the square frame. | PNG via `<img>` (see `Pizza.tsx`); pieces wrapped in `PizzaPiece.tsx` (two-layer: visual + interactive) | Framer Motion drag + position-swap between slice states. Slicer mechanic hides parent piece and renders 2 children at parent's area split (32px gap). Cut materializes on pointer-UP. Tile-mating is aspirational, not pixel-perfect (model limit) — slicing animation hides the discontinuity. |
 | **Slice particle effect** | tsparticles preset (cheese stretch, sauce droplets) | Canvas overlay | tsparticles physics |
-| **Tools** (slicer wheel, glove) | Figma → SVG | SVG | Framer Motion (cutter spins on hover-tap, glove flex on grab) |
+| **Tools** (slicer wheel, glove) | ChatGPT (gpt-image-1) in same Freddy thread for style continuity. Glove: 5-finger palm-down white glove in 3 states (open, closed, pointing). Cutter: wood-handle + chrome-blade pizza cutter in 2 states (upright, cutting — rotated 90° for press-active). Each state has a 1000×1000 full sprite + 64×64 cursor-sized variant. | PNG via DOM-based `ToolSprite` component (`src/modules/world/ToolSprite.tsx`) that follows the pointer with `pointer-events: none`. OS cursor hidden via `cursor: none` on body — the sprite IS the cursor. Replaces an earlier CSS-cursor approach that Chrome on macOS silently failed to render in certain regions despite computed styles being correct. | JS-driven variant swap on every `pointermove`: glove (open/closed by press state), cutter (upright/cutting by press state), pointing-glove override when hovering `[data-cursor-pointing]` elements (ToolPicker). |
 | **Landing CTA illustration** | Midjourney — THE polish piece (Freddy at SuperSlice with pizza + slicer) | PNG/WebP | Framer Motion hover/tap bounce |
 | **Backgrounds** (restaurant, oven, counter) | Midjourney + light Figma cleanup | SVG / PNG | CSS / Framer Motion (subtle parallax on hero moments) |
 | **Win confetti** | tsparticles confetti preset | Canvas | tsparticles physics |
@@ -226,7 +228,7 @@ No parent flow, no audio check, no presence gate, no dashboard. Personalization 
 | **Snap-align (Beat 5 AHA)** | Proximity detected → glow pulse on both pieces → snap-into-alignment (spring) → chime → brief screen-glow flash. |
 | **Guest reaction** | Face state change with spring bounce. Stars/sparkle particle on smile. Frown shake. |
 | **Win moment (Beat 7)** | All guests bounce + smile. Full-screen confetti (tsparticles preset). Freddy big celebration animation. Triumphant SFX. |
-| **Counter tick (Beat 1.5)** | Tapped slice highlights with wave + bounce. Counter number scales up + spring-bounces back. Subtle sparkle particle on each tap. |
+| **Counter tick (Beat 3 — Vocab)** | Tapped slice (not pepperoni disc) highlights with wave + bounce. Counter number scales up + spring-bounces back. Subtle sparkle particle on each tap. |
 
 #### Honest Scope
 
@@ -247,10 +249,10 @@ What we explicitly **can't** match: years of custom-illustrated character polish
 | **Lesson Orchestrator** | `src/modules/lesson/` | Beat lifecycle, transitions, root view layout (at `/lesson`) | Tutor Brain, Table, Chat |
 | **Tutor Brain (XState)** | `src/modules/tutor/tutorMachine.ts` | Dialogue state, branching, expected events. The "scripted brain." | Audio Engine, Chat Panel, Store |
 | **Chat Panel** | `src/modules/tutor/ChatPanel.tsx` | Dialogue text bubbles, Freddy avatar, scroll | Audio Engine |
-| **Table Workspace** | `src/modules/table/Table.tsx` | Pizzas, slices, guests, drag/drop, proximity detection, counting mode (Beat 1.5). Emits events. | Tutor Brain (events), Tools, Store |
+| **Table Workspace** | `src/modules/table/Table.tsx` | Pizzas, slices, guests, drag/drop, proximity detection, counting mode (Beat 3 — Vocab). Emits events. | Tutor Brain (events), Tools, Store |
 | **Tool Picker** | `src/modules/tools/ToolPicker.tsx` | Glove ↔ Cutter mode switching | Store |
 | **Audio Engine** | `src/modules/audio/AudioEngine.ts` | Howler wrap, sequential stitching for name-injected lines, global fallback to text-only if audio fails | Pre-gen MP3s, IndexedDB cache |
-| **Toast System** | `src/modules/toast/ToastSystem.tsx` | Fraction labels on slice events, counter UI for Beat 1.5 | Subscribes to Table events |
+| **Toast System** | `src/modules/toast/ToastSystem.tsx` | Fraction labels on slice events, counter UI for Beat 3 (Vocab) | Subscribes to Table events |
 | **Voice Proxy** | `api/voice.ts` (Edge Function) | Secures ElevenLabs API key, accepts name string, returns MP3 | ElevenLabs API |
 | **Pre-gen Pipeline** | `scripts/generate-voice.ts` | Build-time MP3 generation from dialogue.json | (build-time only) |
 | **Store (Zustand)** | `src/store/appStore.ts` | Kid name, current beat, tool mode, guest states, table state | All components |
@@ -341,6 +343,8 @@ graph TB
 
 ## 5. State Machine & Branching
 
+> **Beat renumbering note (2026-05-19):** §5 below was written under the original beat numbering where the AHA was Beat 5. Under the updated ordering (see §3.9), the AHA is now **Beat 6**, Check is Beat 7, and Win is Beat 8. The references below to "Beat 5" / "Beat 6" / "Beat 7" should be read as Beat 6 / Beat 7 / Beat 8 respectively. Full renames will land when this section is re-authored alongside Stately work; until then, the state machine logic is correct, only the numbering is one off.
+
 ### Canonical source: Stately Editor
 
 The full lesson — every beat, every branch (correct / wrong / stuck / timeout), every Freddy dialogue line — is authored visually in **Stately Editor** (by the XState team). The machine exports directly to XState v5 TypeScript, which IS the production tutor brain.
@@ -404,7 +408,7 @@ All 15 transitions trace correctly from `[*]` to `[*]`. No dead-ends. Every wron
 ```
 SLICED { pieceId, parentFraction, resultingFractions[] }
 PROXIMITY_DETECTED { pieceIds[], totalArea, comparison: 'equal' | 'not_equal' }
-TAPPED { pieceId, hasTopping }      // Beat 1.5 counting
+TAPPED { pieceId, hasTopping }      // Beat 3 (Vocab) counting
 DELIVERED { pieceId, guestId }       // Beats 3+
 ```
 
@@ -468,7 +472,7 @@ This pattern *is* the intent map. The visual diagram (above for Beat 5) is gener
 Author order, per vertical-slice-first strategy (see §5.4):
 1. **Beat 5: AHA** — already sketched (above); first to be authored fully in Stately and wired end-to-end through code → voice → iPad as the vertical slice
 2. **Beat 1: Splash** — trivial (linear)
-3. **Beat 1.5: Welcome Tour (Count the Pepperoni)** — counting sub-machine: `setup → count_pepperoni → count_total → reveal_vocab → variation_1 → variation_2 → exit`. Tap events drive transitions. Wrong-count and stuck branches.
+3. **Beat 3: Vocab — Numerator/Denominator** (formerly Beat 1.5 "Welcome Tour") — counting sub-machine: `setup → count_pepperoni_slices → count_total_slices → reveal_vocab → variation_1 → variation_2 → exit`. Tap events drive transitions (kid taps pizza SLICES, not individual pepperoni discs). Wrong-count and stuck branches.
 4. **Beat 2: Sandbox** — most complex (free-form, many possible student actions, many fraction-toast triggers)
 5. **Beat 3: First Guest** — linear with one wrong-amount branch
 6. **Beat 4: Two Guests, Equal Share** — linear with proportional-wrong branches
@@ -528,7 +532,7 @@ super-slice/
 │   │   ├── lesson/                  # Lesson orchestration
 │   │   │   ├── LessonView.tsx
 │   │   │   └── beats/               # Beat-specific XState configs
-│   │   │       ├── welcomeTour.ts   # Beat 1.5
+│   │   │       ├── vocab.ts         # Beat 3 (formerly Beat 1.5 Welcome Tour)
 │   │   │       ├── sandbox.ts       # Beat 2
 │   │   │       ├── firstGuest.ts    # Beat 3
 │   │   │       ├── twoGuests.ts     # Beat 4
@@ -547,7 +551,7 @@ super-slice/
 │   │   │   ├── Slicer.tsx           # Pizza cutter tool
 │   │   │   ├── Glove.tsx            # Grab/move tool
 │   │   │   ├── proximity.ts         # Drag-to-compare detection
-│   │   │   └── countingMode.ts      # Beat 1.5 tap-to-count logic
+│   │   │   └── countingMode.ts      # Beat 3 tap-to-count-slices logic
 │   │   ├── tools/
 │   │   │   └── ToolPicker.tsx
 │   │   ├── audio/
@@ -555,7 +559,7 @@ super-slice/
 │   │   │   └── nameAudioCache.ts    # IndexedDB helper
 │   │   └── toast/
 │   │       ├── ToastSystem.tsx      # Fraction labels on slice
-│   │       └── CounterDisplay.tsx   # Beat 1.5 counter UI
+│   │       └── CounterDisplay.tsx   # Beat 3 (Vocab) counter UI
 │   ├── store/
 │   │   └── appStore.ts              # Zustand
 │   ├── styles/

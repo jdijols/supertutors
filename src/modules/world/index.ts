@@ -23,3 +23,5 @@ export type { RestaurantSceneProps } from "./RestaurantScene";
 
 export { NameInputOverlay } from "./NameInputOverlay";
 export type { NameInputOverlayProps } from "./NameInputOverlay";
+
+export { ToolSprite } from "./ToolSprite";
