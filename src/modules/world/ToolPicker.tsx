@@ -63,7 +63,7 @@ export function ToolPicker({ visible = true }: ToolPickerProps) {
       role="group"
       aria-label="Pick a tool"
       data-cursor-pointing
-      className={`flex items-center gap-2 p-2 bg-sb-paper/95 backdrop-blur rounded-2xl shadow-xl shadow-sb-accent-deep/25 border-2 border-sb-ink ${
+      className={`flex items-center gap-2 p-2 bg-sb-paper rounded-2xl shadow-xl shadow-sb-accent-deep/25 border-2 border-sb-ink ${
         spotlit ? "spotlight-pulse" : ""
       }`}
     >
@@ -74,17 +74,19 @@ export function ToolPicker({ visible = true }: ToolPickerProps) {
             key={tool.mode}
             type="button"
             onClick={() => setToolMode(tool.mode)}
-            whileTap={{ scale: 0.9 }}
-            transition={{ type: "spring", stiffness: 600, damping: 20 }}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.92 }}
+            transition={{ type: "spring", stiffness: 600, damping: 22 }}
             aria-label={tool.label}
             aria-pressed={active}
             data-active={active}
             className={`
-              w-14 h-14 md:w-16 md:h-16 rounded-xl grid place-items-center p-2
-              focus:outline-none focus:ring-2 focus:ring-sb-accent focus:ring-offset-2 focus:ring-offset-sb-paper
+              w-14 h-14 sm:w-16 sm:h-16 rounded-xl grid place-items-center p-2
+              transition-colors duration-200
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-paper
               ${
                 active
-                  ? "bg-sb-ink shadow-inner"
+                  ? "bg-sb-ink shadow-inner [&_img]:brightness-0 [&_img]:invert"
                   : "bg-sb-card hover:bg-sb-paper-deep"
               }
             `}
@@ -93,7 +95,7 @@ export function ToolPicker({ visible = true }: ToolPickerProps) {
               src={tool.src}
               alt=""
               draggable={false}
-              className="w-full h-full object-contain select-none pointer-events-none"
+              className="w-full h-full object-contain select-none pointer-events-none transition-[filter] duration-200"
             />
           </motion.button>
         );
@@ -103,15 +105,17 @@ export function ToolPicker({ visible = true }: ToolPickerProps) {
       <motion.button
         type="button"
         onClick={handleCvToggle}
-        whileTap={{ scale: 0.9 }}
-        transition={{ type: "spring", stiffness: 600, damping: 20 }}
+        whileHover={{ scale: 1.04 }}
+        whileTap={{ scale: 0.92 }}
+        transition={{ type: "spring", stiffness: 600, damping: 22 }}
         aria-label="Hand tracking (CV mode)"
         aria-pressed={cvMode}
         data-active={cvMode}
         data-testid="cv-mode-button"
         className={`
-          w-14 h-14 md:w-16 md:h-16 rounded-xl grid place-items-center text-2xl
-          focus:outline-none focus:ring-2 focus:ring-sb-accent focus:ring-offset-2 focus:ring-offset-sb-paper
+          w-14 h-14 sm:w-16 sm:h-16 rounded-xl grid place-items-center text-2xl
+          transition-colors duration-200
+          focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-paper
           ${cvMode ? "bg-sb-ink shadow-inner" : "bg-sb-card hover:bg-sb-paper-deep"}
         `}
       >

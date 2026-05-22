@@ -62,7 +62,7 @@ export function NameInputOverlay({
       >
         <label
           htmlFor="kid-name"
-          className="block font-mono uppercase tracking-[0.18em] text-[10px] text-sb-ink mb-2 text-center"
+          className="block font-mono uppercase tracking-[0.18em] text-[11px] text-sb-muted mb-2 text-center"
         >
           What&apos;s your name?
         </label>
@@ -79,17 +79,18 @@ export function NameInputOverlay({
             onChange={(e) => setValue(e.target.value)}
             placeholder="Type your name"
             data-cursor-text
-            className="flex-1 min-w-0 text-lg font-sans py-2.5 px-4 rounded-xl bg-sb-card border-2 border-sb-border focus:border-sb-ink focus:outline-none text-sb-ink placeholder:text-sb-subtle"
+            className="flex-1 min-w-0 text-lg font-sans py-2.5 px-4 rounded-xl bg-sb-card border-2 border-sb-border focus:border-sb-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-paper text-sb-ink placeholder:text-sb-muted transition-colors duration-200"
           />
           <motion.button
             type="submit"
             disabled={!canSubmit}
+            whileHover={canSubmit ? { scale: 1.04 } : undefined}
             whileTap={canSubmit ? { scale: 0.92 } : undefined}
             transition={{ type: "spring", stiffness: 600, damping: 22 }}
             aria-label={
               canSubmit ? `Send name: ${trimmed}` : "Type your name to send"
             }
-            className="shrink-0 w-12 h-12 grid place-items-center rounded-xl bg-sb-ink text-white shadow-lg shadow-sb-ink/30 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-sb-accent focus:ring-offset-2 focus:ring-offset-sb-paper transition-opacity"
+            className="shrink-0 w-12 h-12 grid place-items-center rounded-xl bg-sb-ink text-white shadow-xl shadow-sb-accent-deep/25 hover:bg-sb-ink/90 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-paper transition-colors duration-200"
           >
             <PaperPlaneIcon />
           </motion.button>
