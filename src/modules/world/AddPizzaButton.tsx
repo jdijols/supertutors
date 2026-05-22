@@ -170,7 +170,8 @@ function PizzaPickerButton({
       className="
         w-14 h-14 sm:w-16 sm:h-16
         rounded-xl
-        bg-sb-card hover:bg-sb-paper-deep
+        border border-sb-ink/10
+        hover:bg-sb-card
         flex flex-col items-center justify-center
         cursor-pointer
         transition-colors duration-200

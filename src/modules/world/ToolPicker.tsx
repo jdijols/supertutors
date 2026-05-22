@@ -82,12 +82,13 @@ export function ToolPicker({ visible = true }: ToolPickerProps) {
             data-active={active}
             className={`
               w-14 h-14 sm:w-16 sm:h-16 rounded-xl grid place-items-center p-2
+              border border-sb-ink/10
               transition-colors duration-200
               focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-paper
               ${
                 active
                   ? "bg-sb-ink shadow-inner [&_img]:brightness-0 [&_img]:invert"
-                  : "bg-sb-card hover:bg-sb-paper-deep"
+                  : "hover:bg-sb-card"
               }
             `}
           >
@@ -114,9 +115,10 @@ export function ToolPicker({ visible = true }: ToolPickerProps) {
         data-testid="cv-mode-button"
         className={`
           w-14 h-14 sm:w-16 sm:h-16 rounded-xl grid place-items-center text-2xl
+          border border-sb-ink/10
           transition-colors duration-200
           focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-paper
-          ${cvMode ? "bg-sb-ink shadow-inner" : "bg-sb-card hover:bg-sb-paper-deep"}
+          ${cvMode ? "bg-sb-ink shadow-inner" : "hover:bg-sb-card"}
         `}
       >
         🖐️
