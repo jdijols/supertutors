@@ -48,11 +48,20 @@ export function LessonView() {
   const setFreddy = useAppStore((s) => s.setFreddy);
   const [searchParams] = useSearchParams();
 
-  const [greetingDismissed, setGreetingDismissed] = useState(false);
+  // Initialize skip state eagerly from URL so the first render is already
+  // in the correct phase — avoids the greeting bubble flashing for one
+  // frame before the effect fires.
+  const [searchParamsInitial] = useState(() => new URLSearchParams(window.location.search));
+  const skipImmediately =
+    searchParamsInitial.get("skip") === "true" ||
+    searchParamsInitial.get("lesson") === "scripted";
+  const skipToScriptedImmediately = searchParamsInitial.get("lesson") === "scripted";
+
+  const [greetingDismissed, setGreetingDismissed] = useState(skipImmediately);
   const [responseShown, setResponseShown] = useState(false);
-  const [onboardingDone, setOnboardingDone] = useState(false);
+  const [onboardingDone, setOnboardingDone] = useState(skipImmediately);
   // True once exploration's handoff line plays — mounts LessonScripted.
-  const [explorationDone, setExplorationDone] = useState(false);
+  const [explorationDone, setExplorationDone] = useState(skipToScriptedImmediately);
   // True once Freddy's greeting finishes ("...what's your name, kid?") —
   // pulses the name input as a hand-off cue.
   const [nameInputPulsing, setNameInputPulsing] = useState(false);
@@ -75,17 +84,22 @@ export function LessonView() {
   // every reload. Production flow is unchanged.
   const skipOnboarding = searchParams.get("skip") === "true";
   const nameOverride = searchParams.get("name");
+  // ?lesson=scripted — jump straight to LessonScripted, bypassing both
+  // onboarding and exploration. Used by e2e tests and demo shortcuts.
+  const skipToScripted = searchParams.get("lesson") === "scripted";
   useEffect(() => {
-    if (skipOnboarding && !name) {
+    if ((skipOnboarding || skipToScripted) && !name) {
       setName(nameOverride ?? "Chef");
       setGreetingDismissed(true);
       setResponseShown(false);
       setOnboardingDone(true);
     }
-    // Only fires once on mount with skip=true — subsequent renders won't
-    // re-trigger because `name` is now set.
+    if (skipToScripted && !explorationDone) {
+      setExplorationDone(true);
+    }
+    // Only fires once on mount.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [skipOnboarding, nameOverride]);
+  }, [skipOnboarding, skipToScripted, nameOverride]);
 
   function handleNameSubmit(submitted: string) {
     setName(submitted);
