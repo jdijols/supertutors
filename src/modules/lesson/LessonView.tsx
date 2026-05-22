@@ -91,6 +91,21 @@ export function LessonView() {
     setNameInputPulsing(false);
   }
 
+  // Re-focus the name input whenever the greeting bubble dismisses. The
+  // input mounts at /lesson load (so the keyboard is visible from the
+  // start), so its `autoFocus` fires before the kid taps the bubble —
+  // which means the click defocuses the input. Re-focusing here keeps
+  // the iPad keyboard live and matches the smoke-test contract.
+  useEffect(() => {
+    if (!greetingDismissed) return;
+    // requestAnimationFrame so React's commit settles before we focus.
+    const id = requestAnimationFrame(() => {
+      const el = document.getElementById("kid-name");
+      if (el instanceof HTMLInputElement) el.focus();
+    });
+    return () => cancelAnimationFrame(id);
+  }, [greetingDismissed]);
+
   // Greeting audio: plays while the bubble is visible. Auto-dismisses on
   // audio end so the kid isn't left with a stale bubble overlapping the
   // name input. User can also tap the bubble to dismiss early. The

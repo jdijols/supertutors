@@ -40,7 +40,7 @@ test.describe("Beat 8 (Win) — confetti jump", () => {
     await greeting.click();
     await page.getByPlaceholder(/type your name/i).fill("TestKid");
     await page
-      .getByRole("button", { name: /nice to meet you, testkid/i })
+      .getByRole("button", { name: /send name: testkid/i })
       .click();
 
     // Key 8 fires React Router navigate('/lesson?beat=win') — no full reload,

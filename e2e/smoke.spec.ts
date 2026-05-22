@@ -50,7 +50,7 @@ test.describe("scaffold happy path", () => {
 
     // 7. Type name + submit
     await nameInput.fill("TestKid");
-    await page.getByRole("button", { name: /nice to meet you, testkid/i }).click();
+    await page.getByRole("button", { name: /send name: testkid/i }).click();
 
     // 8. Onboarding complete: name input overlay dismisses; world stays clean
     //    (NumberBar + ToolPicker are wired but hidden until XState drives

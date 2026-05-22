@@ -74,7 +74,7 @@ test.describe("a11y baseline", () => {
     await page.getByTestId("speech-bubble").click();
     await page.getByPlaceholder(/type your name/i).fill("TestKid");
     await page
-      .getByRole("button", { name: /nice to meet you, testkid/i })
+      .getByRole("button", { name: /send name: testkid/i })
       .click();
     await expect(page.getByTestId("name-input-overlay")).not.toBeVisible();
     await waitForAnimationsToSettle(page);
@@ -107,7 +107,7 @@ test.describe("a11y baseline", () => {
     await greeting.click();
     await page.getByPlaceholder(/type your name/i).fill("TestKid");
     await page
-      .getByRole("button", { name: /nice to meet you, testkid/i })
+      .getByRole("button", { name: /send name: testkid/i })
       .click();
     // Key 8 → WIN_DEMO event → win confetti visible.
     await page.keyboard.press("8");
