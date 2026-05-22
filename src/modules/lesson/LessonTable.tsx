@@ -411,6 +411,12 @@ export interface LessonTableProps {
 export interface LessonTableHandle {
   /** Reset the table to a single whole pizza. */
   reset: () => void;
+  /**
+   * Clear the AHA-fired lock so proximity can trigger onAha again.
+   * Used by LessonScripted when entering wait_compare to handle the case
+   * where pieces were dragged close before the stage was ready.
+   */
+  resetAhaLock: () => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -648,7 +654,14 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
       setWinActive(false);
     }, [reset]);
 
-    useImperativeHandle(ref, () => ({ reset: handleReset }), [handleReset]);
+    useImperativeHandle(
+      ref,
+      () => ({
+        reset: handleReset,
+        resetAhaLock: () => { ahaFiredRef.current = false; },
+      }),
+      [handleReset],
+    );
 
     const proximityGroups = useMemo<ProximityGroup[]>(() => {
       return findProximityGroups(pieces.map(toProximityPiece));

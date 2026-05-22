@@ -4,7 +4,7 @@ import { useFreddyIdle } from "@/lib/useFreddyIdle";
 import { renderLine, type DialogueKey } from "@/modules/tutor/dialogue";
 import { SpeechBubble } from "@/modules/world";
 import { useAppStore, type FreddyDisplay } from "@/store/appStore";
-import { LessonTable, type LessonTableSliceEvent } from "./LessonTable";
+import { LessonTable, type LessonTableHandle, type LessonTableSliceEvent } from "./LessonTable";
 import { AhaAnimation } from "./AhaAnimation";
 import { WinConfetti } from "./WinConfetti";
 
@@ -108,6 +108,8 @@ export function LessonScripted({ name }: LessonScriptedProps) {
   const [ahaActive, setAhaActive] = useState(false);
   const [winActive, setWinActive] = useState(false);
 
+  // Ref to LessonTable so we can reset its internal AHA lock on stage entry.
+  const tableRef = useRef<LessonTableHandle>(null);
   // Count how many "1/4" slices have been made in wait_quarters.
   // A fresh pizza sliced to halves then each half to quarters = 2 events.
   const quarterSliceCount = useRef(0);
@@ -200,6 +202,14 @@ export function LessonScripted({ name }: LessonScriptedProps) {
     return () => clearTimeout(t);
   }, [stage]);
 
+  // Reset LessonTable's AHA lock whenever we enter wait_compare so that
+  // pieces dragged close before the stage was ready can still fire onAha.
+  useEffect(() => {
+    if (stage === "wait_compare") {
+      tableRef.current?.resetAhaLock();
+    }
+  }, [stage]);
+
   const handleSlice = useCallback(
     (event: LessonTableSliceEvent) => {
       const { childrenFraction } = event;
@@ -268,6 +278,7 @@ export function LessonScripted({ name }: LessonScriptedProps) {
   return (
     <>
       <LessonTable
+        ref={tableRef}
         renderHeroAnimations={false}
         onSlice={handleSlice}
         onAha={handleAha}
