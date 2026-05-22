@@ -18,6 +18,8 @@ export type { InputFieldProps } from "./InputField";
 export { ToolPicker } from "./ToolPicker";
 export type { ToolPickerProps } from "./ToolPicker";
 
+export { CvToggle } from "./CvToggle";
+
 export { RestaurantScene } from "./RestaurantScene";
 export type { RestaurantSceneProps } from "./RestaurantScene";
 

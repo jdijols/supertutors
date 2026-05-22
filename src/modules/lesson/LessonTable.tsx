@@ -9,6 +9,7 @@ import {
 } from "react";
 import {
   AddPizzaButton,
+  CvToggle,
   DeliveryBox,
   ToolPicker,
   ToolSprite,
@@ -720,6 +721,11 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
 
         {/* Add-pizza button top-left (oven side). */}
         <AddPizzaButton onAdd={handleAddPizza} disabled={cantAddMore} />
+
+        {/* Camera / hand-tracking toggle bottom-left — pairs visually
+            with MuteToggle in the top-right (matching chrome pattern,
+            opposite corners). */}
+        <CvToggle />
 
         {/* Delivery box right-side. Pulses when the table is too packed to
             accept another pizza — signal "send a pizza away to make room." */}

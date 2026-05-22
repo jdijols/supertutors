@@ -2,11 +2,15 @@ import { motion } from "framer-motion";
 import { useAppStore, type ToolMode } from "@/store/appStore";
 
 /**
- * ToolPicker — bottom-RIGHT corner picker between Glove, Cutter, and Hands (CV).
+ * ToolPicker — bottom-RIGHT corner picker between Glove and Cutter.
  *
- * Kid-driven (Figma-style, not context-gated per PRD §3.3). All tools always
- * available; tap to switch. "🖐️ Hands" button enables CV physical mode via
- * MediaPipe; the glove/cutter selection persists alongside it.
+ * Kid-driven (Figma-style, not context-gated per PRD §3.3). Both tools are
+ * always available; tap to switch.
+ *
+ * Camera / hand-tracking mode is no longer part of the picker — it lives
+ * as a standalone `CvToggle` button in the bottom-left corner, paired
+ * visually with MuteToggle in the top-right. Different concern, different
+ * affordance.
  *
  * Hidden during onboarding (no manipulative interaction expected yet).
  */
@@ -27,34 +31,15 @@ const TOOLS: { mode: ToolMode; src: string; label: string }[] = [
   },
 ];
 
-/** Sync ?cv=true / remove ?cv from the URL without triggering a navigation. */
-function syncCvParam(enabled: boolean) {
-  const url = new URL(window.location.href);
-  if (enabled) {
-    url.searchParams.set("cv", "true");
-  } else {
-    url.searchParams.delete("cv");
-  }
-  window.history.replaceState(null, "", url.toString());
-}
-
 export function ToolPicker({ visible = true }: ToolPickerProps) {
   const toolMode = useAppStore((s) => s.toolMode);
   const setToolMode = useAppStore((s) => s.setToolMode);
-  const cvMode = useAppStore((s) => s.cvMode);
-  const setCvMode = useAppStore((s) => s.setCvMode);
   // Spotlight is set by LessonExploration during the opener tour — when
   // Freddy says "slicer and glove are right down there," the picker pulses
   // + scales to draw the kid's eye.
   const spotlit = useAppStore((s) => s.spotlight === "toolpicker");
 
   if (!visible) return null;
-
-  function handleCvToggle() {
-    const next = !cvMode;
-    setCvMode(next);
-    syncCvParam(next);
-  }
 
   return (
     <div
@@ -101,28 +86,6 @@ export function ToolPicker({ visible = true }: ToolPickerProps) {
           </motion.button>
         );
       })}
-
-      {/* CV hands-mode toggle */}
-      <motion.button
-        type="button"
-        onClick={handleCvToggle}
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.92 }}
-        transition={{ type: "spring", stiffness: 600, damping: 22 }}
-        aria-label="Hand tracking (CV mode)"
-        aria-pressed={cvMode}
-        data-active={cvMode}
-        data-testid="cv-mode-button"
-        className={`
-          w-14 h-14 sm:w-16 sm:h-16 rounded-xl grid place-items-center text-2xl
-          border border-sb-ink/10
-          transition-colors duration-200
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-paper
-          ${cvMode ? "bg-sb-ink shadow-inner" : "hover:bg-sb-card"}
-        `}
-      >
-        🖐️
-      </motion.button>
     </div>
   );
 }
