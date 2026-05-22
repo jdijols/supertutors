@@ -1,8 +1,19 @@
 # SuperTutors — Freddy Fractions
 
-> A conversational AI math tutor that teaches fraction equivalence to 9-year-olds through a Sicilian-pizza manipulative. Built for the Week 4 Gauntlet challenger project (clone Synthesis Tutor).
+> A conversational AI math tutor that teaches fraction equivalence (1/2 = 2/4) to 9-year-olds through a Sicilian-pizza manipulative. Built for the Week 4 Gauntlet challenger project (clone Synthesis Tutor).
 
-**Live:** [supertutors.vercel.app](https://supertutors.vercel.app) — bookended exploration tour (greeting → name → opener choreography → free play → tap-Freddy handoff) + Beat 6 AHA + Win confetti + CV physical mode, all inside the unified `/lesson` route
+**Live:** [supertutors.vercel.app](https://supertutors.vercel.app) — onboarding → exploration tour → scripted **Share the Pizza** lesson (fraction equivalence) → Win, with optional CV physical mode
+
+**Demo video:** _to be added before noon 2026-05-22 — placeholder: [https://www.loom.com/share/TODO](https://www.loom.com/share/TODO)_
+
+> **Submission deliverables**
+>
+> | Requirement | Status |
+> |---|---|
+> | Working prototype of a single math lesson on fraction equivalence | Live at [/lesson](https://supertutors.vercel.app/lesson) |
+> | Web-based app, runnable in a standard browser | Yes — Vite + React, no install |
+> | 1–2 min demo video showing conversational flow + interactive fraction manipulative | _Placeholder above — recording 2026-05-22 AM_ |
+> | README with run instructions + technical approach overview | This document — see [Setup](#setup) and [Technical decisions](#technical-decisions) |
 
 ---
 
@@ -51,8 +62,9 @@ useHandLandmarks()       ← webcam → MediaPipe → 21 landmarks/30fps
 | URL | What it shows |
 |---|---|
 | [supertutors.vercel.app](https://supertutors.vercel.app) | Landing + lesson entry |
-| [/lesson](https://supertutors.vercel.app/lesson) | Full production flow — onboarding → exploration tour → free play |
-| [/lesson?skip=true](https://supertutors.vercel.app/lesson?skip=true) | Skip onboarding, drop straight into the manipulative (name = "Chef") |
+| [/lesson](https://supertutors.vercel.app/lesson) | Full production flow — onboarding → exploration tour → **Share the Pizza** scripted lesson → Win |
+| [/lesson?lesson=scripted](https://supertutors.vercel.app/lesson?lesson=scripted) | Jump directly into the scripted lesson (name = "Chef") |
+| [/lesson?skip=true](https://supertutors.vercel.app/lesson?skip=true) | Skip onboarding, drop into exploration sandbox (name = "Chef") |
 | [/lesson?skip=true&cv=true](https://supertutors.vercel.app/lesson?skip=true&cv=true) | Same shortcut + CV physical mode pre-armed |
 | [/preview/cv](https://supertutors.vercel.app/preview/cv) | Hand landmark debug overlay |
 | [/lesson?beat=aha&demo=true](https://supertutors.vercel.app/lesson?beat=aha&demo=true) | Beat 6 (AHA) state machine with dev controls |
@@ -115,6 +127,17 @@ Build a single, self-contained math lesson on **fraction equivalence (1/2 = 2/4)
 - **Setting:** SuperSlice Pizza — Freddy's pizza shop
 - **Manipulative:** Sicilian-style (square) pizza pieces, sliced with a pizza-cutter wheel
 
+## Lesson Flow
+
+The default `/lesson` route runs a single bookended arc — **Onboarding → Exploration → Scripted Lesson → Win** — narrated entirely by Freddy:
+
+1. **Onboarding (~15s)** — Freddy greets the kid, asks their name, and replies with the kid's name spoken in Freddy's voice (ElevenLabs).
+2. **Exploration Tour (~25s)** — a guided "this is the counter, the slicer, the oven, the delivery box" walkthrough with each UI element pulsing as it's introduced. Ends with free play and a "tap me when you're ready" cue.
+3. **Share the Pizza Lesson (~90s)** — the scripted core, modeled on the Synthesis "Share the Cookies" lesson. Freddy poses a real-world fairness problem ("two hungry kids, one pizza, gotta split it fair"), the student slices to halves, then to quarters, then drags pieces together to discover that **1/2 = 2/4** — the AHA moment. Branches for wrong slices, stuck states, and re-prompts keep every kid on the rails.
+4. **Win (~10s)** — confetti, a Bellissimo, and the equivalence locked in.
+
+Throughout, Freddy is the only narrator. State transitions are deterministic XState — no LLM, no latency, no hallucinations. Every line is pre-rendered ElevenLabs audio in `/public/audio/`, with the `{{NAME}}` slot stitched at runtime via `/api/voice` so the kid hears their own name spoken in Freddy's voice.
+
 ## Technical decisions
 
 | Decision | Choice | Why |
@@ -138,4 +161,4 @@ Build a single, self-contained math lesson on **fraction equivalence (1/2 = 2/4)
 
 ---
 
-*Built 2026-05-19 → 2026-05-22. Autonomous overnight loop shipped the CV pipeline (OVN.1–10) in ~8 hours.*
+*Built 2026-05-19 → 2026-05-22. Autonomous overnight loops shipped the CV pipeline (OVN.1–10, 2026-05-21) and the Share-the-Pizza scripted lesson (2026-05-22).*

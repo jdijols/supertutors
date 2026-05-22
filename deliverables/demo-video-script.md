@@ -44,21 +44,27 @@ What if you could do the same thing with just an iPad and a web browser?"
 
 ---
 
-## Part 2 (1:30 – 2:30) — The full lesson machine
+## Part 2 (1:30 – 2:30) — The full scripted lesson
 
-**Show:** Navigate to `/lesson?beat=aha&demo=true`
+**Show:** Navigate to `/lesson` and go through the full flow, OR use `/lesson?lesson=scripted` to jump straight to the lesson.
 
-> "The full lesson machine adds Freddy's voice. Same AHA moment, now with a state machine choreographing it: Freddy gives instructions, waits for the student to act, reacts to the result."
+> "The full lesson machine adds Freddy's voice and a scripted arc. After the exploration tour, Freddy poses a real-world fairness problem: two friends, one pizza, gotta split it fair."
 
-*In dev controls, click SLICED 1/2, then PROXIMITY equal.*
+*Enter name at onboarding, go through the 4-stage exploration tour, tap 'Start lesson'.*
 
-> "Freddy delivers the reveal line: 'Whoa, [kid's name]! Look at that — one half IS the same as two quarters. You just made fractions.'"
+> "The lesson is a local-state machine with 16 stages. Freddy waits for the kid to act, reacts to every slice milestone, branches for wrong moves, and delivers a stuck-state nudge after 30 seconds."
 
-> "The state machine is deterministic — no LLM, no latency, no hallucinations. Every child gets the same choreographed aha moment, delivered with their name spoken in Freddy's voice via ElevenLabs."
+*Slice the pizza to halves. Hear Freddy react. Slice each half to quarters. Hear Freddy pivot to the comparison prompt.*
 
-*Press key 8 to show Win confetti.*
+> "Now Freddy asks: drag two of those quarters right next to one half. Tell me what you notice."
 
-> "Beat 8 — the Win moment. Also already animated and ready, just waiting for the lesson arc to be authored in Stately."
+*Drag two quarter pieces next to the half. Proximity indicator appears. AHA fires.*
+
+> "There it is — the AHA moment. One half is the EXACT same size as two quarters. That's fraction equivalence. The same visual reveal, now properly choreographed in a scripted lesson."
+
+*Win confetti plays.*
+
+> "The state machine is deterministic — no LLM, no latency, no hallucinations. Every child gets the same choreographed aha moment, delivered in Freddy's voice via ElevenLabs."
 
 ---
 
