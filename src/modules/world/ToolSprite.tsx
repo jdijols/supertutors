@@ -12,8 +12,10 @@ import type { ToolMode } from "@/store/appStore";
  * quirks.
  *
  * Variant selection (recomputed on every pointermove via elementFromPoint):
- *   - Hovering an element with `data-cursor-pointing` (the ToolPicker):
- *     pointing-glove (regardless of toolMode)
+ *   - Hovering an element with `data-cursor-text` (the name input field):
+ *     sprite is hidden so the OS text caret (I-beam) shows through
+ *   - Hovering an element with `data-cursor-pointing` (chrome buttons,
+ *     ToolPicker, name input card): pointing-glove (regardless of toolMode)
  *   - Otherwise: the tool variant
  *     - glove tool: open-glove idle, closed-glove while pressed
  *     - cutter tool: upright idle, cutting while pressed
@@ -64,6 +66,7 @@ export function ToolSprite({ toolMode, size = 56 }: ToolSpriteProps) {
     // frequency pointer events.
     let active = false;
     let overPicker = false;
+    let overText = false;
 
     function updateSrc() {
       if (!sprite) return;
@@ -80,15 +83,22 @@ export function ToolSprite({ toolMode, size = 56 }: ToolSpriteProps) {
       sprite.style.transform = `translate(${e.clientX - size / 2}px, ${
         e.clientY - size / 2
       }px)`;
-      sprite.style.opacity = "1";
 
-      // Re-evaluate the "over picker" state when the cursor moves. We
-      // check against `elementFromPoint` rather than relying on event
-      // target — the sprite itself has pointer-events:none so it's
-      // skipped by elementFromPoint, and we get whatever real element
-      // is underneath.
+      // Re-evaluate hover state on every move. We check via
+      // `elementFromPoint` rather than the event target — the sprite
+      // itself has pointer-events:none so it's skipped, and we get
+      // whatever real element is underneath.
       const el = document.elementFromPoint(e.clientX, e.clientY);
-      const newOverPicker = Boolean(el?.closest("[data-cursor-pointing]"));
+      const newOverText = Boolean(el?.closest("[data-cursor-text]"));
+      const newOverPicker =
+        !newOverText && Boolean(el?.closest("[data-cursor-pointing]"));
+
+      // Over a text input → hide the sprite so the OS I-beam can show.
+      sprite.style.opacity = newOverText ? "0" : "1";
+
+      if (newOverText !== overText) {
+        overText = newOverText;
+      }
       if (newOverPicker !== overPicker) {
         overPicker = newOverPicker;
         updateSrc();

@@ -43,6 +43,10 @@ export function ToolPicker({ visible = true }: ToolPickerProps) {
   const setToolMode = useAppStore((s) => s.setToolMode);
   const cvMode = useAppStore((s) => s.cvMode);
   const setCvMode = useAppStore((s) => s.setCvMode);
+  // Spotlight is set by LessonExploration during the opener tour — when
+  // Freddy says "slicer and glove are right down there," the picker pulses
+  // + scales to draw the kid's eye.
+  const spotlit = useAppStore((s) => s.spotlight === "toolpicker");
 
   if (!visible) return null;
 
@@ -55,10 +59,13 @@ export function ToolPicker({ visible = true }: ToolPickerProps) {
   return (
     <div
       data-testid="tool-picker"
+      data-spotlight={spotlit}
       role="group"
       aria-label="Pick a tool"
       data-cursor-pointing
-      className="flex items-center gap-2 p-2 bg-sb-paper/95 backdrop-blur rounded-2xl shadow-xl shadow-sb-accent-deep/25 border-2 border-sb-ink"
+      className={`flex items-center gap-2 p-2 bg-sb-paper/95 backdrop-blur rounded-2xl shadow-xl shadow-sb-accent-deep/25 border-2 border-sb-ink ${
+        spotlit ? "spotlight-pulse" : ""
+      }`}
     >
       {TOOLS.map((tool) => {
         const active = toolMode === tool.mode;

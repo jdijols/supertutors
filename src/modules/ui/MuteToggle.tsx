@@ -28,12 +28,13 @@ export function MuteToggle() {
       aria-pressed={muted}
       data-testid="mute-toggle"
       data-muted={muted}
+      data-cursor-pointing
       className={`
         fixed top-4 right-4 sm:top-6 sm:right-6 z-[60]
         w-14 h-14 sm:w-16 sm:h-16
         rounded-2xl border-2 border-sb-ink
         shadow-xl shadow-sb-accent-deep/25
-        flex items-center justify-center
+        flex items-center justify-center cursor-pointer
         transition-colors duration-200
         focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface
         ${

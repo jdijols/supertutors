@@ -13,10 +13,18 @@
  *   - Setup of reveal beats ("hmm")   → thinking
  *   - When facing a guest             → pointing (only valid gesture)
  *
- * `mouth` toggles between resting (closed) and speaking (open). That mouth
- * swap IS the speaking signal — we deliberately don't bob/shake the body
- * because the static cartoon pose looks janky when wiggled. Phoneme
- * lip-sync (Phase 2) layers in additional mouth shapes; the body stays put.
+ * ### Mouth behavior
+ *
+ * Closed is the resting default. While `speaking=true` (a line is
+ * playing), the mouth holds open — one frame for the entire utterance,
+ * no intra-line flapping (the rapid swap was distracting on review).
+ * The brief mouth-close beat between lines comes from `speaking`
+ * flipping false → true naturally as one dialogue key ends and the next
+ * begins.
+ *
+ * The `mouth` prop acts as the static fallback for non-speaking poses
+ * (e.g., a frozen "agape" reaction); it's overridden to "open" while
+ * speaking.
  */
 export type FreddyPose = "facing_student" | "facing_guest";
 export type FreddyGesture =
@@ -29,9 +37,21 @@ export type FreddyMouth = "closed" | "open";
 
 export interface FreddyCharacterProps {
   pose?: FreddyPose;
+  /**
+   * Pose modifier when facing the student. Ignored when facing a guest
+   * (coerced to `pointing`, the only valid combo for that direction).
+   */
   gesture?: FreddyGesture;
+  /**
+   * Static fallback mouth state. Used when `speaking=false`. Overridden
+   * to "open" while speaking.
+   */
   mouth?: FreddyMouth;
-  /** True while a speech bubble is playing. Adds a subtle idle bob. */
+  /**
+   * True while audio for a line is playing. Forces mouth to "open".
+   * Flip true on `audioEngine.play`, flip false on `onDone` — that
+   * boundary produces the natural close-between-lines beat.
+   */
   speaking?: boolean;
   /** Optional className for sizing override. */
   className?: string;
@@ -57,14 +77,17 @@ export function FreddyCharacter({
   speaking = false,
   className = "w-40 md:w-56 h-auto",
 }: FreddyCharacterProps) {
-  const src = resolveImageSrc(pose, gesture, mouth);
+  // Open while a line plays, otherwise the `mouth` prop fallback (which
+  // defaults to "closed"). One frame per utterance — no intra-line flap.
+  const effectiveMouth: FreddyMouth = speaking ? "open" : mouth;
+  const src = resolveImageSrc(pose, gesture, effectiveMouth);
 
   return (
     <div
       data-testid="freddy-character"
       data-pose={pose}
       data-gesture={gesture}
-      data-mouth={mouth}
+      data-mouth={effectiveMouth}
       data-speaking={speaking}
       className="select-none pointer-events-none"
     >

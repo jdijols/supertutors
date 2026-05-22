@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import type { PizzaVariant } from "@/modules/table";
+import { useAppStore } from "@/store/appStore";
 
 /**
  * AddPizzaButton — fixed-position top-left "+" button that opens a small
@@ -30,19 +31,31 @@ export interface AddPizzaButtonProps {
 }
 
 export function AddPizzaButton({ onAdd, disabled = false }: AddPizzaButtonProps) {
-  const [open, setOpen] = useState(false);
+  // User-driven open state. The actual displayed open state is
+  // `userOpen || spotlit` (derived below) — that way the spotlight forces
+  // the menu open without touching the user's state, and when the
+  // spotlight ends the menu naturally closes (since userOpen stayed false).
+  const [userOpen, setUserOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  // Spotlight is set by LessonExploration during the opener tour — when
+  // Freddy says "pizzas come outta the oven," the button pulses + scales
+  // AND the variant menu auto-opens to demo what tapping does. The menu
+  // closes again when the spotlight moves off (purely a teaching beat,
+  // not an action gate). During the spotlight the button toggle is a
+  // no-op so the kid can't accidentally latch the menu open.
+  const spotlit = useAppStore((s) => s.spotlight === "add");
+  const open = userOpen || spotlit;
 
-  // Close on outside click / Escape.
+  // Close on outside click / Escape — but NOT while spotlit (the tour owns it).
   useEffect(() => {
-    if (!open) return;
+    if (!userOpen || spotlit) return;
     const onPointer = (e: PointerEvent) => {
       if (!rootRef.current) return;
       if (rootRef.current.contains(e.target as Node)) return;
-      setOpen(false);
+      setUserOpen(false);
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") setUserOpen(false);
     };
     window.addEventListener("pointerdown", onPointer);
     window.addEventListener("keydown", onKey);
@@ -50,15 +63,15 @@ export function AddPizzaButton({ onAdd, disabled = false }: AddPizzaButtonProps)
       window.removeEventListener("pointerdown", onPointer);
       window.removeEventListener("keydown", onKey);
     };
-  }, [open]);
+  }, [userOpen, spotlit]);
 
   function handleToggle() {
-    if (disabled) return;
-    setOpen((v) => !v);
+    if (disabled || spotlit) return;
+    setUserOpen((v) => !v);
   }
 
   function handlePick(variant: PizzaVariant) {
-    setOpen(false);
+    setUserOpen(false);
     onAdd(variant);
   }
 
@@ -79,6 +92,7 @@ export function AddPizzaButton({ onAdd, disabled = false }: AddPizzaButtonProps)
         aria-disabled={disabled}
         data-testid="add-pizza-button"
         data-disabled={disabled}
+        data-spotlight={spotlit}
         className={`
           w-14 h-14 sm:w-16 sm:h-16
           rounded-2xl border-2 border-sb-ink
@@ -86,6 +100,7 @@ export function AddPizzaButton({ onAdd, disabled = false }: AddPizzaButtonProps)
           flex items-center justify-center
           transition-all duration-200
           focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface
+          ${spotlit ? "spotlight-pulse" : ""}
           ${
             disabled
               ? "bg-sb-paper/40 text-sb-ink/30 cursor-not-allowed"

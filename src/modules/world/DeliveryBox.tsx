@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useAppStore } from "@/store/appStore";
 
 /**
  * DeliveryBox — drop target for sending pizza pieces off the table.
@@ -46,11 +47,14 @@ export interface DeliveryBoxProps {
 
 type Phase = "open" | "closed" | "sliding-off";
 
-// Open box is 20% larger than the closed box. The closed variant is only
-// visible briefly during the receive → slide-off animation; the open
-// variant is the primary visual + drop target.
-const CLOSED_SIZE = 210;
-const OPEN_SIZE = Math.round(CLOSED_SIZE * 1.2); // 252
+// Open box is the primary visual + drop target. Closed box is only
+// visible briefly during the receive → slide-off animation, and is
+// sized smaller so the lid-close also reads as a perceptible shrink
+// (not just an image swap). Independent constants — the two no longer
+// share a derivation since the closed box was trimmed 10% on review
+// without touching the open size.
+const OPEN_SIZE = 252;
+const CLOSED_SIZE = 189; // was 210 — 10% smaller per design pass
 
 // Wrapper sizes to OPEN_SIZE so `contains()` bounds match the visible
 // open box (the most common drop-detection case). The closed motion.div
@@ -69,6 +73,10 @@ export const DeliveryBox = forwardRef<DeliveryBoxHandle, DeliveryBoxProps>(
     // True when a piece is being dragged over the box — applies the
     // mozzarella-cream glow (same as PizzaPiece hover affordance).
     const [isDragOver, setIsDragOver] = useState(false);
+    // Spotlight is set by LessonExploration during the opener tour — when
+    // Freddy says "deliveries go in the box," the box pulses + scales to
+    // draw the kid's eye. Takes priority over the cap-hint pulse below.
+    const spotlit = useAppStore((s) => s.spotlight === "delivery");
 
     // Pointer tracking — detect "piece dragged over me" via global
     // pointermove while a primary button is pressed. PizzaPiece's
@@ -133,7 +141,8 @@ export const DeliveryBox = forwardRef<DeliveryBoxHandle, DeliveryBoxProps>(
     // wins visually when both are active (drag-over is the kid's direct
     // action; pulse is just a hint).
     const showGlow = isDragOver && phase === "open";
-    const showPulse = pulseHint && phase === "open" && !isDragOver;
+    const showCapPulse = pulseHint && phase === "open" && !isDragOver;
+    const showSpotlight = spotlit && phase === "open" && !isDragOver;
 
     return (
       <div
@@ -141,11 +150,12 @@ export const DeliveryBox = forwardRef<DeliveryBoxHandle, DeliveryBoxProps>(
         data-testid="delivery-box"
         data-phase={phase}
         data-drag-over={isDragOver}
+        data-spotlight={showSpotlight}
         // z-25 — DELIBERATELY below the pieces layer (z-30). Pizzas
         // dragged over the box render ON TOP of the box, matching the
         // physical metaphor "I'm placing this into the open box."
         className={`
-          fixed right-4 sm:right-6 z-[25]
+          fixed right-[-6px] z-[25]
           ${className}
         `}
         style={{
@@ -163,13 +173,24 @@ export const DeliveryBox = forwardRef<DeliveryBoxHandle, DeliveryBoxProps>(
       >
         <AnimatePresence mode="wait">
           {phase === "open" && (
-            // Outer wrapper carries the CSS `.delivery-pulse` class when
-            // showPulse is true — pulse uses CSS keyframes (HMR-immune,
-            // doesn't compete with framer-motion transforms inside).
+            // Outer wrapper carries one of two CSS pulse classes —
+            //   - `spotlight-pulse` while Freddy is calling out the box
+            //     during the opener tour (loud, attention-grabbing).
+            //   - `delivery-pulse` as the cap-hint when the table is full
+            //     ("send a pizza away to make room").
+            // Spotlight wins when both would apply. Both classes use CSS
+            // keyframes (HMR-immune, doesn't compete with framer-motion
+            // transforms inside).
             <div
               key="open-wrapper"
-              data-pulse={showPulse}
-              className={showPulse ? "delivery-pulse" : ""}
+              data-pulse={showCapPulse}
+              className={
+                showSpotlight
+                  ? "spotlight-pulse"
+                  : showCapPulse
+                    ? "delivery-pulse"
+                    : ""
+              }
               style={{ width: OPEN_SIZE, height: OPEN_SIZE }}
             >
               <motion.div

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 const BACKGROUND_SRC = "/images/backgrounds/superslice-interior.png";
+const COUNTER_SRC = "/images/backgrounds/superslice-counter.png";
 
 /**
  * RestaurantScene — full-bleed backdrop for the SuperSlice Pizza world.
@@ -12,11 +13,18 @@ const BACKGROUND_SRC = "/images/backgrounds/superslice-interior.png";
  *   - Freddy + guests stand BEHIND the counter (visually occluded waist-down)
  *
  * Three-layer composition for proper occlusion:
- *   1. BACKGROUND (z-0)  — full scene
- *   2. CHILDREN (z-10)   — Freddy, guests, table pieces — between bg + mask
- *   3. COUNTER MASK (z-20) — bottom half of the SAME bg image, layered as a
- *                            foreground "counter front" that visually cuts
- *                            characters at the counter line
+ *   1. BACKGROUND (z-0)  — full interior scene, anchored bottom so the
+ *                          counter line in the source image always pins to
+ *                          the viewport floor
+ *   2. CHILDREN (z-10)   — Freddy, guests, table pieces — sit between bg
+ *                          and the counter overlay; rendered full-body
+ *   3. COUNTER OVERLAY (z-20) — dedicated `superslice-counter.png` (an exact
+ *                               crop of the counter slab + plates + floor
+ *                               sliver from the same source scene). Anchored
+ *                               bottom + w-full so its plates and floor
+ *                               edge align with the interior background
+ *                               behind it. Naturally occludes Freddy's lower
+ *                               half — no bottom-half-mask kludge.
  *
  * UI overlays that should appear ABOVE the counter (speech bubbles,
  * NameInputOverlay, NumberBar, ToolPicker) use z-30+ and are placed by
@@ -32,32 +40,41 @@ export function RestaurantScene({ children }: RestaurantSceneProps) {
       data-testid="restaurant-scene"
       className="relative w-full h-full overflow-hidden bg-sb-surface"
     >
-      {/* Layer 1 — background scene */}
+      {/* Layer 1 — background interior. object-bottom + object-cover keeps the
+          counter line of the source pinned to the viewport bottom so the
+          counter overlay (Layer 3) lines up regardless of viewport aspect. */}
       <img
         src={BACKGROUND_SRC}
         alt=""
-        className="absolute inset-0 w-full h-full object-cover z-0"
+        className="absolute inset-0 w-full h-full object-cover object-bottom z-0"
         draggable={false}
       />
 
       {/* Layer 2 — characters + objects standing BEHIND the counter */}
       {children}
 
-      {/* Layer 3 — foreground "counter" mask: bottom half of the same bg image,
-          layered above characters so the counter occludes their lower bodies.
-          Inner <img> is rendered at 200% height with object-bottom so only
-          the bottom half of the source (the counter portion) shows. */}
-      <div
+      {/* Layer 3 — counter overlay. Exact crop of the counter from the same
+          source scene (1536x484, the bottom 47.265% of the 1536x1024 interior).
+          Sized to match the interior's `object-cover` scale at any aspect
+          ratio via CSS max():
+            - 31.51vw  = 484/1536, counter h as fraction of interior WIDTH
+                         (kicks in when viewport aspect > 3:2, e.g. desktop —
+                         interior fills width, crops vertically)
+            - 47.27vh  = 484/1024, counter h as fraction of interior HEIGHT
+                         (kicks in when viewport aspect < 3:2, e.g. iPad —
+                         interior fills height, crops horizontally)
+          max() picks the LARGER value, which is whichever axis is the
+          constraining one for object-cover. Result: counter scale always
+          matches interior scale, the plates + floor edge align perfectly
+          across iPad Mini → 1440 desktop → ultra-wide. Centered horizontally
+          so the horizontal crop (when any) matches the interior's. */}
+      <img
         aria-hidden
-        className="absolute bottom-0 left-0 right-0 h-1/2 z-20 overflow-hidden pointer-events-none"
-      >
-        <img
-          src={BACKGROUND_SRC}
-          alt=""
-          draggable={false}
-          className="absolute bottom-0 left-0 w-full h-[200%] object-cover object-bottom"
-        />
-      </div>
+        src={COUNTER_SRC}
+        alt=""
+        draggable={false}
+        className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[max(31.51vw,47.27vh)] w-auto max-w-none z-20 pointer-events-none select-none"
+      />
     </div>
   );
 }

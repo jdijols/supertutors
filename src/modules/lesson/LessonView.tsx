@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useMachine } from "@xstate/react";
 import { useSearchParams } from "react-router-dom";
 import { useAppStore } from "@/store/appStore";
@@ -10,7 +10,6 @@ import { AhaAnimation } from "./AhaAnimation";
 import { WinConfetti } from "./WinConfetti";
 import { LessonExploration } from "./LessonExploration";
 import { useDemoMode } from "@/lib/demoMode";
-import { useHoldToReset } from "@/lib/useHoldToReset";
 import { getInspectorOption } from "@/lib/inspector";
 import {
   FreddyCharacter,
@@ -44,12 +43,16 @@ import {
 export function LessonView() {
   const name = useAppStore((s) => s.name);
   const setName = useAppStore((s) => s.setName);
-  const resetStore = useAppStore((s) => s.reset);
+  const freddy = useAppStore((s) => s.freddy);
+  const setFreddy = useAppStore((s) => s.setFreddy);
   const [searchParams] = useSearchParams();
 
   const [greetingDismissed, setGreetingDismissed] = useState(false);
   const [responseShown, setResponseShown] = useState(false);
   const [onboardingDone, setOnboardingDone] = useState(false);
+  // True once Freddy's greeting finishes ("...what's your name, kid?") —
+  // pulses the name input as a hand-off cue.
+  const [nameInputPulsing, setNameInputPulsing] = useState(false);
 
   const inOnboarding = !name;
   const showGreetingBubble = inOnboarding && !greetingDismissed;
@@ -85,90 +88,80 @@ export function LessonView() {
     setName(submitted);
     setGreetingDismissed(true);
     setResponseShown(true);
+    setNameInputPulsing(false);
   }
 
-  // CC.2 — Tap-and-hold Freddy to restart the whole session. The hold target
-  // is an invisible div over Freddy's head area (Freddy himself is
-  // pointer-events-none to avoid eating drag events from manipulative pieces
-  // that pass over him).
-  const freddyHoldRef = useRef<HTMLDivElement>(null);
-  const { isHolding: isResetting, progress: resetProgress } = useHoldToReset({
-    ref: freddyHoldRef,
-    onReset: () => {
-      audioEngine.stop();
-      resetStore();
-      setGreetingDismissed(false);
-      setResponseShown(false);
-      setOnboardingDone(false);
-    },
-  });
-
-  // Greeting audio: plays while the bubble is visible. User taps to dismiss.
+  // Greeting audio: plays while the bubble is visible. Auto-dismisses on
+  // audio end so the kid isn't left with a stale bubble overlapping the
+  // name input. User can also tap the bubble to dismiss early. The
+  // engine drives freddy.speaking via onSpeakingChange — flipping at
+  // every sentence boundary AND on overall completion, so the mouth
+  // closes at every period.
   useEffect(() => {
     if (showGreetingBubble) {
+      setFreddy({ facing: "student", gesture: "ok" });
       audioEngine.play({
         dialogueKey: "onboarding_greeting",
-        onDone: () => {},
+        onSpeakingChange: (speaking) => setFreddy({ speaking }),
+        onDone: () => {
+          setFreddy({ speaking: false });
+          setGreetingDismissed(true);
+          setNameInputPulsing(true);
+        },
       });
     }
-    return () => audioEngine.stop();
-  }, [showGreetingBubble]);
+    return () => {
+      audioEngine.stop();
+      setFreddy({ speaking: false });
+    };
+  }, [showGreetingBubble, setFreddy]);
 
   // Response audio: plays after name submit; on completion, hand off to
-  // the state machine.
+  // the explore act. Mouth-close beats at sentence boundaries come from
+  // onSpeakingChange.
   useEffect(() => {
     if (showResponseBubble && name) {
+      setFreddy({ facing: "student", gesture: "ok" });
       audioEngine.play({
         dialogueKey: "onboarding_response",
-        hasNameSlot: true,
         name,
+        onSpeakingChange: (speaking) => setFreddy({ speaking }),
         onDone: () => {
+          setFreddy({ speaking: false });
           setResponseShown(false);
           setOnboardingDone(true);
         },
       });
     }
-    return () => audioEngine.stop();
-  }, [showResponseBubble, name]);
+    return () => {
+      audioEngine.stop();
+      setFreddy({ speaking: false });
+    };
+  }, [showResponseBubble, name, setFreddy]);
 
   return (
     <main className="relative w-screen h-screen overflow-hidden bg-sb-surface">
       <RestaurantScene>
-        <div className="absolute left-2 md:left-8 bottom-0 z-10">
+        <div className="absolute left-[-28px] bottom-0 z-10 pointer-events-none">
           <FreddyCharacter
-            pose="facing_student"
-            gesture="ok"
-            mouth={showGreetingBubble || showResponseBubble ? "open" : "closed"}
-            className="h-[88vh] md:h-[100vh] w-auto"
-          />
-          {/* Hold-to-reset hit area over Freddy's head/torso. Invisible so
-              kids who don't know about the gesture aren't distracted, but
-              tappable. Progress hint surfaces a moment into the hold. */}
-          <div
-            ref={freddyHoldRef}
-            data-testid="freddy-hold-target"
-            role="button"
-            aria-label="Hold to restart the lesson"
-            className="absolute top-[8vh] left-[10%] w-[55%] h-[40vh] rounded-3xl cursor-pointer"
+            pose={freddy.facing === "student" ? "facing_student" : "facing_guest"}
+            gesture={freddy.gesture}
+            mouth={freddy.speaking ? "open" : "closed"}
+            speaking={freddy.speaking}
+            className="h-[100vh] w-auto"
           />
         </div>
       </RestaurantScene>
 
-      {/* Hold-to-reset feedback — appears as the hold progresses. */}
-      {isResetting && resetProgress > 0.25 ? (
-        <div
-          data-testid="reset-progress-indicator"
-          className="absolute top-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-sb-ink/90 text-sb-paper-soft text-xs font-mono uppercase tracking-widest shadow-lg pointer-events-none"
-        >
-          Restart in {Math.max(1, Math.ceil((1 - resetProgress) * 1.5))}s
-        </div>
-      ) : null}
-
-      <div className="absolute left-[20%] md:left-[26%] bottom-[35vh] md:bottom-[42vh] max-w-md z-30">
+      {/* Bubble row — top-aligned with EXIT / mute chrome. Fixed left edge
+          clear of the brick oven. Tail at bottom-left points down toward
+          Freddy in the lower portion of the scene. Keeps the manipulative
+          area (pizzas, tools, guests) unobstructed. */}
+      <div className="absolute top-4 sm:top-6 left-[35%] max-w-md z-30">
         <SpeechBubble
           open={showGreetingBubble}
           speaker="Freddy"
-          tailSide="top-left"
+          tailSide="bottom-left"
           onTap={() => setGreetingDismissed(true)}
         >
           {renderLine("onboarding_greeting")}
@@ -176,32 +169,41 @@ export function LessonView() {
         <SpeechBubble
           open={showResponseBubble}
           speaker="Freddy"
-          tailSide="top-left"
+          tailSide="bottom-left"
         >
           {name ? renderLine("onboarding_response", { name }) : null}
         </SpeechBubble>
       </div>
 
-      {/* Name input overlay — onboarding only, centered. */}
-      <div className="absolute inset-0 grid place-items-center pointer-events-none z-50">
+      {/* Name input overlay — chat-style row pinned to the bottom counter
+          edge so its bottom aligns with the tool picker (matching `bottom-6`).
+          Visible the moment we're in onboarding so the kid can start typing
+          immediately. */}
+      <div className="absolute inset-x-0 bottom-6 grid place-items-center pointer-events-none z-50">
         <div className="pointer-events-auto">
           <NameInputOverlay
-            open={inOnboarding && greetingDismissed}
+            open={inOnboarding}
             onSubmit={handleNameSubmit}
+            pulse={nameInputPulsing}
           />
         </div>
       </div>
 
-      {/* Lesson body mounts once onboarding is complete.
-          Beat URL flag routes through the XState machine; default path
-          uses proximity-driven exploration. */}
-      {onboardingDone && name ? (
-        useMachine ? (
+      {/* Workspace mounts from the start so the kid sees pizzas, tools,
+          add button, and delivery box during onboarding. Freddy's lesson
+          dialogue (the explore_intro chain, milestone reactions) stays
+          silent until onboarding completes — gated via the `active` prop.
+          The XState beat-flag path still waits for a real name. */}
+      {useMachine ? (
+        onboardingDone && name ? (
           <LessonMachineRoot name={name} />
-        ) : (
-          <LessonExploration name={name} />
-        )
-      ) : null}
+        ) : null
+      ) : (
+        <LessonExploration
+          name={name ?? ""}
+          active={onboardingDone && !!name}
+        />
+      )}
     </main>
   );
 }
@@ -243,11 +245,11 @@ function LessonMachineRoot({ name }: { name: string }) {
 
   return (
     <>
-      <div className="absolute left-[20%] md:left-[26%] bottom-[35vh] md:bottom-[42vh] max-w-md z-30">
+      <div className="absolute top-4 sm:top-6 left-[35%] max-w-md z-30">
         <SpeechBubble
           open={activeDialogueKey !== null}
           speaker="Freddy"
-          tailSide="top-left"
+          tailSide="bottom-left"
         >
           {activeDialogueKey
             ? renderLine(activeDialogueKey as DialogueKey, { name })

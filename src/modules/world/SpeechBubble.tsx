@@ -14,7 +14,13 @@ import type { ReactNode } from "react";
  *
  * Tap-to-skip / tap-to-replay handled here via `onTap` callback if provided.
  */
-export type BubbleSide = "left" | "right" | "top-left" | "top-right";
+export type BubbleSide =
+  | "left"
+  | "right"
+  | "top-left"
+  | "top-right"
+  | "bottom-left"
+  | "bottom-right";
 
 export interface SpeechBubbleProps {
   /** Show / hide the bubble. */
@@ -24,8 +30,10 @@ export interface SpeechBubbleProps {
    *   - "left" / "right": tail extends horizontally from the side, pointing at
    *     a speaker at roughly the same vertical position
    *   - "top-left" / "top-right": tail extends upward from the top edge,
-   *     pointing at a speaker ABOVE the bubble (e.g., bubble below the
-   *     speaker's chest, over the counter)
+   *     pointing at a speaker ABOVE the bubble
+   *   - "bottom-left" / "bottom-right": tail extends downward from the bottom
+   *     edge, pointing at a speaker BELOW the bubble (e.g., bubble at the top
+   *     of the screen, Freddy in the lower portion of the scene)
    * Defaults to "left".
    */
   tailSide?: BubbleSide;
@@ -94,6 +102,17 @@ export function SpeechBubble({
                 border-x-[12px] border-x-transparent
                 border-b-[16px] border-b-sb-ink
                 ${tailSide === "top-left" ? "left-6" : "right-6"}
+              `}
+            />
+          )}
+          {(tailSide === "bottom-left" || tailSide === "bottom-right") && (
+            <div
+              aria-hidden
+              className={`
+                absolute bottom-0 translate-y-full w-0 h-0
+                border-x-[12px] border-x-transparent
+                border-t-[16px] border-t-sb-ink
+                ${tailSide === "bottom-left" ? "left-6" : "right-6"}
               `}
             />
           )}
