@@ -74,7 +74,7 @@ export function SpeechBubble({
           `}
         >
           {speaker && (
-            <div className="text-[11px] font-mono uppercase tracking-[0.18em] text-sb-accent-deep mb-1">
+            <div className="text-[11px] font-mono uppercase tracking-[0.18em] text-sb-ink/70 mb-1">
               {speaker}
             </div>
           )}
