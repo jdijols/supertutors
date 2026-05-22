@@ -141,7 +141,7 @@ function CvModeOverlayInner() {
       )}
 
       <div
-        className="absolute bottom-24 right-6 z-50 rounded-xl overflow-hidden shadow-xl border-2 border-mozzarella-100/60"
+        className="absolute bottom-20 left-4 sm:bottom-24 sm:left-6 z-50 rounded-xl overflow-hidden shadow-xl border-2 border-mozzarella-100/60"
         style={{ width: 160, opacity: 0.4 }}
         title={status === "ready" ? "CV mode active" : "Loading…"}
       >
