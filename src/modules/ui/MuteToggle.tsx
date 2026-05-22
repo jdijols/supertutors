@@ -5,9 +5,13 @@ import { useAppStore } from "@/store/appStore";
  * MuteToggle — global, fixed-position audio mute control.
  *
  * Pinned top-right on every page (landing, lesson, previews). Tap target is
- * 56–64px so kids can hit it without precision. Visual state inverts on mute
- * (warm paper card → solid ink) so the kid can see at a glance whether sound
- * is on.
+ * 56–64px so kids can hit it without precision.
+ *
+ * Visual state follows the system-wide "feature is ON = dark/active" rule
+ * shared by CvToggle and ToolPicker: when sound is playing, the button is
+ * inverted (sb-ink fill + white icon), and when muted it sits at rest
+ * (sb-paper fill + ink icon with the X). Reads the same as the other
+ * chrome toggles at a glance.
  *
  * State is driven by appStore.muted and reflected onto Howler globally via
  * useMutedSync (mounted in App.tsx). localStorage persists the choice across
@@ -39,8 +43,8 @@ export function MuteToggle() {
         focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface
         ${
           muted
-            ? "bg-sb-ink text-white"
-            : "bg-sb-paper text-sb-ink hover:bg-sb-paper-deep"
+            ? "bg-sb-paper text-sb-ink hover:bg-sb-paper-deep"
+            : "bg-sb-ink text-white"
         }
       `}
     >

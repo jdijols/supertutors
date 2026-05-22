@@ -57,23 +57,30 @@ export function RestaurantScene({ children }: RestaurantSceneProps) {
           source scene (1536x484, the bottom 47.265% of the 1536x1024 interior).
           Sized to match the interior's `object-cover` scale at any aspect
           ratio via CSS max():
-            - 31.51vw  = 484/1536, counter h as fraction of interior WIDTH
+            - 31.51dvw = 484/1536, counter h as fraction of interior WIDTH
                          (kicks in when viewport aspect > 3:2, e.g. desktop —
                          interior fills width, crops vertically)
-            - 47.27vh  = 484/1024, counter h as fraction of interior HEIGHT
+            - 47.27dvh = 484/1024, counter h as fraction of interior HEIGHT
                          (kicks in when viewport aspect < 3:2, e.g. iPad —
                          interior fills height, crops horizontally)
           max() picks the LARGER value, which is whichever axis is the
           constraining one for object-cover. Result: counter scale always
           matches interior scale, the plates + floor edge align perfectly
           across iPad Mini → 1440 desktop → ultra-wide. Centered horizontally
-          so the horizontal crop (when any) matches the interior's. */}
+          so the horizontal crop (when any) matches the interior's.
+
+          Dynamic viewport units (dvh/dvw) are critical here: the parent
+          main is sized at 100dvh so the interior bg's object-cover scale
+          is also computed against dvh. Using plain vh would give a
+          slightly larger value than the actual visible viewport when
+          iPad Safari's status bar is showing, throwing the counter scale
+          off and misaligning the plates on the left edge. */}
       <img
         aria-hidden
         src={COUNTER_SRC}
         alt=""
         draggable={false}
-        className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[max(31.51vw,47.27vh)] w-auto max-w-none z-20 pointer-events-none select-none"
+        className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[max(31.51dvw,47.27dvh)] w-auto max-w-none z-20 pointer-events-none select-none"
       />
     </div>
   );
