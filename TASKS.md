@@ -130,11 +130,8 @@ Every task has a **Done when** line with concrete success criteria. Patterns:
   - Note the live preview URL in the handoff journal.
   - **Done when:** Vercel deployment succeeds; preview URL works; committed as `[OVN.10] deploy + verify` (if any deploy-config tweaks were needed)
 
-- [ ] **OVN.11 — Fallback to polish-only (C, loop, conditional)**
-  - **Trigger:** OVN.2 or OVN.3 are still red past 07:00 CDT.
-  - Abandon the CV branch (don't merge OVN.5+ work). Spend remaining hours polishing SuperSlice for the noon demo: AHA animation refinement, sound, README cleanup, Vercel deploy, README without CV section.
-  - Document the abandonment in the handoff journal with cause + what was tried.
-  - **Done when:** decision documented in handoff journal, OR not triggered.
+- [x] **OVN.11 — Fallback to polish-only (C, loop, conditional)** *(not triggered — CV pipeline shipped clean)*
+  - Conditional fallback. Trigger condition (OVN.2 or OVN.3 still red past 07:00 CDT) did not fire — the overnight loop shipped OVN.1–10 by 08:28 CDT without needing to abandon the CV path.
 
 - [x] **OVN.12 — Handoff journal + hard stop (C, loop)** *(shipped 2026-05-21 08:28 CDT)*
   - **Trigger:** 11:00 CDT regardless of remaining task state.
@@ -154,16 +151,13 @@ These are independent of my (Claude's) build sequence and **must start ASAP** to
   - https://elevenlabs.io/app/voice-library?voiceId=QzTKubutNn9TjrB7Xb2Q
   - **Follow-up before P3.3 actually generates MP3s:** Jason must "Add to my voices" in the ElevenLabs Voice Library (Library voices need to be saved to the account before API calls succeed)
 
-- [ ] **PT.2 — Midjourney asset generation (J, using C-drafted prompts)**
-  - Generate: Freddy (3–5 expressions), 3 guests (each with 3 expressions), CTA hero illustration, restaurant backgrounds
-  - **Done when:** PNG/WebP files in `/public/images/` matching the structure in [PRD §6](./PRD.md#6-file-structure)
-  - **Blocks:** P5 (polish)
+- [~] **PT.2 — Midjourney asset generation (J, using C-drafted prompts)** *(partial: Freddy + restaurant backgrounds shipped via ChatGPT/gpt-image-1; guests + CTA hero deferred to v2)*
+  - Generated: Freddy variations (10 PNGs across gesture × mouth × facing axes), `superslice-interior.png`, `superslice-counter.png`.
+  - **v2:** 3 guest characters × 3 expressions (Guest component currently uses styled placeholder); landing CTA hero illustration. Both unblocked when v2 work resumes.
 
-- [ ] **PT.3 — Stately authoring (J)**
-  - Beat 6 (AHA — old "Beat 5" in pre-2026-05-19 numbering) fully authored with all wrong-answer recoveries in Jersey-Shore voice (continuing from the C-drafted skeleton). Internal `aha_*` dialogue keys + state-machine `aha:` state name kept as-is to avoid invalidating the 11 already-generated MP3s.
-  - Then Beats 1, 2 (Sandbox), 3 (Vocab), 4 (First Guest), 5 (Two Guests), 7 (Check), 8 (Win) as P4 sub-tasks unlock.
-  - **Done when:** Stately machine exports cleanly to XState v5 TS for each beat; URL is public-shareable
-  - **Blocks:** P1 (Beat 6 vertical slice), P4 (rest of beats)
+- [~] **PT.3 — Stately authoring (J)** *(Beat 6 shipped via hand-coded `tutorMachine.ts`; remaining beats v2)*
+  - **Beat 6 (AHA):** Shipped — authored directly in `src/modules/tutor/tutorMachine.ts` (9 states, 15 transitions, dialogue keys stable). Stately Editor was not the source of truth in the end; the hand-coded machine matches PRD §5.1 and was faster to iterate than the round-trip workflow.
+  - **v2:** Beats 3 (Vocab), 4 (First Guest), 5 (Two Guests), 7 (Check) — see the v2 section near the bottom of this file.
 
 - [ ] **PT.4 — Physical iPad in hand (J)**
   - For real-device testing of touch, viewport, audio playback
@@ -222,16 +216,8 @@ Goal: every subsequent phase ships with confidence. Set the testing bar now.
 
 Goal: prove the entire pipeline (Stately → XState → React → audio → iPad) works for **one** beat before scaling out.
 
-- [ ] **P1.1 — Beat 5 authored fully in Stately (J — see PT.3)**
-  - All 9 states + 15 transitions matching [PRD §5.1 / §5.1.1](./PRD.md#51-beat-5-aha-state-diagram)
-  - Dialogue text in state descriptions, with `{{NAME}}` placeholders
-  - All wrong-answer recoveries in Jersey-Shore voice
-  - **Done when:** Stately URL is public-shareable; exports XState v5 TS without errors
-
-- [ ] **P1.2 — Export Beat 5 → tutorMachine.ts (C)**
-  - Replace placeholder Beat 5 in `src/modules/tutor/tutorMachine.ts` with Stately export
-  - Run `npm run extract-dialogue` (write this script) → updates `dialogue.json`
-  - **Done when:** App compiles; `npm run typecheck` + `npm run build` pass; Vitest passes
+- [x] **P1.1 + P1.2 — Beat 6 authored + wired (C)** *(shipped via direct hand-coding; superseded the Stately round-trip plan)*
+  - Beat 6 (formerly "Beat 5" in pre-2026-05-19 numbering) lives in `src/modules/tutor/tutorMachine.ts`. 9 states (setup, waiting_for_slice, sliced_correctly, waiting_for_compare, aha_triggered, celebrating, done, wrong_slice, not_equal) + 15 transitions matching PRD §5.1. All dialogue keys (`aha_*`) and MP3 segments shipped. Hand-coding turned out faster than maintaining a Stately ↔ codebase round-trip; the machine in code IS the source of truth.
 
 - [x] **P1.3 — Wire AudioEngine to dialogue.json (C)** *(shipped 2026-05-20)*
   - AudioEngine itself shipped earlier in P3.6 (Howler-backed sequential stitching with fire-immediately failure semantics so the machine never blocks).
@@ -377,66 +363,53 @@ Goal: real ElevenLabs voice playing in the lesson, with name personalization.
 
 ---
 
-## P4 — Author Remaining Beats in Stately + Wire
+## P4 — Beats Shipped + Remaining (most v2)
 
-For each beat, repeat the P1 vertical-slice pattern: Stately authoring → export → wire → smoke → inspect.
+**What's in v1.0:**
 
-> **Beat-numbering note (2026-05-19):** P4 entries below use the OLD beat numbering (Beat 1.5 = Welcome Tour, Beat 2 = Sandbox, etc.). Under the updated order ([PRD §3.9](./PRD.md#39-lesson-arc--8-beats)) Sandbox is now Beat 2 (was 2), Vocab is Beat 3 (was 1.5), guests are Beats 4–5 (were 3–4), AHA is Beat 6 (was 5), Check is Beat 7 (was 6), Win is Beat 8 (was 7). Renames will land alongside the actual Stately authoring.
+- [x] **Beat 1 (Splash / Onboarding)** — Lives in `LessonView`. Greeting bubble (auto-dismisses on audio end) → name input (auto-focused on dismiss) → onboarding response. Workspace renders silently behind it so the kid sees pizzas + tools while Freddy is greeting.
+- [x] **Beat 2 (Sandbox / Explore)** — Lives in `src/modules/lesson/LessonExploration.tsx`. 9-stage orchestrator (`pre → intro_1..4 → free_play → cued → handing_off → done`) with bookended structure, spotlight UI tour, Freddy choreography, tap-Freddy + Start-Lesson affordances, and a 90s fallback timer. Reactions come out of Freddy's speech bubble (`react_halves` etc.); toast triggers retired (see P2.7). The stage machine's `onComplete` callback is the v2 handoff point into Beat 3.
+- [x] **Beat 6 (AHA)** — Lives in `tutorMachine.ts`. Demoable via `?beat=aha`. Full state diagram in PRD §5.1.
+- [x] **Beat 8 (Win)** — Win confetti + Freddy celebration line. Fires on proximity-reassembly in the explore act AND via `?beat=win` jump in demo mode.
 
-- [ ] **P4.1 — Beat 1 (Splash) authored + wired (J + C)**
-  - Trivial linear; matches existing SplashScreen behavior
-- [ ] **P4.2 — Beat 1.5 (Welcome Tour) authored + wired + counting mode UI (J + C)**
-  - Counting interaction: tap pepperoni slices → counter increments; tap total → counter for denominator
-  - Generate voice MP3s for new dialogue
-- [x] **P4.3 — Beat 2 (Sandbox) authored + wired (J + C)** *(superseded 2026-05-21 by the LessonExploration stage machine)*
-  - Originally scoped as a Stately-authored beat with XState wiring + fraction-toast triggers.
-  - **Superseded:** Beat 2 ships in production as `src/modules/lesson/LessonExploration.tsx` — a 9-stage non-XState orchestrator (`pre → intro_1..4 → free_play → cued → handing_off → done`) with bookended structure, spotlight UI tour, Freddy choreography, tap-Freddy + Start-Lesson affordances, and a 90s fallback timer. Reactions come out of Freddy's speech bubble (`react_halves` etc.); toast triggers retired (see P2.7). If Beat 2 later needs to merge into the XState `tutorMachine`, the stage machine's API surface (`onComplete`) makes the swap clean.
-- [ ] **P4.4 — Beat 3 (First Guest) authored + wired + guest arrival animation (J + C)**
-  - Generate voice MP3s
-- [ ] **P4.5 — Beat 4 (Two Guests, Equal Share) authored + wired (J + C)**
-  - Generate voice MP3s
-- [ ] **P4.6 — Beat 6 (Check for Understanding) authored + wired + 2–3 check problems (J + C)**
-  - Generate voice MP3s
-- [ ] **P4.7 — Beat 7 (Win) authored + wired + celebration animation (J + C)**
-  - Generate voice MP3s
-- [ ] **P4.8 — Full-lesson playthrough smoke test (C)**
-  - Playwright: enter name → automate the full happy path from splash to win → expect win state reached
-  - **Done when:** Test passes within reasonable time (< 60s)
-- [ ] **P4.9 — Visual inspection on iPad — full lesson splash → win (J)**
-  - **Done when:** Jason completes the full lesson on real iPad without intervention; no crashes / jank
+**v2 — Beats not yet authored (deferred from v1.0 scope):**
+
+- [ ] **v2: Beat 3 (Vocab — Numerator/Denominator)** — counting sub-machine. Reference material in `References/Share the Cookies Lesson/` (36 Synthesis screenshots). Wires into `LessonExploration.onComplete`.
+- [ ] **v2: Beat 4 (First Guest)** — guest arrives, asks for a share, kid delivers. Guest component placeholder already shipped; real art deferred (PT.2 v2).
+- [ ] **v2: Beat 5 (Two Guests, Equal Share)** — adds the fairness ↔ equivalence emotional loop.
+- [ ] **v2: Beat 7 (Check for Understanding)** — 2–3 short problems via drag-to-compare. Branching dialogue on wrong answers.
+- [ ] **v2: Full-lesson playthrough Playwright test** — splash → vocab → guests → AHA → check → win.
+- [ ] **v2: iPad device test of the full multi-beat flow** — blocked on PT.4 (physical iPad).
 
 ---
 
 ## P5 — Polish
 
-- [ ] **P5.1 — Apply Superbuilders brand tokens (PT.5 + C)**
-  - Update `tailwind.config.js` with real Superbuilders colors/fonts pulled from research
+- [x] **P5.1 — Apply Superbuilders brand tokens (PT.5 + C)** *(shipped via the `sb:` Tailwind namespace; see PT.5)*
+  - Brand-token alignment continued through 2026-05-21 with the AddPizzaButton / NameInputOverlay / ToolPicker hover-scale + focus-ring polish pass so all corner-button surfaces share the MuteToggle conventions.
 - [x] **P5.2 — Midjourney prompt library drafted (C)** *(shipped 2026-05-20)*
   - Freddy + restaurant + CTA hero already drafted; this pass filled in the guest section: 3 characters (Maya / Theo / Nonna Lucia) × 3 expressions (neutral / smile / frown) = 9 prompts. Persona one-liners locked at the top so the ChatGPT thread treats each guest as a continuous character through their 3 generations.
   - Staging notes call out the chef's-POV composition — guests need only head/shoulders/upper-torso since the counter mask cuts them at waist height.
   - Asset destination table maps each prompt to `public/images/characters/guests/<guest>-<expression>.png` to match the existing Freddy asset shape.
   - Off-model recovery prompt included for when ChatGPT drifts mid-thread.
-- [ ] **P5.3 — Midjourney assets generated + placed in /public/images/ (J — see PT.2)**
-  - Files in PRD §6 structure
-- [ ] **P5.4 — Replace Freddy emoji with real Freddy SVG/PNG (C)**
-- [ ] **P5.5 — Replace guest placeholders with real guest art (C)**
-- [ ] **P5.6 — Landing CTA hero illustration in place (C)**
+- [~] **P5.3 — Asset generation + placement in /public/images/ (J — see PT.2)** *(partial: Freddy + restaurant shipped; guests + CTA hero v2)*
+  - Freddy (10 PNGs across gesture × mouth × facing axes), `superslice-interior.png`, `superslice-counter.png` all in `/public/images/`.
+  - **v2:** guest characters (9 PNGs) and landing CTA hero illustration.
+- [x] **P5.4 — Replace Freddy emoji with real Freddy SVG/PNG (C)** *(shipped earlier — production assets in place)*
+- [ ] **v2: P5.5 — Replace guest placeholders with real guest art (C)** — gated on PT.2 v2 (guest beats themselves are also v2).
+- [ ] **v2: P5.6 — Landing CTA hero illustration in place (C)** — landing currently uses a different layout/aesthetic; dedicated hero illustration is a polish item.
 - [x] **P5.7 — Re-integrate particles (C)** *(shipped 2026-05-21 — DIY Framer Motion used for P5.8 + P5.9 instead; tsparticles not needed)*
   - Fell back to DIY Framer Motion; no new dependency needed
 - [x] **P5.8 — Slice particle effect (C)** *(shipped 2026-05-21)*
   - Cheese stretch + sauce splatter on every slice; tuned for "juicy" feel
 - [x] **P5.9 — Win confetti (C)** *(shipped 2026-05-21)*
   - DIY Framer Motion particles (mozzarella/oven-glow/basil/terracotta) — no extra deps. Key 8 / ?beat=win triggers demo jump.
-- [ ] **P5.10 — Sound effects sourced + integrated (S)**
-  - J sources from freesound.org / zapsplat: slice squelch, snap chime, win fanfare, tap pop
-  - C wires into Howler at the right state-machine triggers
+- [ ] **v2: P5.10 — Sound effects sourced + integrated (S)** — non-voice SFX (slice squelch, snap chime, win fanfare, tap pop) deferred. Win confetti currently ships without an audio sting; the AHA + lesson dialogue lines provide enough sonic punctuation for v1.0.
 - [~] **P5.11 — Framer Motion polish on hero moments (C)** *(AHA + Win shipped 2026-05-21; Counter still pending)*
   - **AHA done** — `src/modules/lesson/AhaAnimation.tsx` renders three stacked Framer Motion layers when state enters `aha.aha_triggered`: (1) mozzarella-cream screen flash that punches in then fades, (2) oven-glow radial pulse expanding from center, (3) bold `≡` mark scaling in with a slight rotate-into-place. After 1500ms it auto-fires `ANIMATION_DONE` so the machine advances to `celebrating` (which plays the reveal line). Cluster-anchored positioning + cheese-stretch particles still TBD when the lesson Table lands.
   - **Win, Counter** — still TBD, will follow the same pattern once Beat 8 (Win) + Beat 3 (Vocab) are authored.
-- [ ] **P5.12 — Lottie integration for Freddy (stretch) (J + C)**
-  - J finds/adapts a chef Lottie from LottieFiles; C wires `lottie-react`
-- [ ] **P5.13 — Visual inspection — full lesson with polish (J)**
-  - **Done when:** Jason confirms hero moments feel as alive as the Duolingo/Fruit Ninja reference bar
+- [ ] **v2: P5.12 — Lottie integration for Freddy (stretch) (J + C)** — Freddy's static raster art + sentence-aware mouth open/close already lands the warmth target for v1.0; a full Lottie facial rig is a v2 polish item if the lesson scope expands.
+- [ ] **v2: P5.13 — Visual inspection — full lesson with polish (J)** — meaningful once Beats 3/4/5/7 ship.
 
 ---
 
@@ -484,8 +457,8 @@ Pick up between phases as time allows. Not blocking the critical path.
   - `@statelyai/inspect` installed as a devDependency. `getInspectorOption()` in `src/lib/inspector.ts` reads `?inspect=true`, lazy-creates a `createBrowserInspector` on first use, and returns the `inspect` function — or `undefined` when disabled. Threaded through `useMachine(tutorMachine, { input, inspect: getInspectorOption() })` in `LessonMachineRoot`.
   - Stack with the rest of the URL flags: `?inspect=true&demo=true` opens demo controls + the live Stately inspector window in one shot. Auto-no-op when disabled so production builds aren't affected.
   - 3 unit tests at `src/lib/inspector.test.ts` covering the URL flag detection + the disabled-default path. Inspector instantiation itself isn't unit-tested because `createBrowserInspector` opens a real popup pointed at stately.ai/inspect — verification of the inspector UI is manual via the browser.
-- [ ] **CC.5 — Web Speech API as ultimate audio fallback (C — backlog only)**
-  - If ElevenLabs + IndexedDB both unreachable
+- [ ] **v2: CC.5 — Web Speech API as ultimate audio fallback (C — backlog only)**
+  - If ElevenLabs + IndexedDB both unreachable. The AudioEngine's silent-text fallback covers the failure case adequately for v1.0; this would add a third tier of fallback (text + ElevenLabs MP3 → Web Speech) for true offline scenarios.
 
 ---
 

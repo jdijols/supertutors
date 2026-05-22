@@ -12,19 +12,19 @@
 
 What if you could do the same thing with just an iPad and a web browser?"
 
-*Cut to browser tab opening `/preview/sandbox?cv=true`*
+*Cut to browser tab opening `/lesson?skip=true&cv=true`*
 
 ---
 
 ## Part 1 (0:30 – 1:30) — The pizza manipulative
 
-**Show:** `/preview/sandbox` (no CV yet)
+**Show:** `/lesson?skip=true` (skip onboarding, no CV yet)
 
 > "Here's the core mechanic. Freddy's pizza shop. A whole Sicilian pizza. The kid picks up the cutter and slices it."
 
 *Click the cutter tool. Click the pizza — it splits into halves.*
 
-> "Each slice triggers a toast notification. Halves become quarters. Quarters become eighths."
+> "Freddy reacts to each milestone slice with a quick speech bubble — 'Boom — halves!' on the first cut, 'Quarters! Four equal pieces' on the second, 'Eighths! Look at all those slices' on the third. The bubbles use the same voice as the rest of the lesson, so Freddy is the only narrator."
 
 *Continue slicing down to eighths.*
 
@@ -64,7 +64,7 @@ What if you could do the same thing with just an iPad and a web browser?"
 
 ## Part 3 (2:30 – 3:30) — CV physical mode
 
-**Show:** Tab back to `/preview/sandbox`. Click the 🖐️ Hands button.
+**Show:** Tab back to `/lesson?skip=true`. Click the 🖐️ Hands button.
 
 > "But here's the thing Patrick cares about. What if the kid didn't need to click at all?"
 
@@ -121,8 +121,8 @@ useHandLandmarks()        ← webcam → MediaPipe → 21 landmarks
 
 - Use `?demo=true` on any URL to enable keyboard shortcuts during recording
   - `0` → `/preview/cv` (hand tracking debug view)
-  - `C` → `/preview/sandbox?cv=true` (CV sandbox — the hero demo)
-  - `2` → `/preview/sandbox` (plain sandbox — slice + AHA in-sandbox)
+  - `C` → `/lesson?skip=true&cv=true` (lesson + CV pre-armed — the hero demo)
+  - `2` → `/lesson?skip=true` (skip onboarding into the manipulative — slice + AHA in-sandbox)
   - `6` → `/lesson?beat=aha` (AHA state machine vertical slice with voice)
   - `8` → `/lesson?beat=win` (Win confetti celebration moment)
 - For CV section: have webcam permissions already granted (click through the privacy notice once before recording)

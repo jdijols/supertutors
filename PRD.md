@@ -96,11 +96,11 @@
 
 ### 3.7 Polish Bar
 - Sharp prototype with **two hero moments** + selective Synthesis-grade polish on:
-  - The AHA transition (Beat 5)
+  - The AHA transition (Beat 6)
   - Warm wrong-answer recoveries
-  - Win celebration (Beat 7)
-- **In scope:** voice, confetti, sound design for key moments
-- **Stretch:** custom illustrations, ambient restaurant audio
+  - Win celebration (Beat 8)
+- **In scope (v1.0, shipped):** ElevenLabs voice with sentence-aware per-period mouth-close, Framer Motion AHA + Win confetti, slice particle burst on cut, sentence-level dialogue choreography, spotlight UI tour in the explore act.
+- **v2:** custom Lottie facial rig for Freddy, ambient restaurant audio, sound-effect layer (slice squelch, snap chime, win fanfare).
 
 ### 3.8 Entry Flow — Landing + Splash
 
@@ -128,20 +128,22 @@ No parent flow, no audio check, no presence gate, no dashboard. Personalization 
 
 ### 3.9 Lesson Arc — 8 Beats
 
-> **Reordered 2026-05-19** to match the project brief's *explore → instruct → check* model. Beat 2 (Sandbox/Explore) now comes BEFORE Beat 3 (Vocab) so the kid learns the UI through discovery before any formal lesson. Previously the lesson started with vocab via "counting pepperoni" — that pattern was flipped because (a) the brief explicitly calls for exploration-first, (b) Synthesis's instruct-first pattern isn't gospel, and (c) Beat 6's AHA lands harder when the kid already owns the tools.
+> **Reordered 2026-05-19** to match the project brief's *explore → instruct → check* model. Beat 2 (Sandbox/Explore) now comes BEFORE Beat 3 (Vocab) so the kid learns the UI through discovery before any formal lesson.
 
-| # | Beat | Duration | What happens |
-|---|---|---|---|
-| 1 | **Splash** | ~10s | Freddy greets ("Heyyy, welcome to SuperSlice! I'm Freddy Fractions. What's your name, kid?"), name input captures it, recognition beat ("[Name], beautiful name. Alright, lemme show ya how this works."), table mounts in the background during onboarding so nothing pops in. |
-| 2 | **Sandbox / Explore** | 2–3 min | **Bookended act** with a scripted ramp instead of cold free play. Opener: 4 short sub-lines, each spotlights one piece of the UI (counter, tool picker, add-pizza button + auto-opened variant menu, delivery box). Then free play — Freddy stays attentive, milestone reactions ("Boom — halves!", "Quarters! Four equal pieces.", "Eighths! Look at all those slices.", "Fresh outta the oven, kid!", "Delivered! On its way.") come out of Freddy's speech bubble (toasts retired). Cue line fires on first delivery or 90s fallback ("Just tap me on the shoulder when you're done messin' around"); a "Start lesson" button and tap-Freddy hit area materialize. Tap either → handoff line ("Alright, let's start here.") → Act 2. *(Progressive: tool mastery + intuitive number sense before vocab)* |
-| 3 | **Vocab — Numerator/Denominator** | 60–90s (expandable) | Formal instruction begins. Shows a pizza with some pepperoni slices, some plain. *"Now let me show you how we talk about pizzas around here."* Kid taps SLICES (not individual pepperoni discs) that have pepperoni → counter increments → numerator. Then taps all slices → denominator. Freddy names the parts: *"The top number is how many slices have pepperoni. The bottom number is ALL the slices. Put them together and that's a fraction!"* 1–2 variations to lock in vocab. *(Progressive: explicit vocabulary acquisition AFTER tool intuition. Stretch: can grow with more variations.)* |
-| 4 | **First guest** | ~30s | First guest arrives at the door. Asks for a simple share ("I'd love half!"). Kid slices, delivers via glove, guest smiles. First win. *(Application begins)* |
-| 5 | **Two guests, equal share** | ~45s | Second guest arrives. Both want equal pizza. Kid figures out halves. Both smile. *(Application deepens)* |
-| 6 | **The AHA — equivalence reveal** | ~60s | Freddy proposes: *"Hey kid, want to see something cool? I just pulled this fresh pizza outta the oven — it's already cut in half. Try slicing one of those halves once more, just for me."* Kid slices the 1/2 into two 1/4s. Drag-to-compare: the two quarters snap-align with a remaining half. Freddy names it cinematically: *"Whoa, kid! Look at that — one half is the SAME as two quarters! You just made fraction equivalence! Bellissimo!"* *(Synthesis to equivalence)* |
-| 7 | **Check for understanding** | ~90s | 2–3 short problems using drag-to-compare proximity mechanic ("Prove these two groups are equal"). Branching dialogue on wrong answers. *(Mastery)* |
-| 8 | **Win moment** | ~15s | All guests smile, confetti, Freddy celebrates by name. End. |
+**v1.0 ships Beats 1, 2, 6, and 8** — the explore act + the AHA hero moment + the Win celebration, plus onboarding. Beats 3, 4, 5, 7 are **v2** (port of Synthesis's *Share the Cookies* lesson + guest beats + check phase). The `LessonExploration` stage machine's `onComplete` callback is the v2 handoff point.
 
-**Total kid time:** ~7–10 minutes. Compresses Synthesis's ~39 min multi-lesson curriculum into a single focused arc.
+| # | Beat | Status | Duration | What happens |
+|---|---|---|---|---|
+| 1 | **Splash / Onboarding** | ✅ v1.0 | ~10s | Freddy greets ("Heyyy, welcome to SuperSlice! I'm Freddy Fractions. What's your name, kid?"), name input captures it, recognition beat ("[Name], beautiful name. Alright, lemme show ya how this works."), table mounts in the background during onboarding so nothing pops in. |
+| 2 | **Sandbox / Explore** | ✅ v1.0 | 2–3 min | **Bookended act** with a scripted ramp instead of cold free play. Opener: 4 short sub-lines, each spotlights one piece of the UI (counter, tool picker, add-pizza button + auto-opened variant menu, delivery box). Then free play — Freddy stays attentive, milestone reactions ("Boom — halves!", "Quarters! Four equal pieces.", "Eighths! Look at all those slices.", "Fresh outta the oven, kid!", "Delivered! On its way.") come out of Freddy's speech bubble (toasts retired). Cue line fires on first delivery or 90s fallback ("Just tap me on the shoulder when you're done messin' around"); a "Start lesson" button and tap-Freddy hit area materialize. Tap either → handoff line ("Alright, let's start here.") → Act 2. *(Progressive: tool mastery + intuitive number sense before vocab)* |
+| 3 | **Vocab — Numerator/Denominator** | 🔜 v2 | 60–90s | Formal instruction begins. Shows a pizza with some pepperoni slices, some plain. *"Now let me show you how we talk about pizzas around here."* Kid taps SLICES (not individual pepperoni discs) that have pepperoni → counter increments → numerator. Then taps all slices → denominator. Freddy names the parts: *"The top number is how many slices have pepperoni. The bottom number is ALL the slices. Put them together and that's a fraction!"* 1–2 variations to lock in vocab. **Reference material:** Synthesis's *Share the Cookies* lesson screenshots committed to `References/Share the Cookies Lesson/`. |
+| 4 | **First guest** | 🔜 v2 | ~30s | First guest arrives at the door. Asks for a simple share ("I'd love half!"). Kid slices, delivers via glove, guest smiles. First win. |
+| 5 | **Two guests, equal share** | 🔜 v2 | ~45s | Second guest arrives. Both want equal pizza. Kid figures out halves. Both smile. |
+| 6 | **The AHA — equivalence reveal** | ✅ v1.0 | ~60s | Freddy proposes: *"Hey kid, want to see something cool? I just pulled this fresh pizza outta the oven — it's already cut in half. Try slicing one of those halves once more, just for me."* Kid slices the 1/2 into two 1/4s. Drag-to-compare: the two quarters snap-align with a remaining half. Freddy names it cinematically: *"Whoa, kid! Look at that — one half is the SAME as two quarters! You just made fraction equivalence! Bellissimo!"* Demoable in v1.0 via `?beat=aha`; in v2 it'll be reached organically after the check phase. |
+| 7 | **Check for understanding** | 🔜 v2 | ~90s | 2–3 short problems using drag-to-compare proximity mechanic ("Prove these two groups are equal"). Branching dialogue on wrong answers. |
+| 8 | **Win moment** | ✅ v1.0 | ~15s | Confetti, Freddy celebrates. Fires from explore-act proximity reassembly today; in v2 it'll fire after Beat 7. Demoable via `?beat=win`. |
+
+**Total kid time:** v1.0 is 3–5 minutes (explore + AHA + Win). v2 brings the full ~7–10 min arc that compresses Synthesis's ~39 min multi-lesson curriculum into a single continuous story.
 
 ### 3.10 Tech Stack (locked)
 
