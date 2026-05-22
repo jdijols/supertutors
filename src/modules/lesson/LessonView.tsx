@@ -9,6 +9,7 @@ import { tutorMachine, type TutorEvent } from "@/modules/tutor/tutorMachine";
 import { AhaAnimation } from "./AhaAnimation";
 import { WinConfetti } from "./WinConfetti";
 import { LessonExploration } from "./LessonExploration";
+import { LessonScripted } from "./LessonScripted";
 import { useDemoMode } from "@/lib/demoMode";
 import { getInspectorOption } from "@/lib/inspector";
 import {
@@ -50,6 +51,8 @@ export function LessonView() {
   const [greetingDismissed, setGreetingDismissed] = useState(false);
   const [responseShown, setResponseShown] = useState(false);
   const [onboardingDone, setOnboardingDone] = useState(false);
+  // True once exploration's handoff line plays — mounts LessonScripted.
+  const [explorationDone, setExplorationDone] = useState(false);
   // True once Freddy's greeting finishes ("...what's your name, kid?") —
   // pulses the name input as a hand-off cue.
   const [nameInputPulsing, setNameInputPulsing] = useState(false);
@@ -213,10 +216,13 @@ export function LessonView() {
         onboardingDone && name ? (
           <LessonMachineRoot name={name} />
         ) : null
+      ) : explorationDone && name ? (
+        <LessonScripted name={name} />
       ) : (
         <LessonExploration
           name={name ?? ""}
           active={onboardingDone && !!name}
+          onComplete={() => setExplorationDone(true)}
         />
       )}
     </main>

@@ -27,6 +27,18 @@
     "aha_reveal": "Whoa, kid! Look at that — one half is the SAME as two quarters! You just made fraction equivalence! Bellissimo!",
     "lesson_win": "Bellissimo, kid! You put it back together — just like a real pizza chef!",
 
+    "lesson_intro": "Alright kid — two hungry friends just ordered. One pizza, gotta split it fair. Can you slice it right down the middle so each friend gets the SAME amount?",
+    "lesson_react_halves": "Boom — two equal halves! Each friend gets one half. Now, two MORE friends showed up. Four hungry kids, same pizza. Can you cut each half one more time?",
+    "lesson_stuck_halves": "Try the slicer on the pizza, kid. Cut it right down the middle.",
+    "lesson_react_quarters": "Four equal quarters! Each friend gets one piece. But here's where it gets cool...",
+    "lesson_wrong_eighths": "Hey, those pieces are getting tiny! Try slicing one of those bigger halves instead.",
+    "lesson_stuck_quarters": "Tap the slicer on one of those halves, kid. Cut it in half again.",
+    "lesson_compare_prompt": "Now drag two of those quarters right up next to one half. Tell me what you notice.",
+    "lesson_not_equal": "Get them right up against each other, kid. Real close.",
+    "lesson_stuck_compare": "Grab TWO quarter pieces and slide them right next to that half. You'll see it.",
+    "lesson_reveal": "Whoa, {{NAME}}! Look at that — one half is the EXACT same size as two quarters. That's fraction equivalence. One-half equals two-quarters! Bellissimo!",
+    "lesson_end": "You did it, kid! You just proved that one-half equals two-quarters. That's real math. Bellissimo!",
+
     "react_halves": "Boom — halves!",
     "react_quarters": "Quarters! Four equal pieces.",
     "react_eighths": "Eighths! Look at all those slices.",

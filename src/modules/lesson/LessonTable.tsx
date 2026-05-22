@@ -673,6 +673,28 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
       }
     }, [proximityGroups, onAha]);
 
+    // Fire Win callback the first time per reset cycle a proximity cluster
+    // sums to exactly one whole pizza (all pieces reassembled).
+    useEffect(() => {
+      if (winFiredRef.current) return;
+      const toNum = (f: string) => {
+        const [n, d] = f.split("/").map(Number);
+        return n / d;
+      };
+      const hasWhole = proximityGroups.some((g) => {
+        const total = g.pieceIds.reduce((sum, id) => {
+          const piece = piecesById.get(id);
+          return sum + (piece ? toNum(piece.fraction) : 0);
+        }, 0);
+        return Math.abs(total - 1) < 0.01;
+      });
+      if (hasWhole) {
+        winFiredRef.current = true;
+        setWinActive(true);
+        onWin?.();
+      }
+    }, [proximityGroups, piecesById, onWin]);
+
     // Tool-driven cursor classes on documentElement + body (the ToolSprite
     // also follows the pointer via JS). See SandboxPreview's earlier
     // comment for the three-layer redundancy rationale.
