@@ -8,6 +8,7 @@
   #root {
     height: 100%;
     width: 100%;
+    overflow: hidden;
     overscroll-behavior: none;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
@@ -22,6 +23,20 @@
   [role="button"] {
     -webkit-user-select: none;
     user-select: none;
+  }
+
+  /*
+   * Images: kill the iOS Safari long-press callout (save / copy / share)
+   * and the desktop Safari drag-to-save gesture so they don't interfere
+   * with the custom pizza-drag handlers. `draggable={false}` on each <img>
+   * is the React-side belt; this is the CSS suspenders that catches
+   * everything we forget to mark inline.
+   */
+  img {
+    -webkit-touch-callout: none;
+    -webkit-user-drag: none;
+    user-select: none;
+    -webkit-user-select: none;
   }
 }
 

@@ -51,8 +51,12 @@ const CV_NOTICE_KEY = "supertutors:cv-notice-shown";
 const THUMB_TIP = 4;
 const INDEX_TIP = 8;
 
-const CURSOR_COLOR_IDLE = "#f5e6c8";
-const CURSOR_COLOR_PINCH = "#ff8c42";
+// Finger-tracking overlay colors — pulled from the design tokens so the
+// CV cursor reads as a first-class part of the UI, not a debug visualization.
+// Idle (open hand) uses the warm paper tone; pinch (active grab) inverts
+// to ink, mirroring the active treatment we use on the chrome buttons.
+const CURSOR_COLOR_IDLE = "#EFE7DA"; // sb-paper
+const CURSOR_COLOR_PINCH = "#1A1A1A"; // sb-ink
 
 function CvModeOverlayInner() {
   const { videoRef, result, status, error } = useHandLandmarks();

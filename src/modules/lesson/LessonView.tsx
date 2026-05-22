@@ -155,7 +155,7 @@ export function LessonView() {
   }, [showResponseBubble, name, setFreddy]);
 
   return (
-    <main className="relative w-screen h-screen overflow-hidden bg-sb-surface">
+    <main className="relative w-screen h-[100dvh] overflow-hidden bg-sb-surface select-none [-webkit-touch-callout:none]">
       <RestaurantScene>
         <div className="absolute left-[-28px] bottom-0 z-10 pointer-events-none">
           <FreddyCharacter

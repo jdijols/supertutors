@@ -69,12 +69,12 @@ export function CvToggle() {
         }
       `}
     >
-      <CameraIcon />
+      {cvMode ? <CameraOnIcon /> : <CameraOffIcon />}
     </motion.button>
   );
 }
 
-function CameraIcon() {
+function CameraOnIcon() {
   return (
     <svg
       aria-hidden
@@ -88,10 +88,32 @@ function CameraIcon() {
       strokeLinejoin="round"
     >
       {/* FaceTime-style video camera silhouette: rectangle body with
-          play-arrow lens off the right side. Recognizable as "video
-          camera / turn camera on" without text. */}
+          play-arrow lens off the right side. Camera is ON / tracking. */}
       <rect x="2" y="6" width="14" height="12" rx="2" />
       <path d="M22 8l-6 4 6 4V8z" />
+    </svg>
+  );
+}
+
+function CameraOffIcon() {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 24 24"
+      width="28"
+      height="28"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {/* Same camera silhouette with a diagonal slash through it — mirrors
+          MuteToggle's "speaker + X" off-state convention. Default state
+          when CV mode is OFF: the slash reads as "tap to turn camera on." */}
+      <rect x="2" y="6" width="14" height="12" rx="2" />
+      <path d="M22 8l-6 4 6 4V8z" />
+      <line x1="2" y1="22" x2="22" y2="2" />
     </svg>
   );
 }

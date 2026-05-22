@@ -137,10 +137,17 @@ export function PizzaPiece({
   const isOverDropZoneRef = useRef(false);
   const [isOverDropZone, setIsOverDropZone] = useState(false);
 
+  // True while a drag is in progress. Used to suppress the mozzarella-cream
+  // drop-shadow during drag — Safari (desktop + iPad) leaves filter-paint
+  // trail artifacts when a filtered element is transformed at speed, so we
+  // turn the glow off as soon as the kid starts moving the piece.
+  const [isDragging, setIsDragging] = useState(false);
+
   function handleDragStart() {
     dragMovedRef.current = false;
     isOverDropZoneRef.current = false;
     setIsOverDropZone(false);
+    setIsDragging(true);
   }
 
   /**
@@ -198,6 +205,7 @@ export function PizzaPiece({
     clampToBounds();
     isOverDropZoneRef.current = false;
     setIsOverDropZone(false);
+    setIsDragging(false);
     onDragEnd?.(id, x.get(), y.get());
   }
 
@@ -225,6 +233,10 @@ export function PizzaPiece({
           width,
           height,
           pointerEvents: "none",
+          // Hint to the compositor that this element will be transformed
+          // continuously. Without this, Safari (desktop + iPad) can leave
+          // filter-paint trails behind the dragged piece.
+          willChange: "transform",
         }}
         animate={{
           // Scale priority:
@@ -235,10 +247,12 @@ export function PizzaPiece({
           //   - Otherwise → rest scale 1.
           // Glow filter (mozzarella-cream drop-shadow) only on the
           // normal hover state — when shrinking into the box the box
-          // itself glows instead.
+          // itself glows instead. DISABLED during drag because Safari
+          // leaves drop-shadow paint trails when the element is being
+          // continuously transformed.
           scale: isOverDropZone ? 0.5 : isHovering ? 1.04 : 1,
           filter:
-            isHovering && !isOverDropZone
+            isHovering && !isOverDropZone && !isDragging
               ? "drop-shadow(0 0 20px rgba(255, 251, 242, 0.95))"
               : "drop-shadow(0 0 0px rgba(255, 251, 242, 0))",
         }}

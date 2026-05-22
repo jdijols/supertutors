@@ -10,7 +10,7 @@ export default function App() {
   // Keep Howler's global mute aligned with the persisted store value.
   useMutedSync();
   return (
-    <div className="min-h-screen w-full">
+    <div className="min-h-[100dvh] w-full">
       <Outlet />
       {/* Global mute toggle — fixed top-right on every route. Rendered
           outside the Outlet so it persists across transitions and sits
