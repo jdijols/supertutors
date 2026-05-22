@@ -98,12 +98,12 @@ export function AddPizzaButton({ onAdd, disabled = false }: AddPizzaButtonProps)
           rounded-2xl border-2 border-sb-ink
           shadow-xl shadow-sb-accent-deep/25
           flex items-center justify-center
-          transition-all duration-200
+          transition-colors duration-200
           focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface
           ${spotlit ? "spotlight-pulse" : ""}
           ${
             disabled
-              ? "bg-sb-paper/40 text-sb-ink/30 cursor-not-allowed"
+              ? "bg-sb-paper text-sb-ink opacity-40 cursor-not-allowed"
               : "bg-sb-paper text-sb-ink hover:bg-sb-paper-deep cursor-pointer"
           }
         `}
@@ -161,8 +161,8 @@ function PizzaPickerButton({
     <motion.button
       type="button"
       onClick={() => onPick(variant)}
-      whileHover={{ scale: 1.06 }}
-      whileTap={{ scale: 0.94 }}
+      whileHover={{ scale: 1.04 }}
+      whileTap={{ scale: 0.92 }}
       transition={{ type: "spring", stiffness: 600, damping: 22 }}
       data-testid={`add-pizza-${variant}`}
       role="menuitem"
@@ -170,14 +170,11 @@ function PizzaPickerButton({
       className="
         w-14 h-14 sm:w-16 sm:h-16
         rounded-xl
-        bg-mozzarella-50
-        border-2 border-sb-ink/30
-        hover:border-sb-ink
-        shadow
+        bg-sb-card hover:bg-sb-paper-deep
         flex flex-col items-center justify-center
         cursor-pointer
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent
-        transition-colors
+        transition-colors duration-200
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-paper
       "
     >
       <img
