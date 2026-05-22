@@ -13,9 +13,11 @@ test.describe("CV sandbox", () => {
     await page.goto("/lesson?skip=true");
     await expect(page.getByTestId("tool-picker")).toBeVisible();
 
-    // CV toggle button is present.
+    // CV toggle button is present. The button was extracted from ToolPicker
+    // into a standalone `CvToggle` component; aria-label is now
+    // "Turn on hand tracking" / "Turn off hand tracking" depending on state.
     const cvBtn = page.getByRole("button", {
-      name: /hand tracking \(cv mode\)/i,
+      name: /turn on hand tracking/i,
     });
     await expect(cvBtn).toBeVisible();
 

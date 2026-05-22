@@ -193,6 +193,48 @@ function CvModeOverlay() {
         <div className="mx-4 max-w-sm bg-sb-paper rounded-2xl shadow-2xl border-2 border-sb-ink p-6 flex flex-col gap-4">
           <p className="text-2xl text-center">🖐️</p>
           <p className="text-sb-ink text-sm leading-relaxed">{PRIVACY_NOTICE}</p>
+
+          {/* How-to section — gives the kid the gesture vocab the moment
+              they grant the camera, so they're not left guessing how to
+              actually slice or move pieces with their hand. Same modal,
+              one quick read; the existing privacy assurance copy stays
+              above. */}
+          <div className="border-t-2 border-sb-ink/15 pt-4">
+            <p className="text-sb-ink/70 text-[10px] uppercase tracking-[0.18em] font-mono mb-3">
+              How to use it
+            </p>
+            <p className="text-sb-ink text-sm leading-relaxed mb-3">
+              Pinch your <strong>thumb and index finger</strong> together
+              to grab. Open your fingers to let go.
+            </p>
+            <div className="flex flex-col gap-2.5 text-sb-ink text-sm leading-snug">
+              <div className="flex items-start gap-3">
+                <img
+                  src="/images/ui/cutter-upright-cursor.png"
+                  alt=""
+                  className="w-7 h-7 shrink-0 mt-0.5"
+                  draggable={false}
+                />
+                <span>
+                  Pinch and drag across a pizza to{" "}
+                  <strong>slice</strong> it (when the cutter is picked).
+                </span>
+              </div>
+              <div className="flex items-start gap-3">
+                <img
+                  src="/images/ui/glove-open-cursor.png"
+                  alt=""
+                  className="w-7 h-7 shrink-0 mt-0.5"
+                  draggable={false}
+                />
+                <span>
+                  Pinch and drag a piece to <strong>move</strong> it
+                  (when the glove is picked).
+                </span>
+              </div>
+            </div>
+          </div>
+
           <div className="flex gap-3">
             <button
               type="button"
