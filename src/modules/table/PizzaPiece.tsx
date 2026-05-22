@@ -266,6 +266,10 @@ export function PizzaPiece({
           height,
           cursor,
           touchAction: "none",
+          // Wrapper around all pieces is `pointer-events: none` so empty
+          // viewport doesn't intercept clicks elsewhere; this interactive
+          // layer re-opts in so the piece itself remains drag/tap-able.
+          pointerEvents: "auto",
           clipPath,
         }}
         drag={draggable}

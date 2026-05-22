@@ -654,8 +654,12 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
 
     return (
       <>
-        {/* Sandbox piece layer — pieces sit above the counter mask. */}
-        <div className="absolute inset-0 z-30">
+        {/* Sandbox piece layer — pieces sit above the counter mask.
+            `pointer-events-none` on the wrapper so empty viewport doesn't
+            intercept clicks meant for the speech bubble (or any other UI
+            element layered alongside the table); each `PizzaPiece` re-opts
+            in to pointer events on its interactive sub-layer. */}
+        <div className="absolute inset-0 z-30 pointer-events-none">
           {pieces.map((piece) => (
             <PizzaPiece
               key={piece.id}
