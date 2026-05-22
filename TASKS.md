@@ -37,19 +37,21 @@ Every task has a **Done when** line with concrete success criteria. Patterns:
 
 > Update this section at the start/end of each session so any new Claude session can ramp in 30 seconds.
 
-**Active phase:** P2 sandbox preview shipped end-to-end at `/preview/sandbox`. Both pizza variants complete: `pepperoni-v1` (15 PNGs) and `cheese-v1` (18 PNGs — adds 3 vertical-strip thirds for Beat 3 vocab). Tool assets complete: 5-finger palm-down white glove in 3 states (open, closed, pointing) + wood-handle chrome-blade pizza cutter in 2 states (upright, cutting), each with a 1000×1000 sprite + 64×64 cursor variant. Sandbox mechanics live: drag-to-move (glove), drag-to-cut + tap-to-cut (cutter fires on pointer-UP), 32px gap between sliced children, mozzarella-cream hover glow, triangle hit targets for eighths via clip-path, JS-driven `ToolSprite` cursor (OS cursor hidden), pointing-glove cursor over ToolPicker.
+**Active phase:** Act 1 (Explore) is end-to-end at `/lesson`. The standalone `/preview/sandbox` route is retired — sandbox-style free play is part of the bookended explore act now. Today's release: 9-stage explore machine (`pre → intro_1..4 → free_play → cued → handing_off → done`) with a spotlight UI tour (ToolPicker, AddPizzaButton + auto-opened variant menu, DeliveryBox each pulse + scale when called out), Freddy pose/gesture choreography (`ok` reserved for the onboarding warm-up, `neutral` throughout the explore act, turns to face customers only after the cue line), tap-Freddy hit area + Start Lesson button materializing at the cue, and a 90s fallback timer if the kid never delivers. Voice pipeline is fully sentence-aware — `splitDialogueLine` now splits on sentence terminators in addition to `{{NAME}}`, the AudioEngine sequences segments with `onSpeakingChange` callbacks at every boundary, and Freddy's mouth closes at each period. A dev-only Vite middleware serves `/api/voice` so `npm run dev` exercises the same name-stitching path Vercel runs in prod.
 
 **Beat order updated (2026-05-19):** Sandbox/Explore now comes BEFORE Vocab (was Beat 1.5, now Beat 3) to match the project brief's *explore → instruct → check* model. Full updated order in [PRD §3.9](./PRD.md#39-lesson-arc--8-beats).
 
 **Removed mechanic:** "Tap individual pepperoni discs" was eliminated 2026-05-20 — Beat 3 (Vocab) counts pizza SLICES that have pepperoni, not individual pepperoni discs on a slice.
 
+**Toast retired (2026-05-21):** Fraction toasts are no longer used in the production flow. Freddy's speech bubble carries every reaction (`react_halves`, `react_quarters`, `react_eighths`, `react_new_pizza`, `react_delivered`). The `src/modules/toast/` component still ships but isn't consumed by `LessonExploration` — it remains available for future surfaces that need a non-Freddy notification channel.
+
 **Cursor architecture pivot (2026-05-20):** Custom CSS cursor URLs silently failed to render in some regions on Chrome/macOS despite the computed style being correct on every element in the inheritance chain. Pivoted to a DOM-based `ToolSprite` component in `src/modules/world/` that follows the pointer with `pointer-events: none` and renders the tool art directly. OS cursor hidden via `cursor: none` on body. Total visual control, no browser cursor-engine quirks.
 
-**Active session owner:** Jason → next chat for Stately Beat 6 authoring (PT.3); Claude → sandbox preview stable, awaiting next workstream.
+**Active session owner:** Jason → script tuning + Act 2 (Share-the-Pizza) authoring; Claude → standing by for the Act 2 build once the dialogue is drafted in Stately.
 
-**Blockers:** None on critical path. PT.4 (iPad) blocks iPad inspection only. PT.3 (Stately authoring) blocks P1.3 / Beat 6 wiring.
+**Blockers:** None on critical path. PT.4 (iPad) blocks iPad inspection only. PT.3 (Stately authoring) blocks Act 2 / Beat 3+ wiring.
 
-**Safeguard:** Beat 6 (AHA — was Beat 5 in old numbering) must be authored + wired by end-of-day Thursday 2026-05-21. If tracking behind by Thursday morning, jump-skip to Beat 6 next to lock the demo hero.
+**Safeguard:** Beat 6 (AHA — was Beat 5 in old numbering) authored + wired and shipping. Demo hero is locked.
 
 ---
 
@@ -298,8 +300,9 @@ Goal: the Table workspace becomes real. The hero gesture works.
   - 22 unit tests at `src/modules/table/proximity.test.ts` covering: gap math (overlap/touch/diagonal/custom threshold), `admitsEqualPartition` (AHA cluster, mismatch, eighth combinations), `findProximityGroups` (singletons, transitive grouping, two distant clusters, custom threshold).
   - Live overlay wired into `/preview/sandbox`: `≡` badge (basil-green) over equal clusters, `≠` (oven-glow) over mismatched. `data-proximity-comparison` + `data-proximity-piece-ids` attrs for Playwright assertion. Beat 6 wiring will subscribe to the same `findProximityGroups` output via the Brain instead of this overlay.
 
-- [x] **P2.7 — Toast / CounterDisplay (C)** *(toast shipped 2026-05-20; counter UI deferred)*
-  - `src/modules/toast/Toast.tsx` — auto-dismissing toast with spring entrance + fade. Fires on every slice with the resulting fraction text ("You made halves! 1/2", "Now quarters! 1/4", "Eighths! 1/8") via `fractionToastMessage(fraction, isFirstTime)`. First-time copy upgrades to "Now {kind}!" on repeat.
+- [x] **P2.7 — Toast / CounterDisplay (C)** *(toast shipped 2026-05-20; retired from production flow 2026-05-21; counter UI still deferred)*
+  - `src/modules/toast/Toast.tsx` shipped as auto-dismissing toast with spring entrance + fade + `fractionToastMessage(fraction, isFirstTime)` for the "You made halves! 1/2" copy.
+  - **Retired (2026-05-21):** the production explore act carries every reaction through Freddy's speech bubble (`react_halves`, `react_quarters`, `react_eighths`, `react_new_pizza`, `react_delivered`) instead of a parallel toast channel — single narrator surface reads cleaner. The Toast component still ships and remains available for future non-Freddy notification needs.
   - Beat 3 vocab counter UI (`CounterDisplay`) intentionally deferred — different mechanic; will land with Beat 3 wiring.
 
 - [x] **P2.8 — Guest component placeholder (C — final art in P5)** *(shipped 2026-05-21)*
@@ -333,7 +336,7 @@ Goal: real ElevenLabs voice playing in the lesson, with name personalization.
 
 > **Voice pipeline status (2026-05-20):** Fully shipped to production. Onboarding bubbles in `/lesson` play matching audio; static MP3s served from `/audio/`; runtime name MP3s fetched from `/api/voice`. Verified via curl against https://supertutors.vercel.app. Beat 6 (AHA) MP3s exist on disk and are wired through `AudioEngine`, awaiting state-machine hookup (P1.3 → PT.3 Stately authoring).
 
-> **Local-dev gotcha:** `npm run dev` (Vite) does NOT serve Edge Functions — `POST /api/voice` returns 404 in dev. To exercise the full name-stitching path locally, use `vercel dev` instead. The AudioEngine handles the 404 gracefully (fires `onDone` so the lesson never hangs), but the name segment won't actually play in `npm run dev`. Static-only audio playback (greeting, AHA static lines) works fine in both.
+> **Local-dev `/api/voice`:** `npm run dev` now serves the same `api/voice.ts` handler via the `devVoiceApi` Vite plugin in `vite.config.ts` (`apply: 'serve'`). Full name-stitching works under plain `npm run dev` — no `vercel dev` required. Production is unaffected; Vercel still serves the Edge Function natively. AudioEngine remains resilient: if the name fetch fails (proxy down, network blip), it plays the surrounding static segments rather than aborting the line.
 
 > **QA page:** `/preview/voice` — lists every dialogue line with a per-row play button. Use to A/B test voices without walking through the lesson.
 
@@ -385,9 +388,9 @@ For each beat, repeat the P1 vertical-slice pattern: Stately authoring → expor
 - [ ] **P4.2 — Beat 1.5 (Welcome Tour) authored + wired + counting mode UI (J + C)**
   - Counting interaction: tap pepperoni slices → counter increments; tap total → counter for denominator
   - Generate voice MP3s for new dialogue
-- [ ] **P4.3 — Beat 2 (Sandbox) authored + wired + fraction-toast triggers (J + C)**
-  - Most complex beat — free-form with many possible student actions
-  - Generate voice MP3s
+- [x] **P4.3 — Beat 2 (Sandbox) authored + wired (J + C)** *(superseded 2026-05-21 by the LessonExploration stage machine)*
+  - Originally scoped as a Stately-authored beat with XState wiring + fraction-toast triggers.
+  - **Superseded:** Beat 2 ships in production as `src/modules/lesson/LessonExploration.tsx` — a 9-stage non-XState orchestrator (`pre → intro_1..4 → free_play → cued → handing_off → done`) with bookended structure, spotlight UI tour, Freddy choreography, tap-Freddy + Start-Lesson affordances, and a 90s fallback timer. Reactions come out of Freddy's speech bubble (`react_halves` etc.); toast triggers retired (see P2.7). If Beat 2 later needs to merge into the XState `tutorMachine`, the stage machine's API surface (`onComplete`) makes the swap clean.
 - [ ] **P4.4 — Beat 3 (First Guest) authored + wired + guest arrival animation (J + C)**
   - Generate voice MP3s
 - [ ] **P4.5 — Beat 4 (Two Guests, Equal Share) authored + wired (J + C)**

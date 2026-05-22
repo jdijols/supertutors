@@ -2,7 +2,7 @@
 
 > A conversational AI math tutor that teaches fraction equivalence to 9-year-olds through a Sicilian-pizza manipulative. Built for the Week 4 Gauntlet challenger project (clone Synthesis Tutor).
 
-**Live:** [supertutors.vercel.app](https://supertutors.vercel.app) — Beat 6 (AHA) + Win confetti + sandbox with AHA animation + CV physical mode
+**Live:** [supertutors.vercel.app](https://supertutors.vercel.app) — bookended exploration tour (greeting → name → opener choreography → free play → tap-Freddy handoff) + Beat 6 AHA + Win confetti + CV physical mode, all inside the unified `/lesson` route
 
 ---
 
@@ -14,7 +14,7 @@ Inspired by [Patrick Skinner's work on BEMO](https://playbemo.com/) — the thes
 
 **Try it:**
 
-- [CV sandbox](https://supertutors.vercel.app/preview/sandbox?cv=true) — slice pizzas by pinching + dragging in front of your webcam
+- [Lesson with CV mode](https://supertutors.vercel.app/lesson?skip=true&cv=true) — skips onboarding into the manipulative with the webcam tracker enabled; pinch + drag in front of your camera to slice
 - [CV preview](https://supertutors.vercel.app/preview/cv) — live hand-landmark overlay + pinch detector debug view
 
 **How it works:**
@@ -51,10 +51,11 @@ useHandLandmarks()       ← webcam → MediaPipe → 21 landmarks/30fps
 | URL | What it shows |
 |---|---|
 | [supertutors.vercel.app](https://supertutors.vercel.app) | Landing + lesson entry |
-| [/preview/sandbox](https://supertutors.vercel.app/preview/sandbox) | Full pizza mechanic (slice + drag + proximity) |
-| [/preview/sandbox?cv=true](https://supertutors.vercel.app/preview/sandbox?cv=true) | CV physical mode |
+| [/lesson](https://supertutors.vercel.app/lesson) | Full production flow — onboarding → exploration tour → free play |
+| [/lesson?skip=true](https://supertutors.vercel.app/lesson?skip=true) | Skip onboarding, drop straight into the manipulative (name = "Chef") |
+| [/lesson?skip=true&cv=true](https://supertutors.vercel.app/lesson?skip=true&cv=true) | Same shortcut + CV physical mode pre-armed |
 | [/preview/cv](https://supertutors.vercel.app/preview/cv) | Hand landmark debug overlay |
-| [/lesson?beat=aha&demo=true](https://supertutors.vercel.app/lesson?beat=aha&demo=true) | Beat 6 (AHA) with dev controls |
+| [/lesson?beat=aha&demo=true](https://supertutors.vercel.app/lesson?beat=aha&demo=true) | Beat 6 (AHA) state machine with dev controls |
 
 **Demo mode shortcuts** (append `?demo=true` to any URL):
 
@@ -62,10 +63,10 @@ useHandLandmarks()       ← webcam → MediaPipe → 21 landmarks/30fps
 |---|---|
 | `0` | CV preview (`/preview/cv`) |
 | `1` | Landing |
-| `2` | Sandbox (slice + AHA animation on equal pieces) |
+| `2` | Sandbox / Explore (`/lesson?skip=true` — skips onboarding into the manipulative) |
 | `6` | Beat 6 (AHA) — the hero demo moment with voice |
 | `8` | Beat 8 (Win) — confetti celebration |
-| `C` | CV sandbox (`?cv=true`) |
+| `C` | Lesson + CV mode (`/lesson?skip=true&cv=true`) |
 | `Shift+R` | Reload current page |
 
 **Demo video:** see [`deliverables/demo-video-script.md`](./deliverables/demo-video-script.md) for the recording script.
@@ -87,7 +88,8 @@ vercel env pull .env.local    # requires Vercel CLI + project access
 
 # Start dev server
 npm run dev     # Vite at localhost:5173
-# Note: /api/voice (name stitching) needs `vercel dev` not `npm run dev`
+# `/api/voice` (name MP3 stitching) is served locally via the
+# `devVoiceApi` Vite plugin in vite.config.ts — no `vercel dev` needed.
 
 # Run tests
 npm test           # Vitest unit tests

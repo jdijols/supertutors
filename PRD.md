@@ -51,7 +51,7 @@
 - **No combining gesture:** Splitting alone teaches equivalence. Brief permits ("like combining, splitting, or smashing" — OR list).
 - **Drag-to-compare via proximity:** When two or more pieces/groups are placed near each other on the table, the system auto-compares and shows equal/not-equal feedback. This is the "prove it" mechanic for the check phase.
 - **Progressive learning within one lesson** (woven into a single continuous narrative, not separate lessons). Order updated 2026-05-19 to match the project brief's *explore → instruct → check* model: free play comes first so the kid learns the UI before any formal lesson:
-  1. **Beat 2 (Sandbox / Explore):** free play with slicer + glove, kid learns the UI, observes pizzas getting sliced into halves/quarters/eighths via the toast labels. No formal vocab lesson yet — discovery mode.
+  1. **Beat 2 (Sandbox / Explore):** bookended exploration act — 4-line opener tour that spotlights each piece of UI (counter, tool picker, add-pizza button, delivery box), then free play with slicer + glove, then a cue line + start-lesson button + tap-Freddy hit area that hand off to Beat 3. Freddy reacts to slice / new-pizza / delivery moments via speech bubbles (toast retired). No formal vocab lesson yet — discovery mode.
   2. **Beat 3 (Vocab — Numerator/Denominator):** formal instruction begins. Freddy explains the parts: *"The top number is how many slices have pepperoni. The bottom number is ALL the slices. Put them together and that's a fraction!"* Kid taps SLICES (not individual pepperoni discs) to count which slices have pepperoni → numerator, then all slices → denominator. 1–2 variations to lock in vocab.
   3. **Beats 4–5 (First/Two Guests):** application of vocab in narrative context.
   4. **Beat 6 (AHA):** synthesis to equivalence.
@@ -120,9 +120,9 @@ Future tutors would appear here as additional CTA cards (one per subject/tutor) 
 
 Kid-facing splash, ~10 sec inside the lesson world.
 
-1. Freddy intro + "What's your name?" — single input, autofocus, big tap target. Character voice in full effect ("Heyyy, welcome to SuperSlice! What's your name, kid?").
-2. "Ready to slice some pizza, [Name]?" — giant button → straight into Beat 2 (Sandbox)
-3. **Behind the scenes:** name submit triggers ElevenLabs name-audio generation in parallel (see §3.11 Audio Architecture); ready by Beat 2 start
+1. Freddy intro + "What's your name?" — single input, autofocus, big tap target. Character voice in full effect ("Heyyy, welcome to SuperSlice! I'm Freddy Fractions. What's your name, kid?"). Name input renders as a chat-style row pinned to the bottom counter edge; pulses once Freddy's greeting finishes so the kid knows it's their turn.
+2. Recognition beat after submit: "[Name], beautiful name. Alright, lemme show ya how this works." — the single line in the entire script that uses the kid's name (Freddy calls everyone "kid" everywhere else, both for personality and to avoid runtime name-stitch breaks).
+3. **Behind the scenes:** name submit triggers ElevenLabs name-audio generation in parallel (see §3.11 Audio Architecture); ready by Beat 2 start. The workspace (pizzas, tools, add button, delivery box) is already mounted behind Freddy during onboarding so Beat 2 doesn't fade in — only Freddy's bubble + name input dismiss.
 
 No parent flow, no audio check, no presence gate, no dashboard. Personalization (using the kid's name throughout, in text AND audio) gives us the warmth win.
 
@@ -132,12 +132,12 @@ No parent flow, no audio check, no presence gate, no dashboard. Personalization 
 
 | # | Beat | Duration | What happens |
 |---|---|---|---|
-| 1 | **Splash** | ~10s | Freddy greets, name capture, table opens |
-| 2 | **Sandbox / Explore** | 2–3 min | Tools available. 1–2 whole pizzas on the counter. Free play with both glove + cutter. Toast labels fractions on every slice ("You made halves! 1/2", "Now quarters! 1/4", "Eighths! 1/8"). Freddy reacts warmly to discovery moments. Doubles as tutorial-by-doing for controls. Kid signals readiness for the formal lesson when they're ready. *(Progressive: tool mastery + intuitive number sense before vocab)* |
+| 1 | **Splash** | ~10s | Freddy greets ("Heyyy, welcome to SuperSlice! I'm Freddy Fractions. What's your name, kid?"), name input captures it, recognition beat ("[Name], beautiful name. Alright, lemme show ya how this works."), table mounts in the background during onboarding so nothing pops in. |
+| 2 | **Sandbox / Explore** | 2–3 min | **Bookended act** with a scripted ramp instead of cold free play. Opener: 4 short sub-lines, each spotlights one piece of the UI (counter, tool picker, add-pizza button + auto-opened variant menu, delivery box). Then free play — Freddy stays attentive, milestone reactions ("Boom — halves!", "Quarters! Four equal pieces.", "Eighths! Look at all those slices.", "Fresh outta the oven, kid!", "Delivered! On its way.") come out of Freddy's speech bubble (toasts retired). Cue line fires on first delivery or 90s fallback ("Just tap me on the shoulder when you're done messin' around"); a "Start lesson" button and tap-Freddy hit area materialize. Tap either → handoff line ("Alright, let's start here.") → Act 2. *(Progressive: tool mastery + intuitive number sense before vocab)* |
 | 3 | **Vocab — Numerator/Denominator** | 60–90s (expandable) | Formal instruction begins. Shows a pizza with some pepperoni slices, some plain. *"Now let me show you how we talk about pizzas around here."* Kid taps SLICES (not individual pepperoni discs) that have pepperoni → counter increments → numerator. Then taps all slices → denominator. Freddy names the parts: *"The top number is how many slices have pepperoni. The bottom number is ALL the slices. Put them together and that's a fraction!"* 1–2 variations to lock in vocab. *(Progressive: explicit vocabulary acquisition AFTER tool intuition. Stretch: can grow with more variations.)* |
 | 4 | **First guest** | ~30s | First guest arrives at the door. Asks for a simple share ("I'd love half!"). Kid slices, delivers via glove, guest smiles. First win. *(Application begins)* |
 | 5 | **Two guests, equal share** | ~45s | Second guest arrives. Both want equal pizza. Kid figures out halves. Both smile. *(Application deepens)* |
-| 6 | **The AHA — equivalence reveal** | ~60s | Freddy proposes: *"Hey [Name], want to see something cool? Try slicing one of those halves once more."* Kid slices a delivered 1/2 into two 1/4s. Drag-to-compare: the two quarters snap-align with a remaining half. Freddy names it cinematically: *"Whoa, [Name] — 1/2 is the SAME as 2/4!"* *(Synthesis to equivalence)* |
+| 6 | **The AHA — equivalence reveal** | ~60s | Freddy proposes: *"Hey kid, want to see something cool? I just pulled this fresh pizza outta the oven — it's already cut in half. Try slicing one of those halves once more, just for me."* Kid slices the 1/2 into two 1/4s. Drag-to-compare: the two quarters snap-align with a remaining half. Freddy names it cinematically: *"Whoa, kid! Look at that — one half is the SAME as two quarters! You just made fraction equivalence! Bellissimo!"* *(Synthesis to equivalence)* |
 | 7 | **Check for understanding** | ~90s | 2–3 short problems using drag-to-compare proximity mechanic ("Prove these two groups are equal"). Branching dialogue on wrong answers. *(Mastery)* |
 | 8 | **Win moment** | ~15s | All guests smile, confetti, Freddy celebrates by name. End. |
 
@@ -171,22 +171,22 @@ No parent flow, no audio check, no presence gate, no dashboard. Personalization 
 **Solution: hybrid pipeline.**
 
 #### Build-time pipeline (static dialogue)
-1. All Freddy lines authored in `src/modules/tutor/dialogue.json` with `{{NAME}}` placeholders where personalization happens
-2. `scripts/generate-voice.ts` reads dialogue, splits each line at the `{{NAME}}` slot, calls ElevenLabs for each static segment
-3. MP3s saved to `/public/audio/` with deterministic filenames matching dialogue keys (e.g., `aha_reveal_a.mp3`, `aha_reveal_b.mp3`)
-4. Runs in CI / locally — not at user runtime
+1. All Freddy lines authored in `src/modules/tutor/dialogue.json` with `{{NAME}}` placeholders where personalization happens. Only `onboarding_response` uses the slot today — every other line uses "kid".
+2. `scripts/generate-voice.ts` reads dialogue, splits each line at **both** the `{{NAME}}` slot AND sentence boundaries (`.`, `!`, `?` followed by whitespace or end). One MP3 per sentence segment.
+3. MP3s saved to `/public/audio/` with deterministic filenames: single-sentence non-name lines as `<key>.mp3`; multi-segment lines as numbered `<key>_s0.mp3`, `<key>_s1.mp3`, … in playback order.
+4. Runs in CI / locally — not at user runtime. Manifest at `public/audio/.manifest.json` (sha256 per segment) makes regeneration incremental and prunes orphans automatically.
 
 #### Runtime pipeline (kid's name)
 1. Kid enters name on splash screen
-2. Splash form submit triggers `POST /api/voice` (Vercel Edge Function)
+2. Submit triggers `POST /api/voice` (Vercel Edge Function in prod; a dev-only Vite middleware serves the same handler under `npm run dev` so the path is identical)
 3. Edge Function proxies request to ElevenLabs API with secured key, returns MP3 blob
-4. MP3 cached in IndexedDB keyed by name
-5. By the time the kid taps "Ready to slice pizza, [Name]?" (~2–3 sec later), the audio is ready
+4. MP3 cached in IndexedDB keyed by normalized name
+5. By the time the recognition line plays, the name segment is ready
 
 #### Playback (Audio Engine)
-- **Static lines:** play the matching pre-gen MP3
-- **Name-injected lines:** sequential play `[pre-gen segment A]` → `[name MP3]` → `[pre-gen segment B]` via Howler.js queue
-- Static segments authored with appropriate pause/intonation so the stitch sounds natural
+- Engine looks up the dialogue line by key, runs `splitDialogueLine` to derive its playback segments, and sequences them via Howler.js.
+- For multi-segment lines (sentence-split AND/OR name-bearing) a brief mouth-close beat is inserted between each pair of segments and an `onSpeakingChange(true/false)` callback fires across the boundary so the FreddyCharacter mouth opens/closes at every period.
+- **Failure resilience:** if the runtime name fetch fails, the engine still plays the surrounding static segments rather than aborting the line — kid hears everything except the personalization.
 
 #### Cost & failure
 - **Cost:** ~$0.0001 per session (one short API call). Free tier covers thousands of sessions/month.
@@ -252,7 +252,7 @@ What we explicitly **can't** match: years of custom-illustrated character polish
 | **Table Workspace** | `src/modules/table/Table.tsx` | Pizzas, slices, guests, drag/drop, proximity detection, counting mode (Beat 3 — Vocab). Emits events. | Tutor Brain (events), Tools, Store |
 | **Tool Picker** | `src/modules/tools/ToolPicker.tsx` | Glove ↔ Cutter mode switching | Store |
 | **Audio Engine** | `src/modules/audio/AudioEngine.ts` | Howler wrap, sequential stitching for name-injected lines, global fallback to text-only if audio fails | Pre-gen MP3s, IndexedDB cache |
-| **Toast System** | `src/modules/toast/ToastSystem.tsx` | Fraction labels on slice events, counter UI for Beat 3 (Vocab) | Subscribes to Table events |
+| **Toast (retired in lesson path)** | `src/modules/toast/Toast.tsx` | Was the fraction-label feedback on slice events; **replaced by Freddy speech-bubble reactions** as part of the single-narrator rework. The Toast component still exists for potential future use (e.g. counter UI for Beat 3 — Vocab) but isn't mounted by `LessonTable` today. |
 | **Voice Proxy** | `api/voice.ts` (Edge Function) | Secures ElevenLabs API key, accepts name string, returns MP3 | ElevenLabs API |
 | **Pre-gen Pipeline** | `scripts/generate-voice.ts` | Build-time MP3 generation from dialogue.json | (build-time only) |
 | **Store (Zustand)** | `src/store/appStore.ts` | Kid name, current beat, tool mode, guest states, table state | All components |
@@ -266,10 +266,9 @@ graph TB
         Splash["Splash /lesson<br/>name capture<br/>SuperSlice brand"]
 
         subgraph LessonView["Lesson View (/lesson)"]
-            Chat["Chat Panel<br/>Freddy"]
-            Table["Table Workspace<br/>pizzas, slices, guests, counting"]
-            Tools["Tool Picker<br/>glove / cutter"]
-            Toast["Toast System<br/>fraction labels + counters"]
+            Chat["Speech Bubble<br/>Freddy (single narrator)"]
+            Table["Table Workspace<br/>pizzas, slices, tools,<br/>add-pizza, delivery box"]
+            Tools["Tool Picker<br/>glove / cutter / CV"]
         end
 
         subgraph StateLayer["State Layer"]
@@ -299,32 +298,30 @@ graph TB
     EL -->|MP3 blob| Proxy
     Proxy -->|MP3| Cache
 
-    Table -->|events: SLICED, DELIVERED, TAPPED, PROXIMITY_*| Brain
+    Table -->|events: SLICED, DELIVERED, ADDED, PROXIMITY_*| Brain
     Brain -->|dialogue state| Chat
     Brain -->|play audio cmd| Engine
-    Engine -->|loads static| MP3s
-    Engine -->|loads name| Cache
+    Engine -->|loads static segments| MP3s
+    Engine -->|loads name segment| Cache
     Tools -->|mode| Store
     Store -->|tool mode + beat| Table
-    Table -->|slice/tap events| Toast
     Brain -->|reads & writes| Store
 ```
 
 ### 4.3 Data Flow — Typical Lesson Moment
 
 1. Kid slices a pizza on the table
-2. Table emits event: `SLICED { pieceId, resultingFractions: ["1/2","1/2"] }`
-3. Tutor Brain (XState) receives event in current beat state
-4. State machine transitions based on event + current beat (e.g., `sandbox.exploring` → `sandbox.acknowledge_halves`)
-5. Transition action: dispatch `PLAY_DIALOGUE { key: "sandbox_first_halves" }`
+2. Table emits event: `SLICED { pieceId, parentFraction: "1/2", childrenFraction: "1/4" }`
+3. The active orchestrator receives the event (XState `tutorMachine` for Beat 6+ AHA; `LessonExploration`'s 9-stage machine for the Explore act)
+4. State transitions based on event + current stage (e.g., `aha.waiting_for_slice` → `aha.sliced_correctly`, or in the Explore act `intro_3` → `intro_4` on `DIALOGUE_DONE`)
+5. Transition action dispatches a play call: `engine.play({ dialogueKey: "aha_compare_prompt", onSpeakingChange, onDone })`
 6. Audio Engine receives play command:
-   - Loads `/public/audio/sandbox_first_halves_a.mp3` (pre-gen segment A)
-   - Loads name MP3 from IndexedDB
-   - Loads `/public/audio/sandbox_first_halves_b.mp3` (pre-gen segment B)
-   - Queues sequential playback via Howler
-7. Chat Panel receives dialogue text + plays synced with audio
-8. Toast System (subscribed to slice events independently) shows "You made halves! 1/2"
-9. State machine awaits next student event
+   - Looks up the line text from `dialogue.json` and runs `splitDialogueLine`
+   - For a multi-sentence line, loads `/public/audio/aha_compare_prompt_s0.mp3`, …, `_s2.mp3` in sequence
+   - For name-bearing lines, the runtime name MP3 from IndexedDB is sequenced in place of the `{{NAME}}` slot
+   - Fires `onSpeakingChange(true)` on each segment start and `(false)` on each end — drives Freddy's mouth via the appStore `freddy.speaking` flag
+7. Speech bubble re-renders with the line's rendered text (no toasts — Freddy's bubble is the single narrator surface)
+8. Orchestrator awaits next student event (or `DIALOGUE_DONE` for auto-advancing stages)
 
 ### 4.4 Operational Considerations
 
@@ -469,15 +466,17 @@ This pattern *is* the intent map. The visual diagram (above for Beat 5) is gener
 
 ### 5.3 Remaining Beats (to be authored in Stately)
 
-Author order, per vertical-slice-first strategy (see §5.4):
-1. **Beat 5: AHA** — already sketched (above); first to be authored fully in Stately and wired end-to-end through code → voice → iPad as the vertical slice
-2. **Beat 1: Splash** — trivial (linear)
-3. **Beat 3: Vocab — Numerator/Denominator** (formerly Beat 1.5 "Welcome Tour") — counting sub-machine: `setup → count_pepperoni_slices → count_total_slices → reveal_vocab → variation_1 → variation_2 → exit`. Tap events drive transitions (kid taps pizza SLICES, not individual pepperoni discs). Wrong-count and stuck branches.
-4. **Beat 2: Sandbox** — most complex (free-form, many possible student actions, many fraction-toast triggers)
-5. **Beat 3: First Guest** — linear with one wrong-amount branch
-6. **Beat 4: Two Guests, Equal Share** — linear with proportional-wrong branches
-7. **Beat 6: Check for Understanding** — 2–3 short sub-machines, drag-to-compare driven
-8. **Beat 7: Win** — linear celebration
+What's already shipped (not in Stately, but built):
+- **Beat 1: Splash** — onboarding (greeting → name input → response) lives in `LessonView`, driven by local React state.
+- **Beat 2: Sandbox / Explore** — bookended exploration act lives in `LessonExploration` as a 9-stage React state machine (`pre → intro_1..4 → free_play → cued → handing_off → done`) with spotlight choreography. Freddy reacts via speech bubbles on slice / new-pizza / delivery moments. Not a Stately export — handcrafted to integrate tightly with the workspace.
+- **Beat 6: AHA** — fully authored in Stately and exported into `tutorMachine.ts`. The vertical slice.
+- **Beat 8: Win** — confetti + Freddy celebration; jumped to via `?beat=win` or proximity reassembly in the explore act.
+
+Still to be authored in Stately (next chat):
+1. **Beat 3: Vocab — Numerator/Denominator** (formerly Beat 1.5 "Welcome Tour") — counting sub-machine: `setup → count_pepperoni_slices → count_total_slices → reveal_vocab → variation_1 → variation_2 → exit`. Tap events drive transitions (kid taps pizza SLICES, not individual pepperoni discs). Wrong-count and stuck branches. **This is the Act 2 (Instruct) port of Synthesis's "Share the Cookies" lesson — reference screenshots in `References/Share the Cookies Lesson/`.**
+2. **Beat 4: First Guest** — linear with one wrong-amount branch
+3. **Beat 5: Two Guests, Equal Share** — linear with proportional-wrong branches
+4. **Beat 7: Check for Understanding** — 2–3 short sub-machines, drag-to-compare driven
 
 ### 5.4 Authoring Workflow
 
