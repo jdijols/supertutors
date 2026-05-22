@@ -29,7 +29,11 @@ describe("tutorMachine — playDialogue action", () => {
     const { engine, calls } = makeFakeEngine();
     const machine = createTutorMachine({
       audioEngine: engine,
-      hasNameSlot: () => true, // aha_setup contains {{NAME}}
+      // Stub: force hasNameSlot true regardless of actual line content,
+      // so this test stays focused on the play() call shape (key, slot
+      // flag, name passthrough) rather than coupling to the global
+      // {{NAME}}-vs-"kid" choice in dialogue.json.
+      hasNameSlot: () => true,
     });
     const actor = createActor(machine, { input: { name: "Jason" } }).start();
 
@@ -58,8 +62,11 @@ describe("tutorMachine — playDialogue action", () => {
     const { engine, calls } = makeFakeEngine();
     const machine = createTutorMachine({ audioEngine: engine });
     const actor = createActor(machine, { input: {} }).start();
-    // `aha_setup` contains {{NAME}} per dialogue.json — should be flagged.
-    expect(calls[0].opts.hasNameSlot).toBe(true);
+    // `aha_setup` does NOT contain {{NAME}} per dialogue.json (Freddy
+    // calls everyone "kid" — onboarding_response is the lone slot left).
+    // Asserting `false` here proves the machine is wired to the real
+    // detector, not a stub that would return true unconditionally.
+    expect(calls[0].opts.hasNameSlot).toBe(false);
     actor.stop();
   });
 

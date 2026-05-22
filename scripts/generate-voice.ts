@@ -108,6 +108,9 @@ async function main(): Promise<void> {
   for (const [key, text] of Object.entries(data.lines)) {
     const split = splitDialogueLine(key, text);
     for (const segment of split.segments) {
+      // Skip the name slot — that MP3 is generated at runtime via /api/voice
+      // keyed off the kid's actual name.
+      if (segment.kind !== "static") continue;
       const file = `${segment.filenameStem}.mp3`;
       liveFiles.add(file);
       const filePath = path.join(outDir, file);
