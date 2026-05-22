@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { audioEngine } from "@/modules/audio/AudioEngine";
 import { useFreddyIdle } from "@/lib/useFreddyIdle";
 import { renderLine, type DialogueKey } from "@/modules/tutor/dialogue";
@@ -46,17 +47,17 @@ type Stage =
 
 const KEY_BY_STAGE: Partial<Record<Stage, DialogueKey>> = {
   intro: "lesson_intro",
-  stuck_halves: "aha_stuck",
-  wrong_eighths_h: "aha_wrong_slice",
+  stuck_halves: "lesson_stuck_halves",
+  wrong_eighths_h: "lesson_wrong_eighths",
   react_halves: "lesson_react_halves",
-  stuck_quarters: "aha_stuck",
-  wrong_eighths_q: "aha_wrong_slice",
-  react_quarters: "react_quarters",
-  compare_prompt: "aha_compare_prompt",
-  not_equal: "aha_not_equal",
-  stuck_compare: "aha_stuck_compare",
-  reveal: "aha_reveal",
-  win: "lesson_win",
+  stuck_quarters: "lesson_stuck_quarters",
+  wrong_eighths_q: "lesson_wrong_eighths",
+  react_quarters: "lesson_react_quarters",
+  compare_prompt: "lesson_compare_prompt",
+  not_equal: "lesson_not_equal",
+  stuck_compare: "lesson_stuck_compare",
+  reveal: "lesson_reveal",
+  win: "lesson_end",
 };
 
 const NEXT_AFTER_DONE: Partial<Record<Stage, Stage>> = {
@@ -123,9 +124,10 @@ export function LessonScripted({ name }: LessonScriptedProps) {
     setSpotlight(null);
     audioEngine.preloadDialogue("lesson_intro");
     audioEngine.preloadDialogue("lesson_react_halves");
-    audioEngine.preloadDialogue("aha_compare_prompt");
-    audioEngine.preloadDialogue("aha_reveal");
-    audioEngine.preloadDialogue("lesson_win");
+    audioEngine.preloadDialogue("lesson_react_quarters");
+    audioEngine.preloadDialogue("lesson_compare_prompt");
+    audioEngine.preloadDialogue("lesson_reveal");
+    audioEngine.preloadDialogue("lesson_end");
   }, [setSpotlight]);
 
   // Freddy pose per stage.
@@ -305,6 +307,41 @@ export function LessonScripted({ name }: LessonScriptedProps) {
         active={winActive}
         onDone={() => setWinActive(false)}
       />
+
+      {/* Lesson-complete card — fades in once the closing line finishes
+          and stage settles into `done`. Gives the kid a clear "you made it"
+          beat plus a Play again affordance so they're not stranded. */}
+      {stage === "done" && (
+        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 grid place-items-center z-40 pointer-events-none">
+          <motion.div
+            initial={{ scale: 0.85, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.3, type: "spring", stiffness: 400, damping: 24 }}
+            className="pointer-events-auto bg-sb-paper border-2 border-sb-ink rounded-3xl px-8 py-6 shadow-2xl shadow-sb-accent-deep/30 text-center max-w-sm"
+          >
+            <div className="text-2xl sm:text-3xl font-bold text-sb-ink mb-1">
+              Lesson complete!
+            </div>
+            <div className="text-base text-sb-ink/70 mb-5">
+              1/2 = 2/4 🍕
+            </div>
+            <motion.button
+              type="button"
+              data-testid="lesson-play-again"
+              onClick={() => {
+                const target = `/lesson?lesson=scripted${name ? `&name=${encodeURIComponent(name)}` : ""}`;
+                window.location.href = target;
+              }}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.92 }}
+              transition={{ type: "spring", stiffness: 600, damping: 22 }}
+              className="px-6 py-3 rounded-full bg-sb-ink text-sb-paper text-lg font-semibold shadow-xl shadow-sb-accent-deep/25 border-2 border-sb-paper hover:bg-sb-ink/90 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface cursor-pointer"
+            >
+              Play again →
+            </motion.button>
+          </motion.div>
+        </div>
+      )}
     </>
   );
 }
