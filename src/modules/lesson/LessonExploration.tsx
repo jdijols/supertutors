@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { audioEngine } from "@/modules/audio/AudioEngine";
 import {
   renderLine,
@@ -431,14 +432,17 @@ export function LessonExploration({
           Freddy's "tap me on the shoulder" line as the visible payoff. */}
       {showAffordances && (
         <div className="absolute inset-x-0 bottom-8 z-40 grid place-items-center pointer-events-none">
-          <button
+          <motion.button
             type="button"
             data-testid="start-lesson"
             onClick={startLesson}
-            className="pointer-events-auto px-6 py-3 rounded-full bg-sb-ink text-sb-paper text-lg font-semibold shadow-xl shadow-sb-accent-deep/30 border-2 border-sb-paper hover:scale-105 active:scale-95 transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.92 }}
+            transition={{ type: "spring", stiffness: 600, damping: 22 }}
+            className="pointer-events-auto px-6 py-3 rounded-full bg-sb-ink text-sb-paper text-lg font-semibold shadow-xl shadow-sb-accent-deep/25 border-2 border-sb-paper hover:bg-sb-ink/90 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface cursor-pointer"
           >
             Start lesson →
-          </button>
+          </motion.button>
         </div>
       )}
 
