@@ -81,14 +81,13 @@ function CameraOnIcon() {
       viewBox="0 0 24 24"
       width="28"
       height="28"
-      fill="none"
+      fill="currentColor"
       stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
+      strokeWidth="0"
       strokeLinejoin="round"
     >
-      {/* FaceTime-style video camera silhouette: rectangle body with
-          play-arrow lens off the right side. Camera is ON / tracking. */}
+      {/* Solid FaceTime-style video camera silhouette — filled body matches
+          the visual weight of MuteToggle's filled speaker. Camera is ON. */}
       <rect x="2" y="6" width="14" height="12" rx="2" />
       <path d="M22 8l-6 4 6 4V8z" />
     </svg>
@@ -102,18 +101,37 @@ function CameraOffIcon() {
       viewBox="0 0 24 24"
       width="28"
       height="28"
-      fill="none"
+      fill="currentColor"
       stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
+      strokeWidth="0"
       strokeLinejoin="round"
     >
-      {/* Same camera silhouette with a diagonal slash through it — mirrors
-          MuteToggle's "speaker + X" off-state convention. Default state
-          when CV mode is OFF: the slash reads as "tap to turn camera on." */}
+      {/* Same filled camera silhouette with a diagonal "crossed-out" slash.
+          The slash is drawn twice: a wider sb-paper outer stroke that
+          punches visible cream margins through the dark body, then a
+          narrower currentColor inner stroke on top — so the slash reads
+          cleanly against both the cream button background AND the filled
+          camera body. Mirrors MuteToggle's "speaker + X" off convention. */}
       <rect x="2" y="6" width="14" height="12" rx="2" />
       <path d="M22 8l-6 4 6 4V8z" />
-      <line x1="2" y1="22" x2="22" y2="2" />
+      <line
+        x1="3"
+        y1="21"
+        x2="21"
+        y2="3"
+        stroke="#EFE7DA"
+        strokeWidth="4"
+        strokeLinecap="round"
+      />
+      <line
+        x1="3"
+        y1="21"
+        x2="21"
+        y2="3"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }

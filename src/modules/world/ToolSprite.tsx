@@ -77,6 +77,13 @@ export function ToolSprite({ toolMode, size = 56 }: ToolSpriteProps) {
     // before the first pointermove fires.
     updateSrc();
 
+    // True only while a touch/pen pointer is currently down on the screen.
+    // The sprite is shown unconditionally for mouse pointers (desktop /
+    // trackpad), but for touch we only show while a finger is on the glass —
+    // when the kid lifts off, there's no "hover" concept, so the cursor
+    // should disappear. Matches platform expectation on iPad Safari.
+    let touchDown = false;
+
     function onPointerMove(e: PointerEvent) {
       if (!sprite) return;
       // Translate so the sprite center sits on the cursor.
@@ -93,8 +100,13 @@ export function ToolSprite({ toolMode, size = 56 }: ToolSpriteProps) {
       const newOverPicker =
         !newOverText && Boolean(el?.closest("[data-cursor-pointing]"));
 
-      // Over a text input → hide the sprite so the OS I-beam can show.
-      sprite.style.opacity = newOverText ? "0" : "1";
+      // Visibility rules (in order):
+      //   - Over a text input → hidden so the OS I-beam shows through
+      //   - Touch/pen and finger isn't down → hidden (no hover concept on touch)
+      //   - Otherwise → visible
+      const isTouchish = e.pointerType === "touch" || e.pointerType === "pen";
+      const shouldHide = newOverText || (isTouchish && !touchDown);
+      sprite.style.opacity = shouldHide ? "0" : "1";
 
       if (newOverText !== overText) {
         overText = newOverText;
@@ -104,12 +116,22 @@ export function ToolSprite({ toolMode, size = 56 }: ToolSpriteProps) {
         updateSrc();
       }
     }
-    function onPointerDown() {
+    function onPointerDown(e: PointerEvent) {
+      if (e.pointerType === "touch" || e.pointerType === "pen") {
+        touchDown = true;
+        if (sprite) sprite.style.opacity = "1";
+      }
       if (active) return;
       active = true;
       updateSrc();
     }
-    function onPointerUp() {
+    function onPointerUp(e: PointerEvent) {
+      if (e.pointerType === "touch" || e.pointerType === "pen") {
+        touchDown = false;
+        // Hide on lift — there's no hover state on touch, so the cursor
+        // shouldn't linger at the last touch position.
+        if (sprite) sprite.style.opacity = "0";
+      }
       if (!active) return;
       active = false;
       updateSrc();

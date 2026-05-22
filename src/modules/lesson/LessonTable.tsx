@@ -44,7 +44,7 @@ import type {
 // ---------------------------------------------------------------------------
 
 const PRIVACY_NOTICE =
-  "SuperSlice uses your camera to track hand gestures. No video is recorded or sent anywhere — all processing happens on your device.";
+  "SuperSlice uses your camera to track hand gestures. No video is recorded or sent anywhere. All processing happens on your device.";
 
 const CV_NOTICE_KEY = "supertutors:cv-notice-shown";
 
@@ -192,11 +192,12 @@ function CvModeOverlay() {
         role="dialog"
         aria-modal="true"
         aria-label="Camera permission notice"
+        data-cursor-pointing
         className="absolute inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm"
       >
         <div className="mx-4 max-w-sm bg-sb-paper rounded-2xl shadow-2xl border-2 border-sb-ink p-6 flex flex-col gap-4">
-          <p className="text-2xl text-center">🖐️</p>
-          <p className="text-sb-ink text-sm leading-relaxed">{PRIVACY_NOTICE}</p>
+          <p className="text-3xl text-center">🖐️</p>
+          <p className="text-sb-ink text-base leading-relaxed">{PRIVACY_NOTICE}</p>
 
           {/* How-to section — gives the kid the gesture vocab the moment
               they grant the camera, so they're not left guessing how to
@@ -204,19 +205,19 @@ function CvModeOverlay() {
               one quick read; the existing privacy assurance copy stays
               above. */}
           <div className="border-t-2 border-sb-ink/15 pt-4">
-            <p className="text-sb-ink/70 text-[10px] uppercase tracking-[0.18em] font-mono mb-3">
+            <p className="text-sb-ink/70 text-[11px] uppercase tracking-[0.18em] font-mono mb-3">
               How to use it
             </p>
-            <p className="text-sb-ink text-sm leading-relaxed mb-3">
+            <p className="text-sb-ink text-base leading-relaxed mb-3">
               Pinch your <strong>thumb and index finger</strong> together
               to grab. Open your fingers to let go.
             </p>
-            <div className="flex flex-col gap-2.5 text-sb-ink text-sm leading-snug">
+            <div className="flex flex-col gap-3 text-sb-ink text-base leading-snug">
               <div className="flex items-start gap-3">
                 <img
                   src="/images/ui/cutter-upright-cursor.png"
                   alt=""
-                  className="w-7 h-7 shrink-0 mt-0.5"
+                  className="w-8 h-8 shrink-0 mt-0.5"
                   draggable={false}
                 />
                 <span>
@@ -228,7 +229,7 @@ function CvModeOverlay() {
                 <img
                   src="/images/ui/glove-open-cursor.png"
                   alt=""
-                  className="w-7 h-7 shrink-0 mt-0.5"
+                  className="w-8 h-8 shrink-0 mt-0.5"
                   draggable={false}
                 />
                 <span>
@@ -243,14 +244,14 @@ function CvModeOverlay() {
             <button
               type="button"
               onClick={handleDecline}
-              className="flex-1 py-2 rounded-xl border-2 border-sb-ink text-sb-ink text-sm font-medium hover:bg-sb-card focus:outline-none focus:ring-2 focus:ring-sb-accent"
+              className="flex-1 py-2.5 rounded-xl border-2 border-sb-ink text-sb-ink text-base font-medium hover:bg-sb-card focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-paper"
             >
               No thanks
             </button>
             <button
               type="button"
               onClick={handleAccept}
-              className="flex-1 py-2 rounded-xl bg-sb-ink text-sb-paper text-sm font-medium hover:bg-sb-ink/90 focus:outline-none focus:ring-2 focus:ring-sb-accent"
+              className="flex-1 py-2.5 rounded-xl bg-sb-ink text-sb-paper text-base font-medium hover:bg-sb-ink/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-paper"
             >
               Got it
             </button>
