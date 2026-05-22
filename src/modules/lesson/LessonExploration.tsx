@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { audioEngine } from "@/modules/audio/AudioEngine";
+import { useFreddyIdle } from "@/lib/useFreddyIdle";
 import {
   renderLine,
   type DialogueKey,
@@ -270,6 +271,15 @@ export function LessonExploration({
   useEffect(() => {
     setFreddy({ speaking: isSpeaking });
   }, [isSpeaking, setFreddy]);
+
+  // Character life: when Freddy hasn't visibly changed pose for 20s,
+  // swap to a thinking-at-the-kid pose for 10s, then restore. Loops as
+  // long as he stays idle. Only enabled in the "sandbox" stages where
+  // Freddy isn't dialogue-locked — pre / intro_* / handing_off all
+  // drive his pose directly, so we leave them alone.
+  const idleEnabled =
+    stage === "free_play" || stage === "cued" || stage === "done";
+  useFreddyIdle({ enabled: idleEnabled });
 
   // Post-cue turn-away: once the cue line finishes (isSpeaking flips to
   // false while we're still in `cued`), Freddy pivots to face the
