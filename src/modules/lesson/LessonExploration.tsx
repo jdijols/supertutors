@@ -37,7 +37,8 @@ import {
  *   4. `intro_4` — "Deliveries go in the box. Have a play."   (DeliveryBox pulse)
  *   5. `free_play` — kid messes around; react_* lines play ambiently
  *   6. `cued` — Freddy: "Tap me when you're done messin' around"
- *      (fires on first delivery OR 90s fallback timer)
+ *      (fires 8s after "have a play around" finishes — pure timed trigger,
+ *      regardless of whether the kid has delivered a pizza yet).
  *      Start Lesson button + tap-Freddy hit area materialize.
  *   7. `handing_off` — kid taps either affordance → "Alright, let's start
  *      here." Once that line ends, `onComplete()` fires so the next act
@@ -184,12 +185,13 @@ const NEXT_STAGE: Partial<Record<Stage, Stage>> = {
 };
 
 /**
- * If the kid never delivers a pizza, Freddy still nudges them toward the
- * formal lesson after this many ms in `free_play`. Long enough that an
- * engaged kid won't feel rushed; short enough that an idle kid isn't
- * stranded.
+ * How long Freddy waits after telling the kid to "have a play around"
+ * before delivering the cue line ("tap me when you're done messin'
+ * around"). Pure timed beat — independent of whether the kid has
+ * actually delivered a pizza yet. Keeps the act on rails so an
+ * easily-distracted kid still hears the cue.
  */
-const FREE_PLAY_FALLBACK_MS = 90_000;
+const FREE_PLAY_CUE_DELAY_MS = 8_000;
 
 function milestoneKeyFor(
   childrenFraction: LessonTableSliceEvent["childrenFraction"],
@@ -332,13 +334,14 @@ export function LessonExploration({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeBubble, name]);
 
-  // free_play fallback timer — if the kid never delivers, Freddy still
-  // cues the handoff after FREE_PLAY_FALLBACK_MS.
+  // Cue timer — fires FREE_PLAY_CUE_DELAY_MS after free_play begins
+  // (i.e. after "have a play around" finishes). Pure timed trigger; the
+  // kid doesn't need to have done anything to earn the cue.
   useEffect(() => {
     if (stage !== "free_play") return;
     const t = setTimeout(() => {
       setStage((s) => (s === "free_play" ? "cued" : s));
-    }, FREE_PLAY_FALLBACK_MS);
+    }, FREE_PLAY_CUE_DELAY_MS);
     return () => clearTimeout(t);
   }, [stage]);
 
@@ -386,9 +389,6 @@ export function LessonExploration({
 
   function handleDelivered() {
     showReaction("react_delivered");
-    // First delivery is also the canonical cue trigger — proves the kid
-    // has used both tools. Fall back timer above covers the no-delivery case.
-    setStage((s) => (s === "free_play" ? "cued" : s));
   }
 
   function handleAha() {
@@ -422,18 +422,25 @@ export function LessonExploration({
         onWin={handleWin}
       />
 
-      {/* Tap-Freddy hit area — transparent overlay anchored where Freddy
-          stands (bottom-left third of the viewport). Only catches pointer
-          events while `showAffordances` is true so it never interferes
-          with normal play. */}
+      {/* Tap-Freddy hit area — transparent overlay covering Freddy's upper
+          half ABOVE the counter only. Bottom edge mirrors the counter
+          height expression in RestaurantScene (`max(31.51dvw, 47.27dvh)`)
+          so taps that land on the counter — where the kid might still be
+          playing with pizzas during the cue — pass through to the table
+          instead of being swallowed as a tap on Freddy. If the counter
+          sizing changes there, change it here too. */}
       {showAffordances && (
         <button
           type="button"
           data-testid="tap-freddy"
           aria-label="Tap Freddy to start the lesson"
           onClick={startLesson}
-          className="absolute left-0 bottom-0 z-40 h-[60vh] w-[42vw] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent rounded-2xl"
-          style={{ background: "transparent" }}
+          className="absolute left-0 z-40 w-[42vw] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent rounded-2xl"
+          style={{
+            background: "transparent",
+            bottom: "max(31.51dvw, 47.27dvh)",
+            height: "calc(60dvh - max(31.51dvw, 47.27dvh))",
+          }}
         />
       )}
 

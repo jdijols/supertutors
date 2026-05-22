@@ -660,29 +660,18 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
       return map;
     }, [pieces]);
 
-    // Fire AHA + Win callbacks the first time per reset cycle each
-    // condition holds. State updates are batched so parents see both
-    // the local `setAhaActive` glow AND the `onAha` callback in the
-    // same render.
+    // Fire AHA callback the first time per reset cycle the condition
+    // holds. State updates are batched so parents see both the local
+    // `setAhaActive` glow AND the `onAha` callback in the same render.
     useEffect(() => {
-      const WHOLE = 1 - 1e-9;
-      if (!ahaFiredRef.current) {
-        const hasEqual = proximityGroups.some((g) => g.comparison === "equal");
-        if (hasEqual) {
-          ahaFiredRef.current = true;
-          setAhaActive(true);
-          onAha?.();
-        }
+      if (ahaFiredRef.current) return;
+      const hasEqual = proximityGroups.some((g) => g.comparison === "equal");
+      if (hasEqual) {
+        ahaFiredRef.current = true;
+        setAhaActive(true);
+        onAha?.();
       }
-      if (!winFiredRef.current) {
-        const hasWhole = proximityGroups.some((g) => g.totalArea >= WHOLE);
-        if (hasWhole) {
-          winFiredRef.current = true;
-          setWinActive(true);
-          onWin?.();
-        }
-      }
-    }, [proximityGroups, onAha, onWin]);
+    }, [proximityGroups, onAha]);
 
     // Tool-driven cursor classes on documentElement + body (the ToolSprite
     // also follows the pointer via JS). See SandboxPreview's earlier
