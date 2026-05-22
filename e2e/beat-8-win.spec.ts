@@ -34,11 +34,12 @@ test.describe("Beat 8 (Win) — confetti jump", () => {
       .click();
     await expect(page).toHaveURL(/\/lesson/);
 
-    // Complete onboarding so LessonMachineRoot mounts.
-    const greeting = page.getByTestId("speech-bubble").first();
-    await expect(greeting).toBeVisible();
-    await greeting.click();
-    await page.getByPlaceholder(/type your name/i).fill("TestKid");
+    // Greeting bubble auto-dismisses on audio-end — with audio stubbed
+    // to 404 in beforeEach, that fires immediately. Wait for the name
+    // input instead of racing a manual click against the exit animation.
+    const nameInput = page.getByPlaceholder(/type your name/i);
+    await expect(nameInput).toBeVisible();
+    await nameInput.fill("TestKid");
     await page
       .getByRole("button", { name: /send name: testkid/i })
       .click();

@@ -47,10 +47,13 @@ test.describe("Beat 6 (AHA) happy path", () => {
       })
       .click();
     await expect(page).toHaveURL(/\/lesson/);
-    const greeting = page.getByTestId("speech-bubble").first();
-    await expect(greeting).toBeVisible();
-    await greeting.click();
-    await page.getByPlaceholder(/type your name/i).fill("TestKid");
+    // Greeting bubble auto-dismisses when its audio ends — with audio
+    // stubbed to 404 in beforeEach, that's immediate. Wait for the name
+    // input to surface instead of racing the bubble's exit animation
+    // with a manual click.
+    const nameInput = page.getByPlaceholder(/type your name/i);
+    await expect(nameInput).toBeVisible();
+    await nameInput.fill("TestKid");
     await page
       .getByRole("button", { name: /send name: testkid/i })
       .click();
@@ -70,7 +73,13 @@ test.describe("Beat 6 (AHA) happy path", () => {
     //    fires onDone immediately → onboardingDone flips → machine mounts).
     const devControls = page.getByTestId("lesson-dev-controls");
     await expect(devControls).toBeVisible({ timeout: 5_000 });
-    await expect(devControls).toContainText('"aha"');
+    // Wait until the machine has fully entered `waiting_for_slice` (not
+    // just `aha.setup`). RESET fires on mount and the setup-state
+    // dialogue plays — only after it completes does the machine reach a
+    // state that accepts SLICED events.
+    await expect(devControls).toContainText("waiting_for_slice", {
+      timeout: 5_000,
+    });
 
     // 3. Drive Beat 6 via dev buttons.
     await page.getByRole("button", { name: /SLICED \(1\/2\)/ }).click();
@@ -89,7 +98,7 @@ test.describe("Beat 6 (AHA) happy path", () => {
     // celebrating plays aha_reveal — bubble should contain the hero line
     // with the name interpolated.
     const heroLine = page
-      .getByText(/Whoa, TestKid! Look at that — one half is the SAME as two quarters/i);
+      .getByText(/Whoa, kid! Look at that — one half is the SAME as two quarters/i);
     await expect(heroLine).toBeVisible({ timeout: 3_000 });
 
     // After aha_reveal's DIALOGUE_DONE the machine exits aha onto top-level

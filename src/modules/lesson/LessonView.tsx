@@ -313,7 +313,9 @@ function LessonDevControls({
   return (
     <div
       data-testid="lesson-dev-controls"
-      className="absolute top-4 left-4 z-50 flex flex-col gap-1 bg-sb-ink/85 text-sb-paper-soft p-3 rounded-lg font-mono text-[11px] shadow-xl"
+      // Sits below the AddPizzaButton (top-4 left-4 z-60) so the two
+      // dev affordances don't overlap during demo-mode testing.
+      className="absolute top-24 left-4 z-50 flex flex-col gap-1 bg-sb-ink/85 text-sb-paper-soft p-3 rounded-lg font-mono text-[11px] shadow-xl"
     >
       <div className="opacity-70 mb-1">State: {stateValue}</div>
       <button
