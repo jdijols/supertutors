@@ -157,7 +157,7 @@ export function LessonView() {
   return (
     <main className="relative w-screen h-[100dvh] overflow-hidden bg-sb-surface select-none [-webkit-touch-callout:none]">
       <RestaurantScene>
-        <div className="absolute left-[-12px] bottom-0 z-10 pointer-events-none">
+        <div className="absolute left-[12px] bottom-0 z-10 pointer-events-none">
           <FreddyCharacter
             pose={freddy.facing === "student" ? "facing_student" : "facing_guest"}
             gesture={freddy.gesture}
