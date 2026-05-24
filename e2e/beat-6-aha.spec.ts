@@ -46,7 +46,7 @@ test.describe("Beat 6 (AHA) happy path", () => {
         name: /start the fractions lesson with freddy/i,
       })
       .click();
-    await expect(page).toHaveURL(/\/lesson/);
+    await expect(page).toHaveURL(/\/lessons\/freddy-fractions/);
     // Greeting bubble auto-dismisses when its audio ends — with audio
     // stubbed to 404 in beforeEach, that's immediate. Wait for the name
     // input to surface instead of racing the bubble's exit animation

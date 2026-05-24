@@ -30,7 +30,7 @@ test.describe("LessonScripted smoke", () => {
   test("mounts with one pizza piece and shows intro bubble", async ({
     page,
   }) => {
-    await page.goto("/lesson?lesson=scripted&name=Maria");
+    await page.goto("/lessons/freddy-fractions?lesson=scripted&name=Maria");
 
     // LessonTable inside LessonScripted renders one whole pizza piece.
     const pieces = page.locator("[data-piece-id]");
@@ -45,7 +45,7 @@ test.describe("LessonScripted smoke", () => {
   test("slicing the whole pizza advances to 2 halves", async ({ page }) => {
     // Desktop-Chrome only: webkit pointer events + framer-motion drag unreliable.
     // This test uses a simple click (not drag) so it runs on both engines.
-    await page.goto("/lesson?lesson=scripted&name=Maria");
+    await page.goto("/lessons/freddy-fractions?lesson=scripted&name=Maria");
 
     const pieces = page.locator("[data-piece-id]");
     await expect(pieces).toHaveCount(1, { timeout: 5_000 });
@@ -67,7 +67,7 @@ test.describe("LessonScripted smoke", () => {
   test("?lesson=scripted does not show the onboarding greeting bubble", async ({
     page,
   }) => {
-    await page.goto("/lesson?lesson=scripted&name=Maria");
+    await page.goto("/lessons/freddy-fractions?lesson=scripted&name=Maria");
 
     // The onboarding greeting ("Heyyy, welcome to SuperSlice!") must not appear —
     // lesson=scripted skips onboarding entirely.

@@ -1,13 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { RouterProvider, createBrowserRouter, Navigate } from "react-router-dom";
 import App from "@/App";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { LandingPage } from "@/modules/landing/LandingPage";
-import { LessonView } from "@/modules/lesson/LessonView";
-import { PizzaInScene } from "@/modules/preview/PizzaInScene";
-import { PizzaPreview } from "@/modules/preview/PizzaPreview";
-import { GuestPreview } from "@/modules/preview/GuestPreview";
+import { LessonHost } from "@/platform/LessonHost";
+import { PizzaInScene } from "@/lessons/freddy-fractions/previews/PizzaInScene";
+import { PizzaPreview } from "@/lessons/freddy-fractions/previews/PizzaPreview";
+import { GuestPreview } from "@/lessons/freddy-fractions/previews/GuestPreview";
 import { VoicePreview } from "@/modules/preview/VoicePreview";
 import { CvPreview } from "@/modules/preview/CvPreview";
 import "@/styles/globals.css";
@@ -18,7 +18,8 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       { index: true, element: <LandingPage /> },
-      { path: "lesson", element: <LessonView /> },
+      { path: "lessons/:slug", element: <LessonHost /> },
+      { path: "lesson", element: <Navigate to="/lessons/freddy-fractions" replace /> },
       { path: "preview/pizza", element: <PizzaPreview /> },
       { path: "preview/scene", element: <PizzaInScene /> },
       { path: "preview/guests", element: <GuestPreview /> },

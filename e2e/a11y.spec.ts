@@ -55,14 +55,14 @@ test.describe("a11y baseline", () => {
   test("lesson world (onboarding — greeting bubble visible)", async ({
     page,
   }) => {
-    await page.goto("/lesson");
+    await page.goto("/lessons/freddy-fractions");
     await expect(page.getByTestId("speech-bubble")).toBeVisible();
     await waitForAnimationsToSettle(page);
     await expectNoBlockingA11yViolations(page);
   });
 
   test("lesson world (onboarding — name input visible)", async ({ page }) => {
-    await page.goto("/lesson");
+    await page.goto("/lessons/freddy-fractions");
     await page.getByTestId("speech-bubble").click();
     await expect(page.getByTestId("name-input-overlay")).toBeVisible();
     await waitForAnimationsToSettle(page);
@@ -70,7 +70,7 @@ test.describe("a11y baseline", () => {
   });
 
   test("lesson world (post-onboarding — clean canvas)", async ({ page }) => {
-    await page.goto("/lesson");
+    await page.goto("/lessons/freddy-fractions");
     await page.getByTestId("speech-bubble").click();
     await page.getByPlaceholder(/type your name/i).fill("TestKid");
     await page
@@ -82,7 +82,7 @@ test.describe("a11y baseline", () => {
   });
 
   test("lesson with ToolPicker (skip-onboarding shortcut)", async ({ page }) => {
-    await page.goto("/lesson?skip=true");
+    await page.goto("/lessons/freddy-fractions?skip=true");
     await expect(page.getByTestId("tool-picker")).toBeVisible();
     await waitForAnimationsToSettle(page);
     await expectNoBlockingA11yViolations(page);
@@ -101,7 +101,7 @@ test.describe("a11y baseline", () => {
     await page
       .getByRole("button", { name: /start the fractions lesson with freddy/i })
       .click();
-    await expect(page).toHaveURL(/\/lesson/);
+    await expect(page).toHaveURL(/\/lessons\/freddy-fractions/);
     // Greeting auto-dismisses on audio-end (audio stubbed to 404 above
     // → fires immediately). Wait for the name input instead of racing
     // a manual click against the bubble's exit animation.

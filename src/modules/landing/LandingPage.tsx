@@ -21,7 +21,7 @@ export function LandingPage() {
           <AboutCard className="md:col-span-2" />
           <FreddyPosterCard
             className="md:col-span-3"
-            onActivate={() => navigate("/lesson")}
+            onActivate={() => navigate("/lessons/freddy-fractions")}
           />
         </div>
       </div>

@@ -32,7 +32,7 @@ test.describe("Beat 8 (Win) — confetti jump", () => {
         name: /start the fractions lesson with freddy/i,
       })
       .click();
-    await expect(page).toHaveURL(/\/lesson/);
+    await expect(page).toHaveURL(/\/lessons\/freddy-fractions/);
 
     // Greeting bubble auto-dismisses on audio-end — with audio stubbed
     // to 404 in beforeEach, that fires immediately. Wait for the name

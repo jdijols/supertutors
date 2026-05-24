@@ -43,13 +43,13 @@ export const BEAT_TARGETS: Record<number, BeatTarget> = {
   // Sandbox/Explore is now part of the unified `/lesson` experience.
   // `?skip=true` jumps past the greeting + name input so the kid (or
   // the dev iterating) lands directly in the manipulative.
-  2: { path: "/lesson", beatQuery: "skip=true", beat: "sandbox" },
-  3: { path: "/lesson", beatQuery: "welcomeTour", beat: "welcomeTour" },
-  4: { path: "/lesson", beatQuery: "firstGuest", beat: "firstGuest" },
-  5: { path: "/lesson", beatQuery: "twoGuests", beat: "twoGuests" },
-  6: { path: "/lesson", beatQuery: "aha", beat: "aha" },
-  7: { path: "/lesson", beatQuery: "check", beat: "check" },
-  8: { path: "/lesson", beatQuery: "win", beat: "win" },
+  2: { path: "/lessons/freddy-fractions", beatQuery: "skip=true", beat: "sandbox" },
+  3: { path: "/lessons/freddy-fractions", beatQuery: "welcomeTour", beat: "welcomeTour" },
+  4: { path: "/lessons/freddy-fractions", beatQuery: "firstGuest", beat: "firstGuest" },
+  5: { path: "/lessons/freddy-fractions", beatQuery: "twoGuests", beat: "twoGuests" },
+  6: { path: "/lessons/freddy-fractions", beatQuery: "aha", beat: "aha" },
+  7: { path: "/lessons/freddy-fractions", beatQuery: "check", beat: "check" },
+  8: { path: "/lessons/freddy-fractions", beatQuery: "win", beat: "win" },
 };
 
 /** Reads the demo-mode flag from `?demo=…` and persists it across navigation. */
@@ -121,7 +121,7 @@ export function useDemoMode(): { enabled: boolean } {
       }
       if (e.key === 'c' || e.key === 'C') {
         e.preventDefault();
-        navigate('/lesson?skip=true&cv=true');
+        navigate('/lessons/freddy-fractions?skip=true&cv=true');
         return;
       }
       const n = Number(e.key);

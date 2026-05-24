@@ -21,13 +21,13 @@ test.describe("scaffold happy path", () => {
       page.getByRole("heading", { name: /tutors for the ai generation/i }),
     ).toBeVisible();
 
-    // 2. Tap the Freddy CTA → navigate to /lesson
+    // 2. Tap the Freddy CTA → navigate to /lessons/freddy-fractions
     const cta = page.getByRole("button", {
       name: /start the fractions lesson with freddy/i,
     });
     await expect(cta).toBeVisible();
     await cta.click();
-    await expect(page).toHaveURL(/\/lesson$/);
+    await expect(page).toHaveURL(/\/lessons\/freddy-fractions$/);
 
     // 3. The world is immediately visible (no separate splash screen)
     await expect(page.getByTestId("restaurant-scene")).toBeVisible();
