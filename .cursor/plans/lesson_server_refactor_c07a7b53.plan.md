@@ -31,13 +31,13 @@ todos:
     status: completed
   - id: phase-2-voice-api
     content: "Phase 2.4: update api/voice.ts to accept voiceId in body with env fallback; update voiceProxyValidation.ts; namespace IndexedDB cache key by voiceId"
-    status: pending
+    status: completed
   - id: phase-2-register
     content: "Phase 2.5: create src/lessons/freddy-fractions/index.ts LessonModule, add to registry"
     status: completed
   - id: phase-2-tailwind
     content: "Phase 2.6: namespace Freddy tailwind colors under freddy.* and update class names inside the lesson folder"
-    status: pending
+    status: dropped
   - id: phase-2-gate
     content: "Phase 2 gate: 0 freddy/pizza/fraction references outside lesson folder; all unit + e2e tests green; commit"
     status: completed
@@ -46,27 +46,33 @@ todos:
     status: completed
   - id: phase-3-stubs
     content: "Phase 3.2: create Acutis and ASL stub LessonModules (Mount components + intro MP3s + registry entries)"
-    status: pending
+    status: completed
   - id: phase-3-router
     content: "Phase 3.3: rewire main.tsx with /lessons/:slug, /lesson redirect, updated preview routes"
     status: completed
   - id: phase-3-landing
     content: "Phase 3.4: rewrite LandingPage to render TutorCards from registry; preserve Freddy aria-label for back-compat"
-    status: pending
+    status: completed
   - id: phase-3-e2e
     content: "Phase 3 tests: write registry.spec.ts and back-compat-redirect.spec.ts; update all existing e2e specs from /lesson to /lessons/freddy-fractions; full Playwright suite green; build clean; commit"
     status: completed
+  - id: cleanup-p0
+    content: "Cleanup P0: delete dead scenes/, move modules/ into lessons/platform, delete public/audio/, plumb requires.camera — rg verified zero @/modules refs"
+    status: completed
+  - id: cleanup-p1-store
+    content: "Cleanup P1.1: remove useAppStore from platform/ui/MuteToggle.tsx → use usePlatformStore"
+    status: pending
+  - id: cleanup-p1-meta
+    content: "Cleanup P1.2: reconcile meta.accent and meta.cover fields in LessonModule (add tailwind tokens or delete unused fields)"
+    status: pending
+  - id: cleanup-p1-bundle
+    content: "Cleanup P1.3: bundle proof — verify dialogue.json and tutorMachine not in main chunk; 3 lesson chunks exist"
+    status: pending
   - id: phase-4-lint
     content: "Phase 4.1: add ESLint no-restricted-imports rule enforcing cross-lesson isolation and platform-doesnt-import-lessons"
     status: pending
-  - id: phase-4-bundle
-    content: "Phase 4.2: run bundle visualizer; verify initial chunk excludes tutorMachine and dialogue.json; verify 3 lesson chunks exist; capture numbers"
-    status: pending
   - id: phase-4-docs
-    content: "Phase 4.3: write docs/ADDING_A_LESSON.md and update README project-structure section"
-    status: pending
-  - id: phase-4-gate
-    content: "Phase 4 gate: lint + typecheck + unit + full e2e all green; commit"
+    content: "Phase 4.2: write docs/ADDING_A_LESSON.md"
     status: pending
   - id: phase-5-demo
     content: "Phase 5: smoke deployed Vercel preview on demo device; pre-warm IndexedDB voice cache for demo name; prep interview talking points"
