@@ -41,9 +41,22 @@ export function validateName(raw: unknown): NameValidationResult {
   return { ok: true, name: trimmed };
 }
 
+/** ElevenLabs voice IDs are alphanumeric, 8–40 chars. */
+const VOICE_ID_RE = /^[A-Za-z0-9]{8,40}$/;
+
+/** Returns the trimmed voiceId if the format is valid, otherwise null. */
+export function validateVoiceId(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  const trimmed = raw.trim();
+  return VOICE_ID_RE.test(trimmed) ? trimmed : null;
+}
+
 export interface VoiceProxyEnv {
   apiKey?: string;
+  /** Env-var fallback voice ID (ELEVENLABS_VOICE_ID). */
   voiceId?: string;
+  /** Optional voice ID from the request body — takes priority over voiceId when valid. */
+  bodyVoiceId?: string;
 }
 
 export type EnvValidationResult =
@@ -51,14 +64,22 @@ export type EnvValidationResult =
   | { ok: false; status: 503; reason: string };
 
 export function validateEnv(env: VoiceProxyEnv): EnvValidationResult {
-  if (!env.apiKey || !env.voiceId) {
+  if (!env.apiKey) {
     return {
       ok: false,
       status: 503,
       reason: "ELEVENLABS_API_KEY or ELEVENLABS_VOICE_ID not set",
     };
   }
-  return { ok: true, apiKey: env.apiKey, voiceId: env.voiceId };
+  const voiceId = validateVoiceId(env.bodyVoiceId) ?? env.voiceId;
+  if (!voiceId) {
+    return {
+      ok: false,
+      status: 503,
+      reason: "ELEVENLABS_API_KEY or ELEVENLABS_VOICE_ID not set",
+    };
+  }
+  return { ok: true, apiKey: env.apiKey, voiceId };
 }
 
 export const ELEVENLABS_MODEL_ID = "eleven_turbo_v2_5";

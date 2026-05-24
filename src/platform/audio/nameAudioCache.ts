@@ -18,24 +18,25 @@ const DB_NAME = "supertutors_voice";
 const DB_VERSION = 1;
 const STORE = "names";
 
-export function normalizeNameKey(name: string): string {
-  return name.trim().toLowerCase();
+export function normalizeNameKey(name: string, voiceId?: string): string {
+  const base = name.trim().toLowerCase();
+  return voiceId ? `${voiceId}:${base}` : base;
 }
 
 export interface NameAudioCache {
-  get(name: string): Promise<Blob | null>;
-  set(name: string, blob: Blob): Promise<void>;
+  get(name: string, voiceId?: string): Promise<Blob | null>;
+  set(name: string, blob: Blob, voiceId?: string): Promise<void>;
 }
 
 export class InMemoryNameAudioCache implements NameAudioCache {
   private readonly store = new Map<string, Blob>();
 
-  async get(name: string): Promise<Blob | null> {
-    return this.store.get(normalizeNameKey(name)) ?? null;
+  async get(name: string, voiceId?: string): Promise<Blob | null> {
+    return this.store.get(normalizeNameKey(name, voiceId)) ?? null;
   }
 
-  async set(name: string, blob: Blob): Promise<void> {
-    this.store.set(normalizeNameKey(name), blob);
+  async set(name: string, blob: Blob, voiceId?: string): Promise<void> {
+    this.store.set(normalizeNameKey(name, voiceId), blob);
   }
 }
 
@@ -64,21 +65,21 @@ export class IndexedDbNameAudioCache implements NameAudioCache {
     return this.dbPromise;
   }
 
-  async get(name: string): Promise<Blob | null> {
+  async get(name: string, voiceId?: string): Promise<Blob | null> {
     const db = await this.openDb();
     return new Promise((resolve, reject) => {
       const tx = db.transaction(STORE, "readonly");
-      const req = tx.objectStore(STORE).get(normalizeNameKey(name));
+      const req = tx.objectStore(STORE).get(normalizeNameKey(name, voiceId));
       req.onsuccess = () => resolve((req.result as Blob | undefined) ?? null);
       req.onerror = () => reject(req.error);
     });
   }
 
-  async set(name: string, blob: Blob): Promise<void> {
+  async set(name: string, blob: Blob, voiceId?: string): Promise<void> {
     const db = await this.openDb();
     return new Promise((resolve, reject) => {
       const tx = db.transaction(STORE, "readwrite");
-      const req = tx.objectStore(STORE).put(blob, normalizeNameKey(name));
+      const req = tx.objectStore(STORE).put(blob, normalizeNameKey(name, voiceId));
       req.onsuccess = () => resolve();
       req.onerror = () => reject(req.error);
     });
@@ -90,6 +91,8 @@ export interface NameAudioFetchDeps {
   fetcher?: typeof fetch;
   /** Object URL factory — injectable for tests where URL.createObjectURL is absent. */
   toObjectUrl?: (blob: Blob) => string;
+  /** ElevenLabs voice ID for this lesson — namespaces the cache key and sent in the proxy request. */
+  voiceId?: string;
 }
 
 /**
@@ -108,19 +111,23 @@ export async function getNameAudioUrl(
   const cache = deps.cache ?? new IndexedDbNameAudioCache();
   const fetcher = deps.fetcher ?? fetch;
   const toObjectUrl = deps.toObjectUrl ?? ((b: Blob) => URL.createObjectURL(b));
+  const { voiceId } = deps;
 
-  const cached = await cache.get(name);
+  const cached = await cache.get(name, voiceId);
   if (cached) return toObjectUrl(cached);
+
+  const body: Record<string, string> = { name };
+  if (voiceId) body.voiceId = voiceId;
 
   const res = await fetcher("/api/voice", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name }),
+    body: JSON.stringify(body),
   });
   if (!res.ok) {
     throw new Error(`voice proxy returned ${res.status}`);
   }
   const blob = await res.blob();
-  await cache.set(name, blob);
+  await cache.set(name, blob, voiceId);
   return toObjectUrl(blob);
 }

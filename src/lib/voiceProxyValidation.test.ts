@@ -5,6 +5,7 @@ import {
   MAX_NAME_LENGTH,
   validateEnv,
   validateName,
+  validateVoiceId,
 } from "./voiceProxyValidation";
 
 describe("validateName", () => {
@@ -52,10 +53,40 @@ describe("validateName", () => {
   });
 });
 
+describe("validateVoiceId", () => {
+  it("accepts a valid ElevenLabs-style alphanumeric ID", () => {
+    expect(validateVoiceId("EXAVITQu4vr4xnSDxMaL")).toBe("EXAVITQu4vr4xnSDxMaL");
+    expect(validateVoiceId("QzTKubutNn9TjrB7Xb2Q")).toBe("QzTKubutNn9TjrB7Xb2Q");
+  });
+
+  it("returns null for non-string or empty input", () => {
+    expect(validateVoiceId(undefined)).toBeNull();
+    expect(validateVoiceId(null)).toBeNull();
+    expect(validateVoiceId(42)).toBeNull();
+    expect(validateVoiceId("")).toBeNull();
+  });
+
+  it("returns null for IDs with special characters or wrong length", () => {
+    expect(validateVoiceId("bad-id!")).toBeNull();
+    expect(validateVoiceId("short")).toBeNull();
+    expect(validateVoiceId("a".repeat(41))).toBeNull();
+  });
+});
+
 describe("validateEnv", () => {
   it("returns ok when both vars are present", () => {
-    const r = validateEnv({ apiKey: "k", voiceId: "v" });
-    expect(r).toEqual({ ok: true, apiKey: "k", voiceId: "v" });
+    const r = validateEnv({ apiKey: "k", voiceId: "v12345678" });
+    expect(r).toEqual({ ok: true, apiKey: "k", voiceId: "v12345678" });
+  });
+
+  it("bodyVoiceId overrides env voiceId when valid", () => {
+    const r = validateEnv({ apiKey: "k", voiceId: "envVoice1234", bodyVoiceId: "EXAVITQu4vr4xnSDxMaL" });
+    expect(r).toEqual({ ok: true, apiKey: "k", voiceId: "EXAVITQu4vr4xnSDxMaL" });
+  });
+
+  it("falls back to env voiceId when bodyVoiceId is invalid", () => {
+    const r = validateEnv({ apiKey: "k", voiceId: "envVoice1234", bodyVoiceId: "bad!" });
+    expect(r).toEqual({ ok: true, apiKey: "k", voiceId: "envVoice1234" });
   });
 
   it("returns 503 when apiKey missing", () => {

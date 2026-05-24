@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AudioEngine } from "./audio/AudioEngine";
+import { getNameAudioUrl } from "./audio/nameAudioCache";
 import { getLessonBySlug } from "./registry";
 import { usePlatformStore } from "./stores/platformStore";
 import type { AudioEngineHandle, LessonMountProps } from "./lesson-sdk";
@@ -35,9 +36,13 @@ export function LessonHost() {
 
   const audioHandle: AudioEngineHandle | null = useMemo(() => {
     if (!loaded?.audio) return null;
+    const voiceId = loaded.audio.voiceId;
     const engine = new AudioEngine({
       audioBasePath: loaded.audio.basePath,
       lineLookup: loaded.audio.lineLookup,
+      resolveNameUrl: voiceId
+        ? (name) => getNameAudioUrl(name, { voiceId })
+        : undefined,
     });
     return {
       play: (key, opts) =>
