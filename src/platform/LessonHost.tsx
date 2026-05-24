@@ -18,6 +18,7 @@ export function LessonHost() {
 
   const [loaded, setLoaded] = useState<LoadedModule | null>(null);
   const [loadError, setLoadError] = useState(false);
+  const [cvEnabled, setCvEnabled] = useState(false);
 
   useEffect(() => {
     if (!lesson) {
@@ -27,6 +28,7 @@ export function LessonHost() {
     setCurrentLessonSlug(lesson.slug);
     setLoaded(null);
     setLoadError(false);
+    setCvEnabled(false);
     lesson
       .load()
       .then(setLoaded)
@@ -87,10 +89,13 @@ export function LessonHost() {
 
   const Mount = loaded.Mount as React.ComponentType<LessonMountProps>;
 
+  const requiresCamera = loaded?.requires?.camera ?? false;
+
   const platform: LessonMountProps["platform"] = {
     audio: audioHandle,
     muted,
     setMuted,
+    ...(requiresCamera ? { cv: { enabled: cvEnabled, setEnabled: setCvEnabled } } : {}),
   };
 
   function handleComplete({ outcome }: { outcome: "win" | "exit"; durationMs: number }) {
