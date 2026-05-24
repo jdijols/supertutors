@@ -1,9 +1,13 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { SuperTutorsLockup } from "./SuperTutorsLockup";
+import { lessons } from "@/platform/registry";
 
 export function LandingPage() {
   const navigate = useNavigate();
+  // Registry-driven: Freddy is always lessons[0]. Additional lessons will
+  // render as TutorCards once Phase 3.2 stubs land.
+  const freddy = lessons[0];
 
   return (
     <main className="h-[100dvh] w-full bg-sb-surface font-sans text-sb-ink antialiased flex flex-col">
@@ -21,7 +25,12 @@ export function LandingPage() {
           <AboutCard className="md:col-span-2" />
           <FreddyPosterCard
             className="md:col-span-3"
-            onActivate={() => navigate("/lessons/freddy-fractions")}
+            ariaLabel={
+              freddy
+                ? `Start the ${freddy.meta.subject.toLowerCase()} lesson with ${freddy.meta.tutorName}`
+                : "Start the fractions lesson with Freddy"
+            }
+            onActivate={() => navigate(freddy ? `/lessons/${freddy.slug}` : "/lessons/freddy-fractions")}
           />
         </div>
       </div>
@@ -79,9 +88,11 @@ function AboutCard({ className }: { className?: string }) {
 function FreddyPosterCard({
   className,
   onActivate,
+  ariaLabel = "Start the fractions lesson with Freddy",
 }: {
   className?: string;
   onActivate?: () => void;
+  ariaLabel?: string;
 }) {
   // Same outline treatment as the banner — paint-order + thin stroke keeps
   // doubled-contour artifacts to a minimum without losing the outlined look.
@@ -99,7 +110,7 @@ function FreddyPosterCard({
       whileTap={{ scale: 0.995 }}
       transition={{ type: "spring", stiffness: 380, damping: 26 }}
       className={`group relative overflow-hidden rounded-[22px] border border-sb-border bg-sb-card text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface min-h-0 ${className ?? ""}`}
-      aria-label="Start the fractions lesson with Freddy"
+      aria-label={ariaLabel}
     >
       {/* Warm tonal background — gradient now centered on Freddy's new
           right-side anchor so the warmth radiates outward from the character. */}
