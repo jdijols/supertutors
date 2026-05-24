@@ -22,25 +22,25 @@ todos:
     status: completed
   - id: phase-2-move
     content: "Phase 2.1: move LessonView, LessonScripted, LessonExploration, world/, table/, tutor/, gestures.ts, toast, previews into src/lessons/freddy-fractions/"
-    status: pending
+    status: completed
   - id: phase-2-mount
     content: "Phase 2.2: conform FreddyMount to LessonMountProps (read name/muted from props, lesson-local state from tutorStore)"
-    status: pending
+    status: completed
   - id: phase-2-assets
     content: "Phase 2.3: move 72 MP3s to public/lessons/freddy-fractions/audio/; update generate-voice.ts to walk registry; create audio-lines.ts"
-    status: pending
+    status: completed
   - id: phase-2-voice-api
     content: "Phase 2.4: update api/voice.ts to accept voiceId in body with env fallback; update voiceProxyValidation.ts; namespace IndexedDB cache key by voiceId"
     status: pending
   - id: phase-2-register
     content: "Phase 2.5: create src/lessons/freddy-fractions/index.ts LessonModule, add to registry"
-    status: pending
+    status: completed
   - id: phase-2-tailwind
     content: "Phase 2.6: namespace Freddy tailwind colors under freddy.* and update class names inside the lesson folder"
     status: pending
   - id: phase-2-gate
     content: "Phase 2 gate: 0 freddy/pizza/fraction references outside lesson folder; all unit + e2e tests green; commit"
-    status: pending
+    status: completed
   - id: phase-3-host
     content: "Phase 3.1: build src/platform/LessonHost.tsx that loads from registry, configures AudioEngine, mounts platform CV when required"
     status: pending
