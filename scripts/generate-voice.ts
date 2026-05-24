@@ -2,11 +2,12 @@
 /**
  * generate-voice — build-time MP3 generation for all authored dialogue.
  *
- * Reads src/modules/tutor/dialogue.json, splits each line at the {{NAME}}
- * placeholder (so the name slot can be stitched at runtime), calls ElevenLabs
- * for each static segment, and writes MP3s to public/audio/.
+ * Reads src/lessons/freddy-fractions/tutor/dialogue.json, splits each line at
+ * the {{NAME}} placeholder (so the name slot can be stitched at runtime), calls
+ * ElevenLabs for each static segment, and writes MP3s to
+ * public/lessons/freddy-fractions/audio/.
  *
- * Idempotent: maintains public/audio/.manifest.json mapping
+ * Idempotent: maintains public/lessons/freddy-fractions/audio/.manifest.json
  *   <stem>.mp3 -> sha256(text)
  * Lines whose text hash matches the manifest AND whose MP3 already exists
  * on disk are skipped, so re-running this script is cheap.
@@ -34,11 +35,12 @@ const repoRoot = path.resolve(__dirname, "..");
 const dialoguePath = path.join(
   repoRoot,
   "src",
-  "modules",
+  "lessons",
+  "freddy-fractions",
   "tutor",
   "dialogue.json",
 );
-const outDir = path.join(repoRoot, "public", "audio");
+const outDir = path.join(repoRoot, "public", "lessons", "freddy-fractions", "audio");
 const manifestPath = path.join(outDir, ".manifest.json");
 
 interface DialogueFile {
