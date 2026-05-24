@@ -1,7 +1,10 @@
 import type React from "react";
 
 export interface AudioEngineHandle {
-  play: (key: string) => Promise<void>;
+  play: (
+    key: string,
+    opts?: { name?: string; onSpeakingChange?: (speaking: boolean) => void },
+  ) => Promise<void>;
   preload: (key: string) => void;
   stop: () => void;
 }

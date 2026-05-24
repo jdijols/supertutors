@@ -1,0 +1,48 @@
+{
+  "$schema": "https://supertutors.vercel.app/schema/dialogue-v1.json",
+  "description": "All authored Freddy Fractions dialogue. Keys map 1:1 to MP3 filenames in /public/audio/. Lines may contain {{NAME}} which is split at build time so the kid's name MP3 is stitched at runtime (see PRD §3.11). Most lines use 'kid' as a generic address term — Freddy calls everyone 'kid'. The {{NAME}} slot is reserved for the single recognition beat right after the kid types their name (`onboarding_response`); everywhere else, 'kid' keeps the rhythm and avoids name-stitch breaks.",
+  "voice": {
+    "provider": "elevenlabs",
+    "voiceId": "QzTKubutNn9TjrB7Xb2Q",
+    "libraryUrl": "https://elevenlabs.io/app/voice-library?voiceId=QzTKubutNn9TjrB7Xb2Q",
+    "notes": "Super Mario meets Jersey Shore — Italian-American chef energy, warm, lovable, expressive. Selected from ElevenLabs Voice Library by Jason. Voice must be added to the account's voice library before the API can call it (Voice Library → Add to my voices)."
+  },
+  "lines": {
+    "onboarding_greeting": "Heyyy, welcome to SuperSlice! I'm Freddy Fractions. What's your name, kid?",
+    "onboarding_response": "{{NAME}}, beautiful name. Alright, lemme show ya how this works.",
+
+    "explore_intro_1": "This is my counter.",
+    "explore_intro_2": "Slicer and glove are right down there.",
+    "explore_intro_3": "Pizzas come outta the oven.",
+    "explore_intro_4": "Deliveries go in the box. Have a play around.",
+    "explore_cue": "Just tap me on the shoulder when you're done messin' around.",
+    "explore_handoff": "Alright, let's start here.",
+
+    "aha_setup": "Hey kid, want to see something cool? I just pulled this fresh pizza outta the oven — it's already cut in half. Try slicing one of those halves once more, just for me.",
+    "aha_wrong_slice": "Hey, nice cut! But try slicing one of the halves we already made, alright?",
+    "aha_stuck": "C'mon, kid — try tapping the slicer on one of those halves.",
+    "aha_compare_prompt": "Beautiful! Now drag those two quarters right next to a half. Tell me what you notice.",
+    "aha_not_equal": "Hmm, those ain't quite the same yet. Try moving them right up against each other.",
+    "aha_stuck_compare": "Slide the quarters right up against the half, kid. You'll see it.",
+    "aha_reveal": "Whoa, kid! Look at that — one half is the SAME as two quarters! You just made fraction equivalence! Bellissimo!",
+    "lesson_win": "Bellissimo, kid! You put it back together — just like a real pizza chef!",
+
+    "lesson_intro": "Alright kid, two hungry friends just ordered. One pizza, gotta split it fair. Can you slice it right down the middle so each friend gets the SAME amount?",
+    "lesson_react_halves": "Boom — two equal halves! Each friend gets one half. Now, two MORE friends showed up. Four hungry kids, same pizza. Can you cut each half one more time?",
+    "lesson_stuck_halves": "Try the slicer on the pizza, kid. Cut it right down the middle.",
+    "lesson_react_quarters": "Four equal quarters! Each friend gets one piece. But here's where it gets cool...",
+    "lesson_wrong_eighths": "Hey, those pieces are getting tiny! Try slicing one of those bigger halves instead.",
+    "lesson_stuck_quarters": "Tap the slicer on one of those halves, kid. Cut it in half again.",
+    "lesson_compare_prompt": "Now drag two of those quarters right up next to one half. Tell me what you notice.",
+    "lesson_not_equal": "Get them right up against each other, kid. Real close.",
+    "lesson_stuck_compare": "Grab TWO quarter pieces and slide them right next to that half. You'll see it.",
+    "lesson_reveal": "Whoa, {{NAME}}! Look at that — one half is the EXACT same size as two quarters. That's fraction equivalence. One-half equals two-quarters! Bellissimo!",
+    "lesson_end": "You did it, kid! You just proved that one-half equals two-quarters. That's real math. Bellissimo!",
+
+    "react_halves": "Boom — halves!",
+    "react_quarters": "Quarters! Four equal pieces.",
+    "react_eighths": "Eighths! Look at all those slices.",
+    "react_new_pizza": "Fresh outta the oven, kid!",
+    "react_delivered": "Delivered! On its way."
+  }
+}
