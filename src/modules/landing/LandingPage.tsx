@@ -2,12 +2,12 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { SuperTutorsLockup } from "./SuperTutorsLockup";
 import { lessons } from "@/platform/registry";
+import type { LessonModule } from "@/platform/lesson-sdk";
 
 export function LandingPage() {
   const navigate = useNavigate();
-  // Registry-driven: Freddy is always lessons[0]. Additional lessons will
-  // render as TutorCards once Phase 3.2 stubs land.
   const freddy = lessons[0];
+  const comingSoon = lessons.slice(1);
 
   return (
     <main className="h-[100dvh] w-full bg-sb-surface font-sans text-sb-ink antialiased flex flex-col">
@@ -22,7 +22,7 @@ export function LandingPage() {
 
         {/* 2 + 3. Bento pair — 2:3 ratio, flexes to fill viewport */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 sm:gap-5 md:gap-6 flex-1 min-h-0">
-          <AboutCard className="md:col-span-2" />
+          <AboutCard className="md:col-span-2" comingSoon={comingSoon} onNavigate={(slug) => navigate(`/lessons/${slug}`)} />
           <FreddyPosterCard
             className="md:col-span-3"
             ariaLabel={
@@ -38,7 +38,15 @@ export function LandingPage() {
   );
 }
 
-function AboutCard({ className }: { className?: string }) {
+function AboutCard({
+  className,
+  comingSoon,
+  onNavigate,
+}: {
+  className?: string;
+  comingSoon: LessonModule[];
+  onNavigate: (slug: string) => void;
+}) {
   return (
     <section
       aria-labelledby="about-heading"
@@ -62,21 +70,26 @@ function AboutCard({ className }: { className?: string }) {
       </div>
 
       <div className="mt-8 flex flex-col gap-4">
-        <div>
-          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-sb-muted mb-3">
-            Coming next
-          </p>
-          <ul className="flex flex-wrap gap-2">
-            {["Reading", "Science", "Writing", "Music"].map((subject) => (
-              <li
-                key={subject}
-                className="font-mono text-[12px] sm:text-[13px] px-3 py-1.5 rounded-full border border-sb-border text-sb-ink bg-sb-surface"
-              >
-                {subject}
-              </li>
-            ))}
-          </ul>
-        </div>
+        {comingSoon.length > 0 && (
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-sb-muted mb-3">
+              Coming soon
+            </p>
+            <ul className="flex flex-wrap gap-2">
+              {comingSoon.map((lesson) => (
+                <li key={lesson.slug}>
+                  <button
+                    type="button"
+                    onClick={() => onNavigate(lesson.slug)}
+                    className="font-mono text-[12px] sm:text-[13px] px-3 py-1.5 rounded-full border border-sb-border text-sb-ink bg-sb-surface hover:bg-sb-card transition-colors"
+                  >
+                    {lesson.meta.subject}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         <p className="pt-2 font-mono text-[10px] uppercase tracking-[0.22em] text-sb-ink/70">
           A SuperBuilders project
         </p>
