@@ -43,19 +43,19 @@ todos:
     status: completed
   - id: phase-3-host
     content: "Phase 3.1: build src/platform/LessonHost.tsx that loads from registry, configures AudioEngine, mounts platform CV when required"
-    status: pending
+    status: completed
   - id: phase-3-stubs
     content: "Phase 3.2: create Acutis and ASL stub LessonModules (Mount components + intro MP3s + registry entries)"
     status: pending
   - id: phase-3-router
     content: "Phase 3.3: rewire main.tsx with /lessons/:slug, /lesson redirect, updated preview routes"
-    status: pending
+    status: completed
   - id: phase-3-landing
     content: "Phase 3.4: rewrite LandingPage to render TutorCards from registry; preserve Freddy aria-label for back-compat"
     status: pending
   - id: phase-3-e2e
     content: "Phase 3 tests: write registry.spec.ts and back-compat-redirect.spec.ts; update all existing e2e specs from /lesson to /lessons/freddy-fractions; full Playwright suite green; build clean; commit"
-    status: pending
+    status: completed
   - id: phase-4-lint
     content: "Phase 4.1: add ESLint no-restricted-imports rule enforcing cross-lesson isolation and platform-doesnt-import-lessons"
     status: pending
