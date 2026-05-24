@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { audioEngine } from "@/modules/audio/AudioEngine";
+import { audioEngine } from "../audioSingleton";
 import { useFreddyIdle } from "@/lib/useFreddyIdle";
 import {
   renderLine,
   type DialogueKey,
-} from "@/modules/tutor/dialogue";
-import { SpeechBubble } from "@/modules/world";
+} from "../tutor/dialogue";
+import { SpeechBubble } from "../scenes/world";
 import {
   useAppStore,
   type FreddyDisplay,

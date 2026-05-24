@@ -14,27 +14,27 @@ import {
   ToolPicker,
   ToolSprite,
   type DeliveryBoxHandle,
-} from "@/modules/world";
+} from "../scenes/world";
 import {
   buildWholePiece,
   findProximityGroups,
   PizzaPiece,
   useSandboxPieces,
-} from "@/modules/table";
-import { SliceBurst } from "@/modules/table/SliceBurst";
+} from "../scenes/table";
+import { SliceBurst } from "../scenes/table/SliceBurst";
 import { AhaAnimation } from "./AhaAnimation";
 import { WinConfetti } from "./WinConfetti";
 import { useAppStore } from "@/store/appStore";
-import { HandTracker, useHandLandmarks } from "@/modules/cv/HandTracker";
-import { PinchRecognizer } from "@/modules/cv/gestures";
-import { usePointerFromHand } from "@/modules/cv/usePointerFromHand";
+import { HandTracker, useHandLandmarks } from "@/platform/cv/HandTracker";
+import { PinchRecognizer } from "@/platform/cv/gestures";
+import { usePointerFromHand } from "@/platform/cv/usePointerFromHand";
 import type {
   PieceSlot,
   PizzaFraction,
   PizzaVariant,
   ProximityGroup,
   SandboxPiece,
-} from "@/modules/table";
+} from "../scenes/table";
 
 // ---------------------------------------------------------------------------
 // CV mode overlay — self-contained; renders only when cvMode is true.

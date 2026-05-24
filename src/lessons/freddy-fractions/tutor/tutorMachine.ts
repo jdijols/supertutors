@@ -1,6 +1,6 @@
 import { setup, assign } from "xstate";
-import { audioEngine as defaultAudioEngine } from "@/modules/audio/AudioEngine";
-import type { PlayOptions } from "@/modules/audio/AudioEngine";
+import { audioEngine as defaultAudioEngine } from "../audioSingleton";
+import type { PlayOptions } from "@/platform/audio/AudioEngine";
 import { lineHasNameSlot, type DialogueKey } from "./dialogue";
 
 /**

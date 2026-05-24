@@ -1,5 +1,5 @@
-import { Pizza } from "@/modules/table/Pizza";
-import { RestaurantScene } from "@/modules/world/RestaurantScene";
+import { Pizza } from "../scenes/table/Pizza";
+import { RestaurantScene } from "../scenes/world/RestaurantScene";
 
 /**
  * PizzaInScene — preview the pizza assets composited into the real

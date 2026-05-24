@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
-import { HandTracker, useHandLandmarks } from '@/modules/cv/HandTracker';
-import { PinchRecognizer } from '@/modules/cv/gestures';
-import { usePointerFromHand } from '@/modules/cv/usePointerFromHand';
+import { HandTracker, useHandLandmarks } from '@/platform/cv/HandTracker';
+import { PinchRecognizer } from '@/platform/cv/gestures';
+import { usePointerFromHand } from '@/platform/cv/usePointerFromHand';
 import type { NormalizedLandmark } from '@mediapipe/tasks-vision';
 
 // MediaPipe hand skeleton connection pairs (landmark index pairs)

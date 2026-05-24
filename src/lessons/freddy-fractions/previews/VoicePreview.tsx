@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import dialogueData from "@/modules/tutor/dialogue.json";
+import dialogueData from "../tutor/dialogue.json";
 
 /**
  * VoicePreview — QA sandbox for Freddy's voice.
@@ -17,7 +17,7 @@ import dialogueData from "@/modules/tutor/dialogue.json";
  *     serve Edge Functions.
  */
 
-const AUDIO_BASE = "/audio";
+const AUDIO_BASE = "/lessons/freddy-fractions/audio";
 const NAME_PLACEHOLDER = "{{NAME}}";
 
 type LineKey = keyof typeof dialogueData.lines;
@@ -154,7 +154,7 @@ export function VoicePreview() {
           <p className="text-terracotta-500 mt-2 max-w-3xl">
             Every line from{" "}
             <code className="text-terracotta-600 bg-mozzarella-50 px-1 rounded">
-              src/modules/tutor/dialogue.json
+              src/lessons/freddy-fractions/tutor/dialogue.json
             </code>
             . Use{" "}
             <strong>Static</strong> to audition the voice without runtime name

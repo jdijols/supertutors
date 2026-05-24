@@ -1,4 +1,4 @@
-import { Pizza } from "@/modules/table/Pizza";
+import { Pizza } from "../scenes/table/Pizza";
 
 /**
  * PizzaPreview — visual inspection sandbox for the raster pizza assets.

@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react';
-import type { PinchState } from '@/modules/cv/gestures';
+import type { PinchState } from './gestures';
 
 export type ViewportCoords = { x: number; y: number };
 

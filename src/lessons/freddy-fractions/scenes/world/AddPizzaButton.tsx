@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import type { PizzaVariant } from "@/modules/table";
+import type { PizzaVariant } from "../table";
 import { useAppStore } from "@/store/appStore";
 
 /**

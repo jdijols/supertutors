@@ -17,7 +17,7 @@ import {
   NameInputOverlay,
   RestaurantScene,
   SpeechBubble,
-} from "@/modules/world";
+} from "./scenes/world";
 import type { LessonMountProps } from "@/platform/lesson-sdk";
 
 export function FreddyMount({ name: propName, onComplete: _onComplete, platform }: LessonMountProps) {

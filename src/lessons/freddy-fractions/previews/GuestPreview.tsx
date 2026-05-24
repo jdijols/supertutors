@@ -1,4 +1,4 @@
-import { Guest } from "@/modules/world";
+import { Guest } from "../scenes/world";
 import type { GuestExpression } from "@/store/appStore";
 
 /**
