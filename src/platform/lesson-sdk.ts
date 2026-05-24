@@ -33,8 +33,6 @@ export interface LessonModule {
     subject: string;
     audience: string;
     estimatedMinutes: number;
-    cover: string;
-    accent: string;
   };
   load: () => Promise<{
     Mount: React.ComponentType<LessonMountProps>;

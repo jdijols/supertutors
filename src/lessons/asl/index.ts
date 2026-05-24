@@ -8,8 +8,6 @@ export const aslLesson: LessonModule = {
     subject: "Sign Language",
     audience: "Grade 2+",
     estimatedMinutes: 15,
-    cover: "/lessons/asl/cover.png",
-    accent: "asl-teal",
   },
   load: async () => {
     const { AslMount } = await import("./Mount");

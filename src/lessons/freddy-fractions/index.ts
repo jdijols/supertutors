@@ -8,8 +8,6 @@ export const freddyFractionsLesson: LessonModule = {
     subject: "Fractions",
     audience: "Grade 3",
     estimatedMinutes: 6,
-    cover: "/lessons/freddy-fractions/cover.png",
-    accent: "freddy-orange",
   },
   load: async () => {
     const { FreddyMount } = await import("./Mount");

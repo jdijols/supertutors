@@ -8,8 +8,6 @@ export const acutisLesson: LessonModule = {
     subject: "Classical Studies",
     audience: "All ages",
     estimatedMinutes: 30,
-    cover: "/lessons/acutis/cover.png",
-    accent: "acutis-gold",
   },
   load: async () => {
     const { AcutisMount } = await import("./Mount");
