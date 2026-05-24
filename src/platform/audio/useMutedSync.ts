@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { Howler } from "howler";
-import { useAppStore } from "@/store/appStore";
+import { usePlatformStore } from "@/platform/stores/platformStore";
 
 /**
- * useMutedSync — mirrors the appStore's `muted` flag onto Howler's global
+ * useMutedSync — mirrors platformStore's `muted` flag onto Howler's global
  * mute. Howler.mute(true) silences all current and future Howl instances at
  * the library level, so the AudioEngine doesn't need any plumbing of its own.
  *
@@ -11,7 +11,7 @@ import { useAppStore } from "@/store/appStore";
  * app lifetime, independent of which route is rendered.
  */
 export function useMutedSync(): void {
-  const muted = useAppStore((s) => s.muted);
+  const muted = usePlatformStore((s) => s.muted);
   useEffect(() => {
     Howler.mute(muted);
   }, [muted]);

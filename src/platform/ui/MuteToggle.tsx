@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useAppStore } from "@/store/appStore";
+import { usePlatformStore } from "@/platform/stores/platformStore";
 
 /**
  * MuteToggle — global, fixed-position audio mute control.
@@ -18,8 +18,8 @@ import { useAppStore } from "@/store/appStore";
  * sessions.
  */
 export function MuteToggle() {
-  const muted = useAppStore((s) => s.muted);
-  const toggle = useAppStore((s) => s.toggleMute);
+  const muted = usePlatformStore((s) => s.muted);
+  const toggle = usePlatformStore((s) => s.toggleMute);
 
   return (
     <motion.button
