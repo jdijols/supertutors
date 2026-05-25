@@ -52,6 +52,7 @@ export function RecognitionHUD({ recognizer, target }: RecognitionHUDProps) {
     if (!visible) return;
     const onnx = recognizer as OnnxSeqSignRecognizer | null;
     if (!onnx || typeof onnx.getDebugInfo !== "function") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSnapshot(null);
       return;
     }
