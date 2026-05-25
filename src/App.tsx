@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { useLocation, Outlet } from "react-router-dom";
 import { DemoBadge } from "@/components/DemoBadge";
 import { useDemoMode } from "@/lib/demoMode";
 import { useMutedSync } from "@/platform/audio/useMutedSync";
@@ -9,8 +9,13 @@ import { UserMenu } from "@/platform/ui/UserMenu";
 
 export default function App() {
   const { enabled: demoMode } = useDemoMode();
+  const location = useLocation();
   // Keep Howler's global mute aligned with the persisted store value.
   useMutedSync();
+
+  // Landing page is ink-dark — chrome buttons need surface-aware active state.
+  const onLanding = location.pathname === "/";
+
   return (
     <div className="min-h-[100dvh] w-full">
       <AuthMount />
@@ -20,7 +25,7 @@ export default function App() {
           above overlays. */}
       <UserMenu />
       <ExitButton />
-      <MuteToggle />
+      <MuteToggle surface={onLanding ? "dark" : "light"} />
       {demoMode && <DemoBadge />}
     </div>
   );

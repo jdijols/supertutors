@@ -37,3 +37,36 @@ describe("Chrome buttons — DESIGN.md §Component Patterns", () => {
     }
   });
 });
+
+describe("MuteToggle — surface-aware active state (DESIGN.md §Surface inversions)", () => {
+  const src = read("MuteToggle.tsx");
+
+  it("accepts a surface prop", () => {
+    expect(src).toMatch(/surface/);
+  });
+
+  it("uses bg-sb-paper text-sb-ink for active state on dark surface", () => {
+    expect(src).toMatch(/bg-sb-paper.*text-sb-ink|text-sb-ink.*bg-sb-paper/);
+  });
+
+  it("uses ring-offset-sb-ink on dark surface", () => {
+    expect(src).toMatch(/ring-offset-sb-ink/);
+  });
+});
+
+describe("UserMenu — surface-aware active state (DESIGN.md §Surface inversions)", () => {
+  const src = read("UserMenu.tsx");
+
+  it("detects dark surface (landing route /)", () => {
+    // UserMenu uses useLocation internally — detect ink page vs cream page
+    expect(src).toMatch(/pathname.*===.*"\/"|"\/"\s*===.*pathname|onDarkSurface|surface.*dark/);
+  });
+
+  it("uses bg-sb-paper text-sb-ink for active state on dark surface", () => {
+    expect(src).toMatch(/bg-sb-paper.*text-sb-ink|text-sb-ink.*bg-sb-paper/);
+  });
+
+  it("uses ring-offset-sb-ink on dark surface", () => {
+    expect(src).toMatch(/ring-offset-sb-ink/);
+  });
+});

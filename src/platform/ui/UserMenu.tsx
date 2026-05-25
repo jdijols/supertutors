@@ -20,6 +20,10 @@ export function UserMenu() {
   // Keeping it off lesson chrome reduces visual noise during focused practice.
   const onLessonRoute = location.pathname.startsWith("/lessons/");
 
+  // Landing page uses sb-ink background — active state needs to invert so
+  // the button doesn't vanish into the dark surface.
+  const onDarkSurface = location.pathname === "/";
+
   // Close on outside click
   useEffect(() => {
     if (!open) return;
@@ -75,10 +79,13 @@ export function UserMenu() {
           flex items-center justify-center cursor-pointer
           font-mono font-bold text-lg sm:text-xl
           transition-colors duration-200
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface
+          focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2
+          ${onDarkSurface ? "focus-visible:ring-offset-sb-ink" : "focus-visible:ring-offset-sb-surface"}
           ${
             open
-              ? "bg-sb-ink text-white"
+              ? onDarkSurface
+                ? "bg-sb-paper text-sb-ink"
+                : "bg-sb-ink text-white"
               : "bg-sb-paper text-sb-ink hover:bg-sb-paper-deep"
           }
         `}
