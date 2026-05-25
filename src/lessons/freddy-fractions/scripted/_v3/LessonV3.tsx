@@ -19,10 +19,8 @@ import type { CvCameraHandle } from "@/platform/lesson-sdk";
 /**
  * LessonV3 — V3 Synthesis-port lesson host.
  *
- * Currently covers Scene 1 (clean division), Scene 2 (remainder +
- * slicing → halves), and Scene 3 (notation overlay + kid types ½),
- * with the beat-21.5 stop-here Y/N break before Scene 4. Scene 4 and 5
- * (quarters) land in subsequent commits.
+ * Scenes 1-4 wired (clean division, remainder + halves, notation for
+ * ½, 5÷4 with quarters). Scene 5 (name + write ¼) lands next.
  *
  * Architecture: data-driven stage machine. See V3StageConfig for the
  * shape; STAGES is the per-beat config. Effects drive auto-advance,
@@ -42,7 +40,6 @@ type V3Stage =
   | "beat_1_distribute_4"
   | "beat_2_excellent"
   | "beat_3_math_statement"
-  // Scene 1 → 2 transition
   | "scene_2_intro"
   // Scene 2 — remainder + slicing → halves
   | "beat_4_distribute_5"
@@ -64,12 +61,20 @@ type V3Stage =
   | "beat_19_type_one_half"
   | "beat_20_thats_it_half"
   | "beat_21_so_each_person"
-  // Stop-here Y/N (our addition per ADR §4)
   | "beat_21_5_stop_or_continue"
-  // End of currently-built content (Scene 4 + 5 land in later commits)
+  // Scene 4 — 5÷4 with quarters
+  | "scene_4_intro"
+  | "beat_22_now_5_and_4"
+  | "beat_24_5_distributed"
+  | "beat_25_slice_again"
+  | "beat_27_distribute_quarters"
+  | "beat_28_each_got_extra"
+  // End of currently-built content
   | "complete";
 
 type PerGuestState = ReturnType<typeof derivePerGuestTableState>;
+
+type GuestLayoutKey = "two" | "four";
 
 interface MCConfig {
   options: MCQOption[];
@@ -84,34 +89,24 @@ interface FractionInputConfig {
 }
 
 interface V3StageConfig {
-  /** Text bubble content (replaces audio for now). */
   speech?: (name: string) => string;
-  /** Lesson-mode slice cap during this stage. "1" = no slicing. */
   maxFraction: PizzaFraction;
-  /** Auto-advance after N ms. Used for narration beats. */
   autoAdvance?: number;
-  /** Show continue button so kid can advance manually. */
   showContinue?: boolean;
-  /** Wait for drag distribution to satisfy this predicate, then advance. */
   waitForDrag?: (perGuest: PerGuestState) => boolean;
-  /** Wait for a slice to bring the world to this state, then advance. */
   waitForSlice?: (perGuest: PerGuestState) => boolean;
-  /** Render an MCQ inside the speech bubble. */
   mc?: MCConfig;
-  /** Render a FractionInput inside the speech bubble (notation beats). */
   fractionInput?: FractionInputConfig;
-  /** Big numeral overlay rendered above the workspace (notation beats). */
   numeralOverlay?: {
     whole?: number;
     numerator?: number;
     denominator?: number;
   };
-  /** One-shot side effect when entering this stage (scene reset, etc.). */
-  onEnter?: "scene2-reset";
-  /** What stage to transition to on completion. */
+  /** One-shot side effect when entering this stage. */
+  onEnter?: "scene2-reset" | "scene4-reset";
+  /** Switch between 2-guest (Scene 1-3) and 4-guest (Scene 4+) layouts. */
+  guestLayout?: GuestLayoutKey;
   next: V3Stage;
-  /** Optional branch routing for MCQ stages: maps option value → next stage.
-   *  Falls back to `next` if the picked value isn't in the map. */
   nextByValue?: Record<string, V3Stage>;
 }
 
@@ -296,7 +291,6 @@ const STAGES: Record<V3Stage, V3StageConfig> = {
     showContinue: true,
     next: "beat_21_5_stop_or_continue",
   },
-  // ─── Beat 21.5 — Stop-here Y/N (our addition per ADR §4) ─────────────
   beat_21_5_stop_or_continue: {
     speech: () =>
       "You just wrote your first fraction! Want to keep going to harder ones like quarters, or stop here for today?",
@@ -310,22 +304,89 @@ const STAGES: Record<V3Stage, V3StageConfig> = {
       mode: "any-advances",
     },
     nextByValue: {
-      // "continue" will route to scene_4_intro once Scene 4 lands.
-      // For now both branches end the lesson; Scene 4 commit updates this.
-      continue: "complete",
+      continue: "scene_4_intro",
       stop: "complete",
     },
     next: "complete",
   },
-  complete: {
+  // ─── Scene 4 — 5÷4 with quarters ─────────────────────────────────────
+  scene_4_intro: {
+    speech: () =>
+      "Nonna and Nico are joining Maya and Theo — that's four boxes for four hungry friends.",
+    maxFraction: "1",
+    onEnter: "scene4-reset",
+    guestLayout: "four",
+    autoAdvance: 3500,
+    next: "beat_22_now_5_and_4",
+  },
+  beat_22_now_5_and_4: {
+    speech: () =>
+      "Now we've got 5 pizzas and 4 people. Try giving each person the same amount.",
+    maxFraction: "1",
+    guestLayout: "four",
+    waitForDrag: (g) =>
+      g.byGuest.maya?.counts.whole === 1 &&
+      g.byGuest.theo?.counts.whole === 1 &&
+      g.byGuest.nonna?.counts.whole === 1 &&
+      g.byGuest.nico?.counts.whole === 1 &&
+      g.free.counts.whole === 1,
+    next: "beat_24_5_distributed",
+  },
+  beat_24_5_distributed: {
+    speech: () =>
+      "Each friend has 1 pizza, with 1 left over. Tap the leftover to slice it in half.",
     maxFraction: "1/2",
+    guestLayout: "four",
+    waitForSlice: (g) =>
+      g.free.counts.halves === 2 && g.free.counts.whole === 0,
+    next: "beat_25_slice_again",
+  },
+  beat_25_slice_again: {
+    speech: () => "Now slice each half — that gives us 4 quarters.",
+    maxFraction: "1/4",
+    guestLayout: "four",
+    waitForSlice: (g) =>
+      g.free.counts.quarters === 4 &&
+      g.free.counts.halves === 0 &&
+      g.free.counts.whole === 0,
+    next: "beat_27_distribute_quarters",
+  },
+  beat_27_distribute_quarters: {
+    speech: () => "Now give each person one of those quarters.",
+    maxFraction: "1/4",
+    guestLayout: "four",
+    waitForDrag: (g) =>
+      g.byGuest.maya?.counts.whole === 1 &&
+      g.byGuest.maya?.counts.quarters === 1 &&
+      g.byGuest.theo?.counts.whole === 1 &&
+      g.byGuest.theo?.counts.quarters === 1 &&
+      g.byGuest.nonna?.counts.whole === 1 &&
+      g.byGuest.nonna?.counts.quarters === 1 &&
+      g.byGuest.nico?.counts.whole === 1 &&
+      g.byGuest.nico?.counts.quarters === 1 &&
+      g.free.counts.whole === 0 &&
+      g.free.counts.halves === 0 &&
+      g.free.counts.quarters === 0,
+    next: "beat_28_each_got_extra",
+  },
+  beat_28_each_got_extra: {
+    speech: () => "Each person got a whole pizza, plus a little extra.",
+    maxFraction: "1/4",
+    guestLayout: "four",
+    autoAdvance: 2500,
+    // Scene 5 (name + write the quarter) lands in the next commit
+    next: "complete",
+  },
+  complete: {
+    maxFraction: "1/4",
     next: "beat_1_distribute_4",
   },
 };
 
 // ─── Layout ─────────────────────────────────────────────────────────────────
 
-const PIZZA_SIZE = 170;
+const SCENE_1_PIZZA_SIZE = 170;
+const SCENE_4_PIZZA_SIZE = 130;
 
 const SCENE_1_POSITIONS = [
   { x: 80, y: 200 },
@@ -342,21 +403,47 @@ const SCENE_2_POSITIONS = [
   { x: 480, y: 300 },
 ];
 
-const GUESTS = [
+const SCENE_4_POSITIONS = [
+  { x: 40, y: 100 },
+  { x: 200, y: 100 },
+  { x: 360, y: 100 },
+  { x: 120, y: 340 },
+  { x: 280, y: 340 },
+];
+
+const GUESTS_2 = [
   { id: "maya", label: "Maya", x: 900, y: 160 },
   { id: "theo", label: "Theo", x: 900, y: 460 },
 ] as const;
 
-function buildPiecesFromPositions(
+const GUESTS_4 = [
+  { id: "maya", label: "Maya", x: 720, y: 50 },
+  { id: "theo", label: "Theo", x: 940, y: 50 },
+  { id: "nonna", label: "Nonna", x: 720, y: 340 },
+  { id: "nico", label: "Nico", x: 940, y: 340 },
+] as const;
+
+const GUEST_LAYOUTS = {
+  two: GUESTS_2,
+  four: GUESTS_4,
+} as const;
+
+const BOX_SIZE_BY_LAYOUT: Record<GuestLayoutKey, number> = {
+  two: 200,
+  four: 150,
+};
+
+function buildScenePieces(
   positions: Array<{ x: number; y: number }>,
   prefix: string,
+  baseSize: number,
 ): SandboxPiece[] {
   return positions.map((pos, i) =>
     buildWholePiece({
       id: `${prefix}-${i + 1}`,
       x: pos.x,
       y: pos.y,
-      baseSize: PIZZA_SIZE,
+      baseSize,
     }),
   );
 }
@@ -373,13 +460,16 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
 
   const [stage, setStage] = useState<V3Stage>("beat_1_distribute_4");
   const [hint, setHint] = useState<string | undefined>(undefined);
-  // Bump this to remount FractionInput on a wrong attempt (clears state).
   const [fractionRetryCount, setFractionRetryCount] = useState(0);
 
   const config = STAGES[stage];
+  const guestLayout: GuestLayoutKey = config.guestLayout ?? "two";
+  const guestsToRender = GUEST_LAYOUTS[guestLayout];
+  const boxSize = BOX_SIZE_BY_LAYOUT[guestLayout];
 
   const initialPieces = useMemo(
-    () => buildPiecesFromPositions(SCENE_1_POSITIONS, "scene1"),
+    () =>
+      buildScenePieces(SCENE_1_POSITIONS, "scene1", SCENE_1_PIZZA_SIZE),
     [],
   );
 
@@ -388,8 +478,18 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
     { maxFraction: config.maxFraction },
   );
 
+  // Box refs — one per canonical guest. Inactive ones (not in current
+  // layout) are simply unused.
   const mayaRef = useRef<GuestBoxHandle>(null);
   const theoRef = useRef<GuestBoxHandle>(null);
+  const nonnaRef = useRef<GuestBoxHandle>(null);
+  const nicoRef = useRef<GuestBoxHandle>(null);
+  const boxRefMap: Record<string, React.RefObject<GuestBoxHandle | null>> = {
+    maya: mayaRef,
+    theo: theoRef,
+    nonna: nonnaRef,
+    nico: nicoRef,
+  };
 
   const perGuest = useMemo(() => derivePerGuestTableState(pieces), [pieces]);
 
@@ -399,12 +499,19 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
     if (lastOnEnterStage.current === stage) return;
     lastOnEnterStage.current = stage;
     if (config.onEnter === "scene2-reset") {
-      resetTo(buildPiecesFromPositions(SCENE_2_POSITIONS, "scene2"));
+      resetTo(
+        buildScenePieces(SCENE_2_POSITIONS, "scene2", SCENE_1_PIZZA_SIZE),
+      );
+      setHint(undefined);
+    } else if (config.onEnter === "scene4-reset") {
+      resetTo(
+        buildScenePieces(SCENE_4_POSITIONS, "scene4", SCENE_4_PIZZA_SIZE),
+      );
       setHint(undefined);
     }
   }, [stage, config.onEnter, resetTo]);
 
-  // Reset hint + fraction retry counter on stage change (avoids stale hint)
+  // Reset hint + fraction retry counter on stage change
   useEffect(() => {
     setHint(undefined);
     setFractionRetryCount(0);
@@ -447,16 +554,18 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
         bottom: y + piece.height,
       };
 
-      if (mayaRef.current?.overlaps(pieceRect)) {
-        setGuestId(id, "maya");
-      } else if (theoRef.current?.overlaps(pieceRect)) {
-        setGuestId(id, "theo");
-      } else {
-        setGuestId(id, undefined);
-        move(id, x, y);
+      for (const guest of guestsToRender) {
+        if (boxRefMap[guest.id].current?.overlaps(pieceRect)) {
+          setGuestId(id, guest.id);
+          return;
+        }
       }
+      // Free table — clear ownership + update position
+      setGuestId(id, undefined);
+      move(id, x, y);
     },
-    [pieces, move, setGuestId],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [pieces, move, setGuestId, guestsToRender],
   );
 
   const handlePieceTap = useCallback(
@@ -514,7 +623,9 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
     setHint(undefined);
     setFractionRetryCount(0);
     lastOnEnterStage.current = null;
-    resetTo(buildPiecesFromPositions(SCENE_1_POSITIONS, "scene1"));
+    resetTo(
+      buildScenePieces(SCENE_1_POSITIONS, "scene1", SCENE_1_PIZZA_SIZE),
+    );
   }, [resetTo]);
 
   // ─── Render ─────────────────────────────────────────────────────────────
@@ -548,10 +659,10 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
         />
       ))}
 
-      {/* Guest boxes */}
-      {GUESTS.map((guest) => {
+      {/* Guest boxes — layout depends on the current stage */}
+      {guestsToRender.map((guest) => {
         const guestPieces = pieces.filter((p) => p.guestId === guest.id);
-        const ref = guest.id === "maya" ? mayaRef : theoRef;
+        const ref = boxRefMap[guest.id];
         return (
           <GuestBox
             key={guest.id}
@@ -561,6 +672,7 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
             x={guest.x}
             y={guest.y}
             pieces={guestPieces}
+            size={boxSize}
           />
         );
       })}
@@ -643,7 +755,7 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
               Nice work!
             </div>
             <div className="text-base text-sb-ink/70 mb-5 font-mono">
-              You learned that 2 + ½ = 2½
+              You shared pizzas and learned to write fractions.
             </div>
             <motion.button
               type="button"
