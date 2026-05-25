@@ -1,6 +1,8 @@
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { ExitButton } from "@/platform/ui/ExitButton";
+import { MuteToggle } from "@/platform/ui/MuteToggle";
 
 interface BrainliftViewerProps {
   markdown: string;
@@ -27,13 +29,15 @@ export function BrainliftViewer({ markdown, title }: BrainliftViewerProps) {
 
   return (
     <div className="flex flex-col h-[100dvh] bg-sb-ink text-sb-paper-soft">
-      {/* Top bar — right padding clears the fixed chrome buttons (ExitButton + MuteToggle) */}
-      <header className="flex items-center justify-between gap-4 pl-6 sm:pl-8 pr-44 sm:pr-52 h-16 shrink-0 border-b border-white/10">
+      {/* Top bar — title left, viewer controls + chrome inline right.
+          App.tsx skips its global fixed chrome on this route so the buttons
+          live in the document flow instead of fighting the toggle/copy/download. */}
+      <header className="flex items-center justify-between gap-4 px-6 sm:px-8 py-3 shrink-0 border-b border-white/10">
         <span className="font-mono text-[13px] uppercase tracking-[0.18em] text-sb-paper/60">
           {title}
         </span>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {/* Rendered / Raw toggle */}
           <div className="inline-flex rounded-xl border border-white/15 bg-white/5 p-1">
             <button
@@ -79,6 +83,13 @@ export function BrainliftViewer({ markdown, title }: BrainliftViewerProps) {
           >
             ↓
           </button>
+
+          {/* Visual divider between viewer controls and chrome */}
+          <div aria-hidden className="w-px h-8 bg-white/15 mx-1" />
+
+          {/* Inline chrome — App.tsx skips its global fixed copy on this route. */}
+          <ExitButton inline />
+          <MuteToggle inline surface="dark" />
         </div>
       </header>
 

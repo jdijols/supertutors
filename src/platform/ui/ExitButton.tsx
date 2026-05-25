@@ -2,12 +2,15 @@ import { motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
 
 /**
- * ExitButton — global, fixed-position "back to landing" control.
+ * ExitButton — "back to landing" control.
  *
- * Sits immediately to the left of MuteToggle, sharing its height and chrome.
- * Hidden on the landing route itself since it would be a no-op there.
+ * Default: globally fixed top-right, paired with MuteToggle. Hidden on
+ * the landing route since it would be a no-op there.
+ *
+ * `inline` mode: strips fixed positioning so the parent surface can
+ * compose it into its own header row (BrainliftViewer does this).
  */
-export function ExitButton() {
+export function ExitButton({ inline = false }: { inline?: boolean }) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -23,8 +26,8 @@ export function ExitButton() {
       aria-label="Exit lesson and return to home"
       data-testid="exit-button"
       data-cursor-pointing
-      className="
-        fixed top-4 right-20 sm:top-6 sm:right-24 z-[60]
+      className={`
+        ${inline ? "" : "fixed top-4 right-20 sm:top-6 sm:right-24 z-[60]"}
         h-14 sm:h-16 px-4 sm:px-5
         rounded-2xl border-2 border-sb-ink
         shadow-xl shadow-sb-accent-deep/25
@@ -33,8 +36,8 @@ export function ExitButton() {
         font-mono font-bold uppercase tracking-[0.18em]
         text-sm sm:text-base
         transition-colors duration-200
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface
-      "
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 ${inline ? "focus-visible:ring-offset-sb-ink" : "focus-visible:ring-offset-sb-surface"}
+      `}
     >
       Exit
     </motion.button>
