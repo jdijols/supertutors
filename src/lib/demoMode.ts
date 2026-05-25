@@ -137,9 +137,13 @@ export function useDemoMode(): { enabled: boolean } {
   }, [enabled, navigate]);
 
   // Re-check the flag on each render so toggling `?demo=false` mid-session
-  // takes effect immediately on next route change.
+  // takes effect immediately on next route change. The no-deps array is
+  // intentional — it runs on every render to stay in sync with sessionStorage.
+  // The `if (next !== enabled)` guard prevents infinite re-renders.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const next = isDemoModeEnabled();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (next !== enabled) setEnabled(next);
   });
 

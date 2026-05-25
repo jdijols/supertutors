@@ -55,9 +55,7 @@ export function LessonHost() {
     // is unambiguous and the inputs are stable.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoaded(null);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoadError(false);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCvEnabledRaw(readInitialCvEnabled());
     lesson
       .load()
