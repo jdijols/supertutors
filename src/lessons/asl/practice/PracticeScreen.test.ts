@@ -8,4 +8,9 @@ describe("PracticeScreen", () => {
     expect(src).not.toMatch(/\bgreen-400\b/);
     expect(src).not.toMatch(/\bgreen-500\b/);
   });
+
+  it("camera feed video has aria-hidden (visual-only background, WCAG §Non-text Content)", () => {
+    const src = readFileSync(resolve(__dirname, "PracticeScreen.tsx"), "utf-8");
+    expect(src).toMatch(/<video[^>]*aria-hidden/);
+  });
 });

@@ -51,6 +51,7 @@ export function PracticeScreen({ progress, onComplete }: PracticeScreenProps) {
         autoPlay
         playsInline
         muted
+        aria-hidden="true"
         className="absolute inset-0 w-full h-full object-cover -scale-x-100"
       />
 
