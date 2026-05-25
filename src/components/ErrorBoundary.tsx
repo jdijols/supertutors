@@ -67,7 +67,7 @@ export class ErrorBoundary extends Component<
             <button
               type="button"
               onClick={this.reset}
-              className="py-3 px-6 rounded-2xl bg-tomato-500 text-white font-display text-lg shadow-lg shadow-tomato-500/30 focus:outline-none focus:ring-4 focus:ring-tomato-400/40"
+              className="py-3 px-6 rounded-2xl bg-tomato-500 text-white font-display text-lg shadow-lg shadow-tomato-500/30 focus:outline-none focus-visible:ring-4 focus-visible:ring-tomato-400/40"
             >
               Start over
             </button>
