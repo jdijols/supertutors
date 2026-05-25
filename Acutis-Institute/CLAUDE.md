@@ -1,13 +1,15 @@
-# Acutis Institute — Project Conventions
+# Acutis Institute — Workstream Conventions
 
-This workspace is the durable seed of the **Acutis Institute** learning
-platform. Treat every decision committed here — research, Brainlifts,
-strategy docs, references — as canonical business logic that will
-inform the eventual product, marketing, and curriculum. It is *not*
-scratch planning space.
+This folder is the **Acutis Institute** workstream inside the SuperTutors
+monorepo — the durable seed of an AI-native Catholic micro-school under
+the patronage of Saint Carlo Acutis. Treat every decision committed here
+— research, Brainlifts, strategy docs, references — as canonical business
+logic that will inform the eventual product, marketing, and curriculum.
+It is *not* scratch planning space.
 
-Global conventions in `~/.claude/CLAUDE.md` apply; this file adds
-project-specific context.
+Conventions cascade: `~/.claude/CLAUDE.md` (global) →
+[`../CLAUDE.md`](../CLAUDE.md) (SuperTutors monorepo) → this file
+(Acutis-specific).
 
 ## Current focus: Brainlift artifacts
 
@@ -39,21 +41,17 @@ Hattie (formative feedback), Sweller (Cognitive Load), Deci & Ryan
 - `References/Gemini-Chats/` — exploratory chat transcripts
 - `Logs/` — chronologically-named session logs (use `/log-chat` to add)
 
-## gstack
+## Most-useful skills for this workstream
 
-The full gstack skill catalog and the browser rule (`/browse` instead
-of `mcp__claude-in-chrome__*`) is in `~/.claude/CLAUDE.md`. Especially
-relevant here:
+The full skill catalog (gstack, compound-engineering, superpowers, Pocock)
+is documented in [`../CLAUDE.md`](../CLAUDE.md). The ones that come up
+most when working in this folder:
 
 - `/office-hours` before committing to any new Acutis sub-product
 - `/plan-ceo-review` to stress-test Brainlift SPOVs and scope
+- `/grill-with-docs` (Pocock) to challenge a plan against the existing
+  domain language in this folder
 - `/make-pdf` to export Brainlifts as polished deliverables
-- `/log-chat` to preserve session reasoning into `Logs/`
+- `/log-chat` to preserve session reasoning (writes to the repo-root
+  `Logs/` folder — `Acutis-Institute/Logs/` is archived from previous work)
 - `/context-save` + `/context-restore` across long research sessions
-
-## Plugins installed at user scope
-
-Both available across all projects, no project-level setup needed:
-
-- **compound-engineering** (Every.io) — `/ce-strategy`, `/ce-ideate`, `/ce-brainstorm`, `/ce-plan`, `/ce-work`, `/ce-code-review`, `/ce-compound` and 30+ more
-- **superpowers** (obra) — TDD, systematic debugging, parallel-agent dispatch, plan writing, code review
