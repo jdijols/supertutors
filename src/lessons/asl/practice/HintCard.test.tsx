@@ -3,6 +3,9 @@ import { render, screen } from "@testing-library/react";
 import { HintCard } from "./HintCard";
 import type { Sign } from "../vocab";
 
+// The "Show me the sign" reference-video button was retired when the
+// modal was deleted. The test for it is removed below.
+
 const helloSign: Sign = {
   id: "asl:HELLO",
   glyph: "HELLO",
@@ -42,13 +45,6 @@ describe("HintCard", () => {
     expect(screen.getByText("Forehead")).toBeInTheDocument();
     expect(screen.getByText("Away from body")).toBeInTheDocument();
     expect(screen.getByText("Facing in")).toBeInTheDocument();
-  });
-
-  it("shows 'Show me the sign' button when reference video exists", () => {
-    const onShow = vi.fn();
-    render(<HintCard targetSign={helloSign} onShowReference={onShow} />);
-
-    expect(screen.getByText("Show me the sign")).toBeInTheDocument();
   });
 
   it("falls back to general guidance when phonology is missing", () => {

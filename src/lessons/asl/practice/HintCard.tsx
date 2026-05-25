@@ -16,11 +16,9 @@ import {
 export function HintCard({
   targetSign,
   observedSign,
-  onShowReference,
 }: {
   targetSign: Sign;
   observedSign?: Sign | null;
-  onShowReference?: () => void;
 }) {
   const phon = targetSign.phonology;
 
@@ -87,23 +85,6 @@ export function HintCard({
           />
         </div>
 
-        {/* Show reference video button */}
-        {targetSign.referenceVideo && onShowReference && (
-          <button
-            type="button"
-            onClick={onShowReference}
-            className="
-              mt-3 w-full py-2 rounded-xl
-              font-mono text-[11px] uppercase tracking-[0.18em]
-              bg-sb-surface text-sb-ink
-              hover:bg-sb-paper transition-colors duration-200
-              border border-sb-border
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface
-            "
-          >
-            Show me the sign
-          </button>
-        )}
       </div>
     </div>
   );
