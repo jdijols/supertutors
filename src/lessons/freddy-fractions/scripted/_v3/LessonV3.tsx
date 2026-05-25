@@ -12,32 +12,27 @@ import {
 import { derivePerGuestTableState } from "../tableState";
 import { SpeechBubble } from "../../scenes/world";
 import { MCQ, type MCQOption } from "./MCQ";
+import { FractionInput } from "./FractionInput";
+import { MixedNumberDisplay } from "./MixedNumberDisplay";
 import type { CvCameraHandle } from "@/platform/lesson-sdk";
 
 /**
  * LessonV3 — V3 Synthesis-port lesson host.
  *
- * Currently covers Scene 1 (clean division, 4 ÷ 2) and Scene 2
- * (remainder + slicing → halves, 5 ÷ 2 = 2½). Beats 14–36 (notation,
- * 4-friend scenes, quarters) land in subsequent commits.
+ * Currently covers Scene 1 (clean division), Scene 2 (remainder +
+ * slicing → halves), and Scene 3 (notation overlay + kid types ½),
+ * with the beat-21.5 stop-here Y/N break before Scene 4. Scene 4 and 5
+ * (quarters) land in subsequent commits.
  *
- * Architecture: data-driven stage machine. Each beat is a stage with
- * a config describing speech text, slice cap, advance predicate, MCQ,
- * etc. The machine itself is a single `currentStage` state + a few
- * effects that fire on stage changes:
+ * Architecture: data-driven stage machine. See V3StageConfig for the
+ * shape; STAGES is the per-beat config. Effects drive auto-advance,
+ * drag-completion, slice-completion, MCQ, and FractionInput.
  *
- *   - autoAdvance: setTimeout-based for narration beats
- *   - waitForDrag: per-guest composition predicate for distribution beats
- *   - waitForSlice: per-guest composition predicate for slice beats
- *   - onEnter: one-shot side effect (scene reset)
- *   - mc: MCQ component is rendered; onAnswer advances, onWrong sets hint
+ * Lesson-mode lockdown via per-stage `maxFraction` enforces what the
+ * student can do at each beat. The v2 over-slicing dead-end can't
+ * happen here.
  *
- * Lesson-mode lockdown is enforced via `maxFraction` per stage — the
- * useSandboxPieces hook refuses slices that would produce children
- * smaller than the cap, so the workspace can't drift into a state the
- * lesson can't recover from. See docs/adr/0001 for the principle.
- *
- * No audio yet — text bubbles only. Audio integration is a follow-up.
+ * No audio yet — text bubbles only.
  */
 
 // ─── Stage machine ──────────────────────────────────────────────────────────
@@ -60,7 +55,18 @@ type V3Stage =
   | "beat_11_thats_it"
   | "beat_12_mc_count"
   | "beat_13_right"
-  // End of currently-built content
+  // Scene 3 — notation (kid types ½)
+  | "beat_14_intro_notation"
+  | "beat_15_two_numeral"
+  | "beat_16_but_for_half"
+  | "beat_17_need_fraction"
+  | "beat_18_yn_know_one_half"
+  | "beat_19_type_one_half"
+  | "beat_20_thats_it_half"
+  | "beat_21_so_each_person"
+  // Stop-here Y/N (our addition per ADR §4)
+  | "beat_21_5_stop_or_continue"
+  // End of currently-built content (Scene 4 + 5 land in later commits)
   | "complete";
 
 type PerGuestState = ReturnType<typeof derivePerGuestTableState>;
@@ -69,6 +75,11 @@ interface MCConfig {
   options: MCQOption[];
   correctValue?: string;
   mode: "any-advances" | "re-prompt-until-correct";
+  hintOnWrong?: string;
+}
+
+interface FractionInputConfig {
+  expected: { numerator: number; denominator: number };
   hintOnWrong?: string;
 }
 
@@ -87,10 +98,21 @@ interface V3StageConfig {
   waitForSlice?: (perGuest: PerGuestState) => boolean;
   /** Render an MCQ inside the speech bubble. */
   mc?: MCConfig;
-  /** One-shot side effect when entering this stage (e.g., scene reset). */
+  /** Render a FractionInput inside the speech bubble (notation beats). */
+  fractionInput?: FractionInputConfig;
+  /** Big numeral overlay rendered above the workspace (notation beats). */
+  numeralOverlay?: {
+    whole?: number;
+    numerator?: number;
+    denominator?: number;
+  };
+  /** One-shot side effect when entering this stage (scene reset, etc.). */
   onEnter?: "scene2-reset";
   /** What stage to transition to on completion. */
   next: V3Stage;
+  /** Optional branch routing for MCQ stages: maps option value → next stage.
+   *  Falls back to `next` if the picked value isn't in the map. */
+  nextByValue?: Record<string, V3Stage>;
 }
 
 const STAGES: Record<V3Stage, V3StageConfig> = {
@@ -206,6 +228,93 @@ const STAGES: Record<V3Stage, V3StageConfig> = {
     speech: () => "Right. Two and a half pizzas.",
     maxFraction: "1/2",
     autoAdvance: 2500,
+    next: "beat_14_intro_notation",
+  },
+  // ─── Scene 3 — Notation (kid types ½) ────────────────────────────────
+  beat_14_intro_notation: {
+    speech: () => "Now let's write down what each person got.",
+    maxFraction: "1/2",
+    autoAdvance: 2000,
+    next: "beat_15_two_numeral",
+  },
+  beat_15_two_numeral: {
+    speech: () =>
+      "We can just write the number 2 for the whole pizzas. No problem.",
+    maxFraction: "1/2",
+    numeralOverlay: { whole: 2 },
+    showContinue: true,
+    next: "beat_16_but_for_half",
+  },
+  beat_16_but_for_half: {
+    speech: () => "But for the half pizza…",
+    maxFraction: "1/2",
+    numeralOverlay: { whole: 2 },
+    autoAdvance: 2000,
+    next: "beat_17_need_fraction",
+  },
+  beat_17_need_fraction: {
+    speech: () => "We need a fraction.",
+    maxFraction: "1/2",
+    numeralOverlay: { whole: 2 },
+    autoAdvance: 1800,
+    next: "beat_18_yn_know_one_half",
+  },
+  beat_18_yn_know_one_half: {
+    speech: () => "Do you know how to write the fraction for one half?",
+    maxFraction: "1/2",
+    numeralOverlay: { whole: 2 },
+    mc: {
+      options: [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" },
+      ],
+      mode: "any-advances",
+    },
+    next: "beat_19_type_one_half",
+  },
+  beat_19_type_one_half: {
+    speech: () => "Go for it. What's one half written as a fraction?",
+    maxFraction: "1/2",
+    numeralOverlay: { whole: 2 },
+    fractionInput: {
+      expected: { numerator: 1, denominator: 2 },
+      hintOnWrong: "Hmm, not quite. One out of two parts — try again!",
+    },
+    next: "beat_20_thats_it_half",
+  },
+  beat_20_thats_it_half: {
+    speech: () => "That's it. One half.",
+    maxFraction: "1/2",
+    numeralOverlay: { whole: 2, numerator: 1, denominator: 2 },
+    autoAdvance: 2000,
+    next: "beat_21_so_each_person",
+  },
+  beat_21_so_each_person: {
+    speech: () => "So each person has 2½ pizzas.",
+    maxFraction: "1/2",
+    numeralOverlay: { whole: 2, numerator: 1, denominator: 2 },
+    showContinue: true,
+    next: "beat_21_5_stop_or_continue",
+  },
+  // ─── Beat 21.5 — Stop-here Y/N (our addition per ADR §4) ─────────────
+  beat_21_5_stop_or_continue: {
+    speech: () =>
+      "You just wrote your first fraction! Want to keep going to harder ones like quarters, or stop here for today?",
+    maxFraction: "1/2",
+    numeralOverlay: { whole: 2, numerator: 1, denominator: 2 },
+    mc: {
+      options: [
+        { value: "continue", label: "Keep going" },
+        { value: "stop", label: "Stop here" },
+      ],
+      mode: "any-advances",
+    },
+    nextByValue: {
+      // "continue" will route to scene_4_intro once Scene 4 lands.
+      // For now both branches end the lesson; Scene 4 commit updates this.
+      continue: "complete",
+      stop: "complete",
+    },
     next: "complete",
   },
   complete: {
@@ -230,7 +339,6 @@ const SCENE_2_POSITIONS = [
   { x: 80, y: 440 },
   { x: 280, y: 160 },
   { x: 280, y: 440 },
-  // The fifth pizza — destined to become the leftover that gets sliced.
   { x: 480, y: 300 },
 ];
 
@@ -261,10 +369,12 @@ export interface LessonV3Props {
 }
 
 export function LessonV3({ name, cv: _cv }: LessonV3Props) {
-  void _cv; // CV mode integration follows v2 pattern; deferred.
+  void _cv;
 
   const [stage, setStage] = useState<V3Stage>("beat_1_distribute_4");
   const [hint, setHint] = useState<string | undefined>(undefined);
+  // Bump this to remount FractionInput on a wrong attempt (clears state).
+  const [fractionRetryCount, setFractionRetryCount] = useState(0);
 
   const config = STAGES[stage];
 
@@ -283,7 +393,7 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
 
   const perGuest = useMemo(() => derivePerGuestTableState(pieces), [pieces]);
 
-  // ─── One-shot onEnter side effects ────────────────────────────────────
+  // One-shot onEnter side effects
   const lastOnEnterStage = useRef<V3Stage | null>(null);
   useEffect(() => {
     if (lastOnEnterStage.current === stage) return;
@@ -294,14 +404,20 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
     }
   }, [stage, config.onEnter, resetTo]);
 
-  // ─── Auto-advance for narration beats ─────────────────────────────────
+  // Reset hint + fraction retry counter on stage change (avoids stale hint)
+  useEffect(() => {
+    setHint(undefined);
+    setFractionRetryCount(0);
+  }, [stage]);
+
+  // Auto-advance for narration beats
   useEffect(() => {
     if (config.autoAdvance === undefined) return;
     const id = setTimeout(() => setStage(config.next), config.autoAdvance);
     return () => clearTimeout(id);
   }, [stage, config.autoAdvance, config.next]);
 
-  // ─── Drag-distribution completion ─────────────────────────────────────
+  // Drag-distribution completion
   useEffect(() => {
     if (!config.waitForDrag) return;
     if (config.waitForDrag(perGuest)) {
@@ -309,7 +425,7 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
     }
   }, [perGuest, stage, config.waitForDrag, config.next]);
 
-  // ─── Slice completion ────────────────────────────────────────────────
+  // Slice completion
   useEffect(() => {
     if (!config.waitForSlice) return;
     if (config.waitForSlice(perGuest)) {
@@ -336,7 +452,6 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
       } else if (theoRef.current?.overlaps(pieceRect)) {
         setGuestId(id, "theo");
       } else {
-        // Free table — clear ownership + update position
         setGuestId(id, undefined);
         move(id, x, y);
       }
@@ -344,8 +459,6 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
     [pieces, move, setGuestId],
   );
 
-  // Tap = slice when slicing is allowed by maxFraction.
-  // The hook's cap-check refuses if the produced children would be too small.
   const handlePieceTap = useCallback(
     (id: string) => {
       slice(id);
@@ -354,12 +467,12 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
   );
 
   const handleMCAnswer = useCallback(
-    (_value: string) => {
-      void _value;
+    (value: string) => {
       setHint(undefined);
-      setStage(config.next);
+      const nextStage = config.nextByValue?.[value] ?? config.next;
+      setStage(nextStage);
     },
-    [config.next],
+    [config.next, config.nextByValue],
   );
 
   const handleMCWrong = useCallback(
@@ -370,6 +483,28 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
     [config.mc],
   );
 
+  const handleFractionAnswer = useCallback(
+    (_num: number, _den: number) => {
+      void _num;
+      void _den;
+      setHint(undefined);
+      setStage(config.next);
+    },
+    [config.next],
+  );
+
+  const handleFractionWrong = useCallback(
+    (_num: number, _den: number) => {
+      void _num;
+      void _den;
+      if (config.fractionInput?.hintOnWrong) {
+        setHint(config.fractionInput.hintOnWrong);
+      }
+      setFractionRetryCount((c) => c + 1);
+    },
+    [config.fractionInput],
+  );
+
   const handleContinue = useCallback(() => {
     setStage(config.next);
   }, [config.next]);
@@ -377,6 +512,7 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
   const handlePlayAgain = useCallback(() => {
     setStage("beat_1_distribute_4");
     setHint(undefined);
+    setFractionRetryCount(0);
     lastOnEnterStage.current = null;
     resetTo(buildPiecesFromPositions(SCENE_1_POSITIONS, "scene1"));
   }, [resetTo]);
@@ -386,7 +522,9 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
   const freePieces = pieces.filter((p) => p.guestId === undefined);
   const isComplete = stage === "complete";
   const speechText = hint ?? config.speech?.(name);
-  const showBubble = !isComplete && (speechText !== undefined || !!config.mc);
+  const showBubble =
+    !isComplete &&
+    (speechText !== undefined || !!config.mc || !!config.fractionInput);
 
   return (
     <div
@@ -394,7 +532,7 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
       data-testid="lesson-v3"
       data-stage={stage}
     >
-      {/* Free pizzas — draggable + tappable (tap = slice if cap allows) */}
+      {/* Free pizzas — draggable + tappable */}
       {freePieces.map((piece) => (
         <PizzaPiece
           key={piece.id}
@@ -410,7 +548,7 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
         />
       ))}
 
-      {/* Guest boxes — recipients */}
+      {/* Guest boxes */}
       {GUESTS.map((guest) => {
         const guestPieces = pieces.filter((p) => p.guestId === guest.id);
         const ref = guest.id === "maya" ? mayaRef : theoRef;
@@ -427,12 +565,39 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
         );
       })}
 
-      {/* Speech bubble — wraps speech text, MCQ, and/or continue button */}
+      {/* Numeral overlay — appears during notation beats (Scene 3+) */}
+      {config.numeralOverlay && (
+        <motion.div
+          data-testid="lesson-v3-numeral"
+          initial={{ scale: 0.7, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 350, damping: 22 }}
+          className="absolute top-20 left-1/2 -translate-x-1/2 z-20 pointer-events-none"
+        >
+          <MixedNumberDisplay {...config.numeralOverlay} />
+        </motion.div>
+      )}
+
+      {/* Speech bubble + optional MCQ / FractionInput / continue */}
       {showBubble && (
         <div className="absolute top-4 sm:top-6 left-[35%] max-w-md z-30">
           <SpeechBubble open speaker="Freddy" tailSide="bottom-left">
             <div className="flex flex-col gap-3">
-              {config.mc ? (
+              {config.fractionInput ? (
+                <>
+                  {speechText && (
+                    <p className="font-sans text-base text-sb-ink">
+                      {speechText}
+                    </p>
+                  )}
+                  <FractionInput
+                    key={`${stage}-${fractionRetryCount}`}
+                    expected={config.fractionInput.expected}
+                    onAnswer={handleFractionAnswer}
+                    onWrong={handleFractionWrong}
+                  />
+                </>
+              ) : config.mc ? (
                 <MCQ
                   question={speechText ?? ""}
                   options={config.mc.options}
@@ -459,7 +624,7 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
         </div>
       )}
 
-      {/* Completion overlay — shown when stage reaches "complete" */}
+      {/* Completion overlay */}
       {isComplete && (
         <div className="absolute inset-x-0 top-1/3 grid place-items-center z-40 pointer-events-none">
           <motion.div
