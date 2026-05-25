@@ -43,6 +43,17 @@
     "react_quarters": "Quarters! Four equal pieces.",
     "react_eighths": "Eighths! Look at all those slices.",
     "react_new_pizza": "Fresh outta the oven, kid!",
-    "react_delivered": "Delivered! On its way."
+    "react_delivered": "Delivered! On its way.",
+
+    "lesson_intro_v2": "Alright, here's the deal. Carlo wants a pizza, and his buddy Marco does too. One pizza, two of 'em. How do we split it fair?",
+    "lesson_stuck_halves_v2": "Grab the cutter and slice the pizza right down the middle. Two equal pieces.",
+    "lesson_react_halves_v2": "That's it. Two equal halves. Each piece is one of two — we call that one-half. Now watch this — cut just ONE of those halves into two pieces. Trust me.",
+    "lesson_stuck_mixed_v2": "Pick just one half — leave the other one alone — and slice it in two.",
+    "lesson_react_mixed_v2": "Now we've got one half AND two quarters. Same pizza, just sliced different. Here's the thing — push those two quarters together right next to the half. Look close.",
+    "lesson_react_mixed_alt_v2": "Even cleaner — you made four quarters. Same idea — pick TWO of those quarters and slide 'em together. See how they line up next to the other two.",
+    "lesson_wrong_eighths_v2": "Whoa, those pieces are getting tiny. Try the cutter on a bigger piece — a half or a quarter.",
+    "lesson_stuck_compare_v2": "Slide two quarters right up close together. Get 'em side by side.",
+    "lesson_reveal_v2": "See it, {{NAME}}? Two quarters lined up are exactly the same size as one half. Two-of-four equals one-of-two. That's called equivalent fractions — different names, same amount of pizza.",
+    "lesson_win_v2": "Beautiful work, {{NAME}}. Fractions can look different but be equal — that's a real chef's secret. Carlo and Marco are gonna eat good tonight."
   }
 }
