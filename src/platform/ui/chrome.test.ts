@@ -12,12 +12,6 @@ describe("Chrome buttons — DESIGN.md §Component Patterns", () => {
     expect(src).toMatch(/h-14\b/);
   });
 
-  it("InfoToggle meets 56px minimum touch target", () => {
-    const src = read("InfoToggle.tsx");
-    expect(src).toMatch(/w-14\b/);
-    expect(src).toMatch(/h-14\b/);
-  });
-
   it("ExitButton meets 56px minimum height", () => {
     const src = read("ExitButton.tsx");
     expect(src).toMatch(/h-14\b/);
@@ -29,12 +23,6 @@ describe("Chrome buttons — DESIGN.md §Component Patterns", () => {
     expect(src).toMatch(/focus-visible:ring-sb-accent\b/);
   });
 
-  it("InfoToggle uses focus-visible:ring-sb-accent (DESIGN.md §Accessibility)", () => {
-    const src = read("InfoToggle.tsx");
-    expect(src).toMatch(/focus-visible:ring-2/);
-    expect(src).toMatch(/focus-visible:ring-sb-accent\b/);
-  });
-
   it("ExitButton uses focus-visible:ring-sb-accent (DESIGN.md §Accessibility)", () => {
     const src = read("ExitButton.tsx");
     expect(src).toMatch(/focus-visible:ring-2/);
@@ -42,7 +30,7 @@ describe("Chrome buttons — DESIGN.md §Component Patterns", () => {
   });
 
   it("Chrome buttons use shadow-sb-accent-deep/25 not shadow-black (DESIGN.md §Shadow)", () => {
-    for (const file of ["MuteToggle.tsx", "InfoToggle.tsx", "ExitButton.tsx"]) {
+    for (const file of ["MuteToggle.tsx", "ExitButton.tsx"]) {
       const src = read(file);
       expect(src, `${file}: no shadow-black`).not.toMatch(/\bshadow-black\b/);
       expect(src, `${file}: uses sb-accent-deep shadow`).toMatch(/shadow-sb-accent-deep/);

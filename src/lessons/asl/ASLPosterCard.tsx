@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { SignHandGlyph } from "@/platform/landing/ComingSoonPosterCard";
 
 export function ASLPosterCard({
   className,
@@ -94,5 +93,27 @@ export function ASLPosterCard({
         </div>
       </div>
     </motion.button>
+  );
+}
+
+function SignHandGlyph() {
+  return (
+    <svg
+      viewBox="0 0 200 200"
+      width="100%"
+      height="100%"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M60 110 Q60 80 75 70 L75 50 Q75 35 90 35 Q105 35 105 50 L105 75" />
+      <path d="M105 75 L105 35 Q105 20 118 20 Q131 20 131 35 L131 80" />
+      <path d="M131 80 L131 30 Q131 17 144 17 Q157 17 157 30 L157 85" />
+      <path d="M157 85 L157 40 Q157 27 170 27 Q183 27 183 40 L183 100 Q183 145 150 170 Q120 188 95 180 Q70 172 60 150 Q52 135 60 110" />
+      <path d="M60 130 Q40 130 35 145 Q30 160 45 168" />
+    </svg>
   );
 }
