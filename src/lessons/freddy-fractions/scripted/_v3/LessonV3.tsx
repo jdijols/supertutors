@@ -490,50 +490,86 @@ const STAGES: Record<V3Stage, V3StageConfig> = {
 const SCENE_1_PIZZA_SIZE = 170;
 const SCENE_4_PIZZA_SIZE = 130;
 
-const SCENE_1_POSITIONS = [
-  { x: 80, y: 200 },
-  { x: 80, y: 480 },
-  { x: 340, y: 200 },
-  { x: 340, y: 480 },
-];
-
-const SCENE_2_POSITIONS = [
-  { x: 80, y: 160 },
-  { x: 80, y: 440 },
-  { x: 280, y: 160 },
-  { x: 280, y: 440 },
-  { x: 480, y: 300 },
-];
-
-const SCENE_4_POSITIONS = [
-  { x: 40, y: 100 },
-  { x: 200, y: 100 },
-  { x: 360, y: 100 },
-  { x: 120, y: 340 },
-  { x: 280, y: 340 },
-];
-
-const GUESTS_2 = [
-  { id: "maya", label: "Maya", x: 900, y: 160 },
-  { id: "theo", label: "Theo", x: 900, y: 460 },
-] as const;
-
-const GUESTS_4 = [
-  { id: "maya", label: "Maya", x: 720, y: 50 },
-  { id: "theo", label: "Theo", x: 940, y: 50 },
-  { id: "nonna", label: "Nonna", x: 720, y: 340 },
-  { id: "nico", label: "Nico", x: 940, y: 340 },
-] as const;
-
-const GUEST_LAYOUTS = {
-  two: GUESTS_2,
-  four: GUESTS_4,
-} as const;
-
 const BOX_SIZE_BY_LAYOUT: Record<GuestLayoutKey, number> = {
   two: 200,
   four: 150,
 };
+
+interface SceneLayout {
+  scene1Positions: Array<{ x: number; y: number }>;
+  scene2Positions: Array<{ x: number; y: number }>;
+  scene4Positions: Array<{ x: number; y: number }>;
+  guests2: ReadonlyArray<{ id: string; label: string; x: number; y: number }>;
+  guests4: ReadonlyArray<{ id: string; label: string; x: number; y: number }>;
+}
+
+/**
+ * Viewport-relative layout. The wooden counter occupies the bottom ~half
+ * of the viewport, so pizzas + boxes need to live on the counter — not in
+ * the upper restaurant scene where Freddy stands. Boxes sit on the
+ * right (vertically centered on the counter); pizzas occupy the left
+ * half of the counter.
+ *
+ * Called once at mount via useMemo. Resize is not tracked — out of
+ * scope for V3 MVP.
+ */
+function getLayout(width: number, height: number): SceneLayout {
+  // Where the counter visually begins (top edge of the wood).
+  const counterTop = height * 0.48;
+  // Pizza rows — two rows on the counter (upper + lower).
+  const pizzaRow1Y = counterTop + 90;
+  const pizzaRow2Y = counterTop + 290;
+
+  // Boxes — right side, vertically centered on the counter.
+  const guests2X = Math.max(width - 460, 800);
+  const guests2 = [
+    { id: "maya", label: "Maya", x: guests2X, y: counterTop + 60 },
+    { id: "theo", label: "Theo", x: guests2X, y: counterTop + 290 },
+  ] as const;
+
+  // 4-guest layout: 2×2 grid on the right.
+  const guests4Col1X = Math.max(width - 530, 700);
+  const guests4Col2X = Math.max(width - 320, 900);
+  const guests4 = [
+    { id: "maya", label: "Maya", x: guests4Col1X, y: counterTop + 50 },
+    { id: "theo", label: "Theo", x: guests4Col2X, y: counterTop + 50 },
+    { id: "nonna", label: "Nonna", x: guests4Col1X, y: counterTop + 240 },
+    { id: "nico", label: "Nico", x: guests4Col2X, y: counterTop + 240 },
+  ] as const;
+
+  const scene1Positions = [
+    { x: 120, y: pizzaRow1Y },
+    { x: 120, y: pizzaRow2Y },
+    { x: 360, y: pizzaRow1Y },
+    { x: 360, y: pizzaRow2Y },
+  ];
+
+  const scene2Positions = [
+    { x: 80, y: pizzaRow1Y },
+    { x: 280, y: pizzaRow1Y },
+    { x: 480, y: pizzaRow1Y },
+    { x: 180, y: pizzaRow2Y },
+    { x: 380, y: pizzaRow2Y },
+  ];
+
+  // Scene 4 uses smaller pizzas (130px) — pack more efficiently since
+  // the right half is full with 4 boxes.
+  const scene4Positions = [
+    { x: 80, y: pizzaRow1Y },
+    { x: 220, y: pizzaRow1Y },
+    { x: 360, y: pizzaRow1Y },
+    { x: 150, y: pizzaRow2Y - 30 },
+    { x: 290, y: pizzaRow2Y - 30 },
+  ];
+
+  return {
+    scene1Positions,
+    scene2Positions,
+    scene4Positions,
+    guests2,
+    guests4,
+  };
+}
 
 function buildScenePieces(
   positions: Array<{ x: number; y: number }>,
@@ -566,13 +602,22 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
 
   const config = STAGES[stage];
   const guestLayout: GuestLayoutKey = config.guestLayout ?? "two";
-  const guestsToRender = GUEST_LAYOUTS[guestLayout];
   const boxSize = BOX_SIZE_BY_LAYOUT[guestLayout];
+
+  // Viewport-relative layout. Computed once at mount.
+  const layout = useMemo(() => {
+    const w = typeof window !== "undefined" ? window.innerWidth : 1920;
+    const h = typeof window !== "undefined" ? window.innerHeight : 1080;
+    return getLayout(w, h);
+  }, []);
+
+  const guestsToRender =
+    guestLayout === "two" ? layout.guests2 : layout.guests4;
 
   const initialPieces = useMemo(
     () =>
-      buildScenePieces(SCENE_1_POSITIONS, "scene1", SCENE_1_PIZZA_SIZE),
-    [],
+      buildScenePieces(layout.scene1Positions, "scene1", SCENE_1_PIZZA_SIZE),
+    [layout],
   );
 
   const { pieces, move, slice, setGuestId, resetTo } = useSandboxPieces(
@@ -602,16 +647,16 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
     lastOnEnterStage.current = stage;
     if (config.onEnter === "scene2-reset") {
       resetTo(
-        buildScenePieces(SCENE_2_POSITIONS, "scene2", SCENE_1_PIZZA_SIZE),
+        buildScenePieces(layout.scene2Positions, "scene2", SCENE_1_PIZZA_SIZE),
       );
       setHint(undefined);
     } else if (config.onEnter === "scene4-reset") {
       resetTo(
-        buildScenePieces(SCENE_4_POSITIONS, "scene4", SCENE_4_PIZZA_SIZE),
+        buildScenePieces(layout.scene4Positions, "scene4", SCENE_4_PIZZA_SIZE),
       );
       setHint(undefined);
     }
-  }, [stage, config.onEnter, resetTo]);
+  }, [stage, config.onEnter, resetTo, layout]);
 
   // Reset hint + fraction retry counter on stage change
   useEffect(() => {
@@ -726,9 +771,9 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
     setFractionRetryCount(0);
     lastOnEnterStage.current = null;
     resetTo(
-      buildScenePieces(SCENE_1_POSITIONS, "scene1", SCENE_1_PIZZA_SIZE),
+      buildScenePieces(layout.scene1Positions, "scene1", SCENE_1_PIZZA_SIZE),
     );
-  }, [resetTo]);
+  }, [resetTo, layout]);
 
   // ─── Render ─────────────────────────────────────────────────────────────
 

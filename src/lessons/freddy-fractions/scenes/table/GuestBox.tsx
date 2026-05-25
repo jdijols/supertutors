@@ -136,11 +136,12 @@ export const GuestBox = forwardRef<GuestBoxHandle, GuestBoxProps>(
             />
           ))}
         </div>
-        {/* Name label below the box — matches existing chrome-label pattern. */}
+        {/* Name label as a paper pill above the box — readable against
+            both the wood counter and the box background. */}
         <div
           data-testid="guest-box-label"
-          className="absolute left-0 right-0 text-center font-mono uppercase tracking-[0.18em] text-[11px] text-sb-ink"
-          style={{ bottom: -16 }}
+          className="absolute left-1/2 -translate-x-1/2 bg-sb-paper border-2 border-sb-ink rounded-full px-3 py-1 font-mono uppercase tracking-[0.14em] text-[11px] text-sb-ink shadow-lg shadow-sb-accent-deep/25 whitespace-nowrap z-10"
+          style={{ top: -14 }}
         >
           {label}
         </div>
