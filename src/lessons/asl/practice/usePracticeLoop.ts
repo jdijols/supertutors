@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useHandLandmarks } from "@/platform/cv/HandTracker";
 import type { ProgressHandle } from "@/platform/progress/types";
 import { useAslStore } from "../store/aslStore";
@@ -141,12 +141,13 @@ export function usePracticeLoop(opts: UsePracticeLoopOpts = {}) {
     }
   }, [result, attemptState, setAttemptState]);
 
-  return useMemo(
-    () => ({
-      // eslint-disable-next-line react-hooks/refs -- intentional: recognizer is a stable ref set once on mount
-      recognizer: recognizerRef.current,
-      currentSign: trainedSigns[currentSignIdx],
-    }),
-    [currentSignIdx, trainedSigns]
-  );
+  // No useMemo here: React 19 Strict Mode double-mounts in dev, which can
+  // create two recognizer instances. A memoized return value would cache the
+  // first instance and hide the second from the HUD. Returning a fresh object
+  // on every render guarantees `recognizer` is always the live ref.
+  return {
+    // eslint-disable-next-line react-hooks/refs -- recognizer is a stable ref set once per mount
+    recognizer: recognizerRef.current,
+    currentSign: trainedSigns[currentSignIdx],
+  };
 }

@@ -165,8 +165,8 @@ export function RecognitionHUD({ recognizer, target }: RecognitionHUDProps) {
           <div className="mt-3 pt-2 border-t border-white/10 space-y-0.5 text-white/55">
             <Row label="target" value={target.glyph} />
             <Row
-              label="smoothing"
-              value={`${snapshot.framesBuffered} frames`}
+              label="buffer"
+              value={`${snapshot.framesBuffered}/32 frames`}
             />
             <Row
               label="pass hold"
