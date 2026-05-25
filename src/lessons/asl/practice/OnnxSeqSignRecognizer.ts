@@ -27,9 +27,28 @@ const POSITION_DIM = 63;
 const FEATURE_DIM = 126;
 
 const PASS_THRESHOLD = 0.65;
+const PASS_THRESHOLD_FLOOR = 0.50;     // adaptive floor when the user is stuck
+const ADAPTIVE_RAMP_START_FRAMES = 450; // ~15s @ 30fps before easing begins
+const ADAPTIVE_RAMP_LENGTH_FRAMES = 150; // ~5s ramp from 0.65 → 0.50
 const FAIL_THRESHOLD = 0.45;
 const SMOOTH_FRAMES = 5;
 const PASS_HOLD_FRAMES = 6;
+
+/**
+ * Adaptive threshold: starts at PASS_THRESHOLD, holds there until
+ * ADAPTIVE_RAMP_START_FRAMES, then linearly drops to PASS_THRESHOLD_FLOOR
+ * over ADAPTIVE_RAMP_LENGTH_FRAMES frames. Hidden from the user — gives
+ * the lesson a "feels easier the longer you try" character without
+ * exposing the mechanic.
+ */
+function adaptivePassThreshold(framesOnCurrentSign: number): number {
+  if (framesOnCurrentSign < ADAPTIVE_RAMP_START_FRAMES) return PASS_THRESHOLD;
+  const t = Math.min(
+    1,
+    (framesOnCurrentSign - ADAPTIVE_RAMP_START_FRAMES) / ADAPTIVE_RAMP_LENGTH_FRAMES,
+  );
+  return PASS_THRESHOLD + (PASS_THRESHOLD_FLOOR - PASS_THRESHOLD) * t;
+}
 
 interface LabelMap {
   labels: string[];
@@ -72,6 +91,9 @@ export class OnnxSeqSignRecognizer implements SignRecognizer {
   private previousPosition: Float32Array | null = null;
   private readonly probBuffer: Float32Array[] = [];
   private framesSinceHand = 0;
+
+  /** Counter for the adaptive threshold ramp. Reset() clears it. */
+  private framesOnCurrentSign = 0;
 
   private passHoldCount = 0;
   private lastEmittedKind: RecognitionResult["kind"] | null = null;
@@ -192,6 +214,7 @@ export class OnnxSeqSignRecognizer implements SignRecognizer {
     const features = buildFrameFeatures(position, this.previousPosition);
     this.previousPosition = position;
     this.framesSinceHand++;
+    this.framesOnCurrentSign++;
 
     this.buffer.push(features);
     if (this.buffer.length > SEQ_LEN) this.buffer.shift();
@@ -203,6 +226,7 @@ export class OnnxSeqSignRecognizer implements SignRecognizer {
 
     const bestLabel = this.bestLabel;
     const bestProb = this.bestProb;
+    const passThreshold = adaptivePassThreshold(this.framesOnCurrentSign);
 
     if (!bestLabel || bestProb < FAIL_THRESHOLD) {
       this.passHoldCount = 0;
@@ -213,7 +237,7 @@ export class OnnxSeqSignRecognizer implements SignRecognizer {
       return null;
     }
 
-    if (bestLabel === target.glyph && bestProb >= PASS_THRESHOLD) {
+    if (bestLabel === target.glyph && bestProb >= passThreshold) {
       this.passHoldCount++;
       if (this.passHoldCount >= PASS_HOLD_FRAMES && this.lastEmittedKind !== "pass") {
         this.lastEmittedKind = "pass";
@@ -288,6 +312,7 @@ export class OnnxSeqSignRecognizer implements SignRecognizer {
     this.probBuffer.length = 0;
     this.previousPosition = null;
     this.framesSinceHand = 0;
+    this.framesOnCurrentSign = 0;
     this.bestLabel = null;
     this.bestProb = 0;
     this.lastEmittedKind = null;

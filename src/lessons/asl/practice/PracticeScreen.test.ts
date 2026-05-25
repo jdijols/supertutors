@@ -10,7 +10,10 @@ describe("PracticeScreen", () => {
   });
 
   it("camera feed video has aria-hidden (visual-only background, WCAG §Non-text Content)", () => {
-    const src = readFileSync(resolve(__dirname, "PracticeScreen.tsx"), "utf-8");
+    // The <video> element moved up to Mount.tsx when grid/practice/summary
+    // became switchable overlays sharing the same camera mount. Verify the
+    // aria-hidden invariant in its new home.
+    const src = readFileSync(resolve(__dirname, "../Mount.tsx"), "utf-8");
     expect(src).toMatch(/<video[^>]*aria-hidden/);
   });
 });

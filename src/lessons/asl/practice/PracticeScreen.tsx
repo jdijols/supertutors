@@ -1,61 +1,60 @@
 import { useHandLandmarks } from "@/platform/cv/HandTracker";
 import type { ProgressHandle } from "@/platform/progress/types";
 import { useAslStore } from "../store/aslStore";
-import { getTrainedSigns } from "../vocab";
+import { getSignById, getTrainedSigns } from "../vocab";
 import { ConfidenceCue } from "./ConfidenceCue";
 import { HandMeshOverlay } from "./HandMeshOverlay";
 import { HintCard } from "./HintCard";
 import { PassBeat } from "./PassBeat";
 import { PromptCard } from "./PromptCard";
 import { RecognitionHUD } from "./RecognitionHUD";
-import { ReferenceVideoModal } from "./ReferenceVideoModal";
+import { SkipPill } from "./SkipPill";
 import { usePracticeLoop } from "./usePracticeLoop";
 
 interface PracticeScreenProps {
   progress?: ProgressHandle;
-  onComplete: () => void;
 }
 
 /**
- * PracticeScreen — full-viewport practice surface.
+ * PracticeScreen — overlay surface that practices a single letter.
  *
- * Camera feed as background, PromptCard at top, HintCard at bottom,
- * PassBeat on success, ReferenceVideoModal on demand. The practice
- * loop drives all state transitions.
+ * Renders on top of the live camera feed (which stays mounted by the
+ * parent so we don't re-init MediaPipe when switching between grid and
+ * practice modes).
+ *
+ * - PromptCard at top: "Sign 1 of 26: A" — current letter
+ * - Hand mesh overlay on the video
+ * - ConfidenceCue + RecognitionHUD diagnostics
+ * - HintCard at bottom when fail/uncertain (with HUD-aware "you signed X" framing)
+ * - SkipPill fades in after 10s of being stuck
+ * - PassBeat full-screen celebration on pass
  */
-export function PracticeScreen({ progress, onComplete }: PracticeScreenProps) {
-  const { videoRef, result, status } = useHandLandmarks();
+export function PracticeScreen({ progress }: PracticeScreenProps) {
+  const { result, status, videoRef } = useHandLandmarks();
   const trainedSigns = getTrainedSigns();
 
-  const { recognizer } = usePracticeLoop({
+  const { recognizer, currentSign, canSkip, handleSkip } = usePracticeLoop({
     progress,
-    onAllSignsCompleted: onComplete,
   });
 
-  const currentSignIdx = useAslStore((s) => s.currentSignIdx);
   const attemptState = useAslStore((s) => s.attemptState);
   const hintShown = useAslStore((s) => s.hintShown);
-  const referenceShown = useAslStore((s) => s.referenceShown);
-  const setReferenceShown = useAslStore((s) => s.setReferenceShown);
+  const observedSignId = useAslStore((s) => s.observedSignId);
+  const drill = useAslStore((s) => s.drill);
+  const cancelDrill = useAslStore((s) => s.cancelDrill);
 
-  const currentSign = trainedSigns[currentSignIdx];
   if (!currentSign) return null;
 
+  const observedSign = observedSignId ? getSignById(observedSignId) : null;
   const handDetected = result && result.landmarks.length > 0;
 
-  return (
-    <div className="relative h-[100dvh] w-full bg-black overflow-hidden">
-      {/* Camera feed — mirrored so the user sees themselves naturally */}
-      <video
-        ref={videoRef}
-        autoPlay
-        playsInline
-        muted
-        aria-hidden="true"
-        className="absolute inset-0 w-full h-full object-cover -scale-x-100"
-      />
+  // 1-based index for the prompt card; falls back to 1 if not found.
+  const currentIdx = trainedSigns.findIndex((s) => s.id === currentSign.id);
+  const promptIndex = currentIdx >= 0 ? currentIdx + 1 : 1;
 
-      {/* Hand landmark mesh overlay */}
+  return (
+    <>
+      {/* Hand landmark mesh overlay (the camera <video> lives in the parent) */}
       <HandMeshOverlay result={result} videoRef={videoRef} />
 
       {/* Confidence cue at top */}
@@ -64,7 +63,7 @@ export function PracticeScreen({ progress, onComplete }: PracticeScreenProps) {
       {/* Diagnostic HUD — toggle with D */}
       <RecognitionHUD recognizer={recognizer} target={currentSign} />
 
-      {/* Loading overlay */}
+      {/* Loading overlay — only while camera is initializing */}
       {status === "loading" && (
         <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-30">
           <span className="font-mono text-white text-sm animate-pulse">
@@ -76,9 +75,34 @@ export function PracticeScreen({ progress, onComplete }: PracticeScreenProps) {
       {/* Prompt card — top center */}
       <PromptCard
         sign={currentSign}
-        current={currentSignIdx + 1}
+        current={promptIndex}
         total={trainedSigns.length}
       />
+
+      {/* Drill banner — only when a confusion-pair drill is active */}
+      {drill && (
+        <div
+          data-testid="drill-banner"
+          className="absolute top-4 left-1/2 -translate-x-1/2 z-20 mt-20 sm:mt-24"
+        >
+          <div className="px-4 py-2 rounded-full bg-sb-accent-deep text-white font-mono text-[11px] uppercase tracking-[0.18em] flex items-center gap-3 shadow-lg shadow-black/30">
+            <span>
+              Drill: {drill.pair[0]} vs {drill.pair[1]}
+            </span>
+            <span className="text-white/80">
+              {drill.correctInARow}/{drill.goal}
+            </span>
+            <button
+              type="button"
+              onClick={cancelDrill}
+              aria-label="Cancel drill"
+              className="text-white/70 hover:text-white text-base leading-none focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-sb-accent-deep rounded"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Hand detection indicator */}
       <div className="absolute bottom-32 sm:bottom-36 left-1/2 -translate-x-1/2 z-10">
@@ -91,36 +115,23 @@ export function PracticeScreen({ progress, onComplete }: PracticeScreenProps) {
         />
       </div>
 
-      {/* Hint card — shown on fail/uncertain */}
+      {/* Hint card — shown on fail/uncertain. observedSign drives the
+          "We're seeing K — for E…" comparison framing in HintCard. */}
       {hintShown &&
         (attemptState === "failing" || attemptState === "uncertain") && (
-          <HintCard
-            targetSign={currentSign}
-            onShowReference={
-              currentSign.referenceVideo
-                ? () => setReferenceShown(true)
-                : undefined
-            }
-          />
+          <HintCard targetSign={currentSign} observedSign={observedSign} />
         )}
+
+      {/* Skip pill — fades in 10s into a stuck letter */}
+      <SkipPill visible={canSkip && attemptState !== "passing"} onSkip={handleSkip} />
 
       {/* Pass beat — full screen celebration */}
       <PassBeat active={attemptState === "passing"} />
 
-      {/* Reference video modal */}
-      {currentSign.referenceVideo && (
-        <ReferenceVideoModal
-          open={referenceShown}
-          videoSrc={currentSign.referenceVideo}
-          signName={currentSign.glyph}
-          onClose={() => setReferenceShown(false)}
-        />
-      )}
-
       {/* Demo hint — small text bottom-left showing keyboard shortcuts */}
       <div className="absolute bottom-3 left-3 z-10 font-mono text-[9px] uppercase tracking-[0.18em] text-white/40">
-        Demo: P=pass · F=fail · U=uncertain
+        Demo: P=pass · F=fail · U=uncertain · S=skip · D=HUD
       </div>
-    </div>
+    </>
   );
 }
