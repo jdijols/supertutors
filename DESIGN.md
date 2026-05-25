@@ -37,7 +37,7 @@ SuperTutors has two distinct visual layers that must coexist. Every UI decision 
 - **Reference aesthetic:** Brutalist editorial (thick 2px borders, monospace labels, high contrast) meets warm children's product (cream surfaces, rounded cards, spring physics).
 
 **Design rules that hold everywhere:**
-- `active = dark` — whenever a UI element is in an active/on state, it uses `sb-ink` background + white/inverted icon. At rest: `sb-paper` background + ink icon. This rule applies to MuteToggle, CvToggle, ToolPicker, and every future chrome toggle.
+- `active = dark` — whenever a UI element is in an active/on state, it **contrasts maximally with the page background**. On light surfaces (cream, sb-surface): active = `bg-sb-ink text-white`. On dark surfaces (ink, landing page): active = `bg-sb-paper text-sb-ink`. The rule is about contrast direction, not an absolute color. See "Surface-dependent state inversions" below.
 - `Border hierarchy:` thick `border-2 border-sb-ink` = top-level chrome elements; `border border-sb-ink/10` = sub-items inside chrome containers.
 - Touch targets: min 56×56px (h-14 w-14) on mobile, 64×64px (h-16 w-16) on tablet. Kids can't aim precisely.
 
@@ -181,8 +181,26 @@ aslTheme.accent:        #1A2237   (sb-ink-equivalent deep navy)
 
 - **Approach:** iPad-first — the primary device. Design for `820×1180` (iPad Air portrait) and verify on `1180×820` (landscape). Desktop is progressive enhancement.
 - **Viewport:** `h-[100dvh]` everywhere. No scroll. `overflow: hidden` on html/body/#root. Uses `dvh`/`dvw` (dynamic viewport units) to account for Safari status bar.
-- **Grid:** Single-column, full screen on lesson views. Landing: banner + carousel stacked vertically with `gap-4 sm:gap-5 md:gap-6`.
+- **Grid:** Single-column, full screen on lesson views. Landing: bento grid (see below).
 - **Poster card min-height:** `min-h-[420px] md:min-h-[520px]`.
+
+### Bento layout spec (landing page)
+
+The landing page is a full-viewport 5-column × 2-row CSS grid on `sb-ink` background.
+
+```tsx
+<div className="grid grid-cols-1 md:grid-cols-5 grid-rows-4 md:grid-rows-2 gap-4 sm:gap-5 md:gap-6 flex-1 min-h-0">
+  <BrainliftCard className="md:col-span-2 md:row-span-1" />   {/* Row 1, 2/5 */}
+  <ASLPosterCard  className="md:col-span-3 md:row-span-1" />  {/* Row 1, 3/5 */}
+  <FreddyPosterCard className="md:col-span-3 md:row-span-1" /> {/* Row 2, 3/5 */}
+  <AboutCard className="md:col-span-2 md:row-span-1" />       {/* Row 2, 2/5 */}
+</div>
+```
+
+- Page outer padding: `px-6 sm:px-8 md:px-12 lg:px-16 py-6 sm:py-8 md:py-10`
+- Card gaps: `gap-4 sm:gap-5 md:gap-6`
+- Mobile: collapses to single column (`grid-cols-1`), 4 rows; order is BrainLift → ASL → Freddy → About
+- Header row: `h-14 sm:h-16`, SuperTutorsLockup `size="inline"` left-aligned; chrome buttons float fixed top-right
 - **Border radius scale:**
 
 | Name | Value | Usage |
@@ -202,8 +220,8 @@ aslTheme.accent:        #1A2237   (sb-ink-equivalent deep navy)
 
 | Name | Stiffness | Damping | Usage |
 |------|-----------|---------|-------|
-| Chrome button | 600 | 22 | MuteToggle, ExitButton, InfoToggle hover/tap |
-| Poster card | 380 | 26 | FreddyPosterCard, ComingSoonPosterCard hover/tap |
+| Chrome button | 600 | 22 | MuteToggle, ExitButton, UserMenu hover/tap |
+| Poster card | 380 | 26 | FreddyPosterCard, ASLPosterCard, BrainliftCard hover/tap |
 
 ### Scale values
 
@@ -357,6 +375,57 @@ transition={{ type: "spring", stiffness: 380, damping: 26 }}
 
 ---
 
+## Surface-Dependent State Inversions
+
+The `active = dark` rule is about **maximum contrast with the page background**, not a fixed color.
+
+| Surface | Page bg | Active state | Rest state |
+|---------|---------|--------------|------------|
+| Light (lesson, modal) | `sb-surface` / `sb-card` | `bg-sb-ink text-white` | `bg-sb-paper text-sb-ink` |
+| Dark (landing page) | `sb-ink` | `bg-sb-paper text-sb-ink` | `bg-sb-paper text-sb-ink` |
+
+On the dark landing page both active and rest use `bg-sb-paper` — the icon (speaker waves vs. muted X) carries the semantic distinction.
+
+**Implementation pattern:** Chrome buttons that render on multiple surfaces accept a `surface?: "light" | "dark"` prop (default `"light"`). `App.tsx` detects `location.pathname === "/"` and passes `surface="dark"` on the landing route. `UserMenu` detects the surface internally via its existing `useLocation` hook.
+
+**Focus ring offsets** follow the same rule: `ring-offset-sb-surface` on light, `ring-offset-sb-ink` on dark.
+
+---
+
+## Card Style Families
+
+Three distinct visual languages for landing cards:
+
+| Family | Example | Background | Glyph / Art | Interaction |
+|--------|---------|------------|-------------|-------------|
+| **Lesson poster** | FreddyPosterCard, ASLPosterCard | Warm radial gradient (cream/sky) | Character or hand glyph at 35% opacity | hover `y:-3`, tap `scale:0.995`, spring 380/26 |
+| **Document card** | BrainliftCard | Parchment radial gradient | Scroll glyph at 12% opacity | Same spring |
+| **Colophon card** | AboutCard | `bg-white/[0.03]` on ink | None | No hover lift; focus ring only |
+
+All cards share: `rounded-[22px]`, `border border-white/10`, `focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-sb-ink`.
+
+---
+
+## Markdown Rendering
+
+For any markdown surfaced in-app, the canonical pattern is:
+
+```tsx
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+
+<article className="prose prose-invert prose-sb max-w-none">
+  <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdown}</ReactMarkdown>
+</article>
+```
+
+- `@tailwindcss/typography` plugin registered in `tailwind.config.js`
+- `prose-invert` for dark-surface rendering
+- Vite `?raw` import for compile-time markdown bundling (no runtime fetch)
+- Viewer component: `BrainliftViewer` (`src/lessons/acutis/BrainliftViewer.tsx`) — rendered/raw toggle, copy, download
+
+---
+
 ## Custom Cursor System
 
 The lesson uses a DOM-based cursor sprite (`ToolSprite`) — the OS cursor is hidden entirely via `cursor: none !important` on `html.tool-glove` / `html.tool-cutter`. This was adopted after Chrome on macOS silently failed to render `cursor: url(...)` in some regions.
@@ -438,3 +507,4 @@ The following are defined in `tailwind.config.js` but are **not active in produc
 | 2026-05-25 | Carousel replaced custom implementation with Embla + WheelGestures | Hand-rolled wheel handler had inertia + click-vs-drag edge cases. Embla handles all of this natively |
 | 2026-05-25 | Fredoka + Nunito not adopted | Neither font is loaded in index.html; both are placeholders from early design exploration. Geist Mono covers all display needs |
 | 2026-05-25 | DESIGN.md created | Extracted all active design tokens from live production code. Audited stale tokens (portal, tomato, Fredoka, Nunito, TutorCard) — marked deprecated, not removed |
+| 2026-05-26 | Landing inverted to dark surface; carousel → bento grid | Editorial ink-on-dark feel signals "SuperBuilders standalone platform." 4-card simultaneous view removes carousel hide-and-reveal. AboutModal removed (AboutCard inline). Acutis promoted from ComingSoonMount to BrainliftViewer. `active = dark` rule extended to surface-dependent inversions. |
