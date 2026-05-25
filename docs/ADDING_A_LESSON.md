@@ -141,7 +141,7 @@ src/lessons/<your-slug>/
 
 ```json
 {
-  "voice": { "voiceId": "EXAVITQu4vr4xnSDxMaL" },
+  "voice": { "voiceId": "YOUR_VOICE_ID_FROM_DIALOGUE_JSON" },
   "lines": {
     "intro_1": "Hi {{NAME}}, ready to dive in?",
     "intro_2": "Let's start with a simple shape."
@@ -176,7 +176,7 @@ load: async () => {
     audio: {
       basePath: "/lessons/my-slug/audio",
       lineLookup: myLineLookup,
-      voiceId: "EXAVITQu4vr4xnSDxMaL",
+      voiceId: "YOUR_VOICE_ID_FROM_DIALOGUE_JSON",
     },
   };
 },

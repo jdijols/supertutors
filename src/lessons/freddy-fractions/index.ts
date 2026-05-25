@@ -17,7 +17,12 @@ export const freddyFractionsLesson: LessonModule = {
       audio: {
         basePath: "/lessons/freddy-fractions/audio",
         lineLookup: freddyLineLookup,
-        voiceId: "EXAVITQu4vr4xnSDxMaL",
+        // Freddy's voice — Italian-American chef ("Super Mario meets Jersey Shore").
+        // Must match the voiceId in tutor/dialogue.json so the dynamic name
+        // generation matches the pre-recorded MP3s. The wrong voiceId here
+        // makes the kid's name sound like a different (generic) voice while
+        // every other line is Freddy.
+        voiceId: "QzTKubutNn9TjrB7Xb2Q",
       },
       requires: { camera: true },
     };
