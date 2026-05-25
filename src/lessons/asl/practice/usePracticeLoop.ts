@@ -3,7 +3,7 @@ import { useHandLandmarks } from "@/platform/cv/HandTracker";
 import type { ProgressHandle } from "@/platform/progress/types";
 import { useAslStore } from "../store/aslStore";
 import { getTrainedSigns } from "../vocab";
-import { OnnxSignRecognizer } from "./OnnxSignRecognizer";
+import { OnnxSeqSignRecognizer } from "./OnnxSeqSignRecognizer";
 import type { SignRecognizer } from "./SignRecognizer";
 
 interface UsePracticeLoopOpts {
@@ -35,7 +35,7 @@ export function usePracticeLoop(opts: UsePracticeLoopOpts = {}) {
   // Long-lived recognizer instance
   const recognizerRef = useRef<SignRecognizer | null>(null);
   if (recognizerRef.current === null) {
-    recognizerRef.current = new OnnxSignRecognizer();
+    recognizerRef.current = new OnnxSeqSignRecognizer();
   }
 
   // Cleanup recognizer on unmount

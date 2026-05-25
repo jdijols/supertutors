@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Sign } from "../vocab";
 import type { SignRecognizer } from "./SignRecognizer";
-import { OnnxSignRecognizer } from "./OnnxSignRecognizer";
+import { OnnxSeqSignRecognizer } from "./OnnxSeqSignRecognizer";
 
 /**
  * RecognitionHUD — live diagnostic readout of the ONNX classifier.
@@ -50,7 +50,7 @@ export function RecognitionHUD({ recognizer, target }: RecognitionHUDProps) {
   // Poll the recognizer at animation-frame cadence
   useEffect(() => {
     if (!visible) return;
-    const onnx = recognizer as OnnxSignRecognizer | null;
+    const onnx = recognizer as OnnxSeqSignRecognizer | null;
     if (!onnx || typeof onnx.getDebugInfo !== "function") {
       setSnapshot(null);
       return;

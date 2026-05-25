@@ -11,5 +11,6 @@
     "BACKGROUND"
   ],
   "background_idx": 8,
-  "feature_dim": 126
+  "feature_dim": 126,
+  "seq_len": 32
 }
