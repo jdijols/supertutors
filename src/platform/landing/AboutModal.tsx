@@ -89,7 +89,7 @@ export function AboutModal({
           data-cursor-pointing
           className="
             absolute top-4 right-4 sm:top-5 sm:right-5
-            w-10 h-10 rounded-full border border-sb-border
+            w-14 h-14 rounded-full border border-sb-border
             bg-sb-surface hover:bg-sb-paper
             flex items-center justify-center text-sb-ink
             transition-colors duration-200
