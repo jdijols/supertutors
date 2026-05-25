@@ -48,19 +48,35 @@ export function HandTracker({ children }: { children: React.ReactNode }) {
     async function init() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        // If the cleanup already ran during this await, abort — Strict Mode
+        // double-mount in dev fires cleanup before the second mount's effect.
+        if (!runningRef.current) {
+          stream.getTracks().forEach((t) => t.stop());
+          return;
+        }
         streamRef.current = stream;
         const video = videoRef.current;
         if (!video) return;
         video.srcObject = stream;
-        await video.play();
+        try {
+          await video.play();
+        } catch (playErr) {
+          // AbortError here is benign — Strict Mode cleanup interrupted us.
+          // Don't propagate to the error state; the second mount will retry.
+          if (playErr instanceof Error && playErr.name === 'AbortError') return;
+          throw playErr;
+        }
+        if (!runningRef.current) return;
 
         const { HandLandmarker, FilesetResolver } = await import(
           '@mediapipe/tasks-vision'
         );
+        if (!runningRef.current) return;
 
         const fileset = await FilesetResolver.forVisionTasks(
           'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm',
         );
+        if (!runningRef.current) return;
 
         // Try GPU first; fall back to CPU if WebGL isn't available.
         let landmarker: Awaited<ReturnType<typeof HandLandmarker.createFromOptions>>;
@@ -85,6 +101,10 @@ export function HandTracker({ children }: { children: React.ReactNode }) {
             numHands: 2,
           });
         }
+        if (!runningRef.current) {
+          landmarker.close();
+          return;
+        }
 
         landmarkerRef.current = landmarker;
         setStatus('ready');
@@ -104,6 +124,10 @@ export function HandTracker({ children }: { children: React.ReactNode }) {
 
         detect();
       } catch (e) {
+        // AbortError from interrupted play()/load is a Strict Mode artifact,
+        // not a real failure — second mount will retry successfully.
+        if (e instanceof Error && e.name === 'AbortError') return;
+        if (!runningRef.current) return;
         console.warn('[CV] HandTracker init failed:', e);
         setStatus('error');
         setError(e instanceof Error ? e.message : String(e));
