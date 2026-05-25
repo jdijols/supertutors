@@ -8,6 +8,7 @@ import { useTutorStore, type FreddyDisplay } from "../store/tutorStore";
 import { LessonTable, type LessonTableHandle, type LessonTableSliceEvent } from "./LessonTable";
 import { AhaAnimation } from "./AhaAnimation";
 import { WinConfetti } from "./WinConfetti";
+import type { TableState } from "./tableState";
 import type { CvCameraHandle } from "@/platform/lesson-sdk";
 
 /**
@@ -111,6 +112,10 @@ export function LessonScripted({ name, cv }: LessonScriptedProps) {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [ahaActive, setAhaActive] = useState(false);
   const [winActive, setWinActive] = useState(false);
+  // Derived snapshot of the table — fed by LessonTable via callback.
+  // Held but unused this commit; Commit 3 wires it into stage transitions.
+  const [tableState, setTableState] = useState<TableState | null>(null);
+  void tableState; // intentional — consumed in Commit 3
 
   // Ref to LessonTable so we can reset its internal AHA lock on stage entry.
   const tableRef = useRef<LessonTableHandle>(null);
@@ -314,6 +319,7 @@ export function LessonScripted({ name, cv }: LessonScriptedProps) {
         renderHeroAnimations={false}
         onSlice={handleSlice}
         onAha={handleAha}
+        onTableStateChange={setTableState}
         cv={cv}
       />
 

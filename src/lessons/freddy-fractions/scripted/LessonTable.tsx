@@ -24,6 +24,7 @@ import {
 import { SliceBurst } from "../scenes/table/SliceBurst";
 import { AhaAnimation } from "./AhaAnimation";
 import { WinConfetti } from "./WinConfetti";
+import { deriveTableState, type TableState } from "./tableState";
 import { useTutorStore } from "../store/tutorStore";
 import { HandTracker, useHandLandmarks } from "@/platform/cv/HandTracker";
 import { PinchRecognizer } from "@/platform/cv/gestures";
@@ -414,6 +415,15 @@ export interface LessonTableProps {
    */
   onWin?: () => void;
   /**
+   * Fired on every change to the table's piece composition. Gives the
+   * scripted lesson a derived snapshot of what's on the table — counts
+   * by fraction, total area, recognized pattern (twoHalves /
+   * oneHalfTwoQuarters / fourQuarters / hasEighths / ...) — so its
+   * state machine can transition from world state instead of slice
+   * events. See ../scripted/tableState.ts.
+   */
+  onTableStateChange?: (state: TableState) => void;
+  /**
    * Optional camera handle from the platform. When provided, the CV toggle
    * button and CV mode overlay render. URL sync (`?cv=true`) is the
    * platform's responsibility; this prop is the single source of truth
@@ -459,6 +469,7 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
       onDelivered,
       onAha,
       onWin,
+      onTableStateChange,
       cv,
     },
     ref,
@@ -664,6 +675,19 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
     const proximityGroups = useMemo<ProximityGroup[]>(() => {
       return findProximityGroups(pieces.map(toProximityPiece));
     }, [pieces]);
+
+    // Derived snapshot of the table — single source of truth for the
+    // scripted lesson's state machine. Pure function of pieces +
+    // proximity, recomputed only when those change. Hand it up via
+    // onTableStateChange so the parent (LessonScripted) can drive stage
+    // transitions from world state instead of from slice events.
+    const tableState = useMemo(
+      () => deriveTableState(pieces, proximityGroups),
+      [pieces, proximityGroups],
+    );
+    useEffect(() => {
+      onTableStateChange?.(tableState);
+    }, [tableState, onTableStateChange]);
 
     const piecesById = useMemo(() => {
       const map = new Map<string, SandboxPiece>();
