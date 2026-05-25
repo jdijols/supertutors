@@ -1,13 +1,14 @@
 /**
  * ASL Vocabulary Catalog
  *
- * 26 trained letters of the ASL alphabet, with per-letter handshape phonology.
- * The classifier is trained on the Kaggle ASL Alphabet still-image dataset
- * and runs single-frame static handshape recognition (J and Z's motion is
- * approximated from end-pose handshape).
+ * Active trained set: 26 alphabet letters (A–Z) plus 8 word signs. The
+ * classifier is trained on the Kaggle ASL Alphabet still-image dataset
+ * and reliably recognizes letters. The 8 word signs (HELLO, THANK YOU, …)
+ * remain in TRAINED_SIGNS so they appear in the practice loop, but the
+ * model does not output those classes — practicing them will currently
+ * register "uncertain" until we add face/pose tracking (Holistic).
  *
- * The previous 8 word signs (HELLO, THANK YOU, …) live in CATALOG_SIGNS —
- * they're shown but not classifiable until we add face/pose tracking.
+ * Practice order: letters A–Z first, then word signs. Total 34 items.
  */
 
 export interface Phonology {
@@ -30,10 +31,12 @@ export interface Sign {
   referenceVideo?: string;
 }
 
+// ─── Alphabet (A–Z) ─────────────────────────────────────────────────────────
+
 /**
  * Per-letter handshape phonology. Sourced from the standard ASL Alphabet
  * (Lifeprint / ASL University). Movement is "Static" for every letter
- * except J (small hook trace, pinky finger) and Z (zigzag trace, index finger).
+ * except J (pinky-down hook trace) and Z (index zigzag trace).
  */
 const LETTER_PHONOLOGY: Record<string, Phonology> = {
   A: { handshape: "A — closed fist, thumb resting along the side",          location: "Neutral space", movement: "Static",                     palmOrientation: "Facing away" },
@@ -64,8 +67,8 @@ const LETTER_PHONOLOGY: Record<string, Phonology> = {
   Z: { handshape: "Z — index up, then traces a Z-shape",                     location: "Neutral space", movement: "Z trace (3 strokes)",        palmOrientation: "Facing away" },
 };
 
-/** The 26 trained letters — each entry built from LETTER_PHONOLOGY. */
-export const TRAINED_SIGNS: Sign[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+/** Letters A–Z. All trained (classifier recognizes them). */
+const LETTER_SIGNS: Sign[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
   .split("")
   .map((letter) => ({
     id: `asl:${letter}`,
@@ -74,15 +77,124 @@ export const TRAINED_SIGNS: Sign[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     phonology: LETTER_PHONOLOGY[letter],
   }));
 
+// ─── Word signs (legacy — kept in TRAINED_SIGNS for UI continuity) ──────────
+
 /**
- * Catalog signs — not trained, no phonology, no video. Includes the original
- * 8 word signs (untrained until we add face/pose tracking) plus the existing
- * word catalog.
+ * The original 8 word signs. The current classifier does not output these
+ * classes — they remain trained-flagged so they appear in the practice
+ * sequence, but every attempt will register "uncertain" until we add
+ * face/pose tracking. Reference videos are kept so "Show me the sign" works.
  */
+const WORD_SIGNS: Sign[] = [
+  {
+    id: "asl:HELLO",
+    glyph: "HELLO",
+    trained: true,
+    phonology: {
+      handshape: "B (flat hand)",
+      location: "Forehead",
+      movement: "Away from body",
+      palmOrientation: "Facing in",
+    },
+    referenceVideo: "/lessons/asl/videos/HELLO.webm",
+  },
+  {
+    id: "asl:THANK-YOU",
+    glyph: "THANK YOU",
+    trained: true,
+    phonology: {
+      handshape: "B (flat hand)",
+      location: "Chin",
+      movement: "Away from body",
+      palmOrientation: "Facing in",
+    },
+    referenceVideo: "/lessons/asl/videos/THANK-YOU.webm",
+  },
+  {
+    id: "asl:YES",
+    glyph: "YES",
+    trained: true,
+    phonology: {
+      handshape: "S (fist)",
+      location: "Neutral space",
+      movement: "Nodding motion",
+      palmOrientation: "Facing away",
+    },
+    referenceVideo: "/lessons/asl/videos/YES.webm",
+  },
+  {
+    id: "asl:NO",
+    glyph: "NO",
+    trained: true,
+    phonology: {
+      handshape: "U + thumb (snap)",
+      location: "Neutral space",
+      movement: "Close / snap shut",
+      palmOrientation: "Facing away",
+    },
+    referenceVideo: "/lessons/asl/videos/NO.webm",
+  },
+  {
+    id: "asl:PLEASE",
+    glyph: "PLEASE",
+    trained: true,
+    phonology: {
+      handshape: "B (flat hand)",
+      location: "Chest",
+      movement: "Circular",
+      palmOrientation: "Facing in",
+    },
+    referenceVideo: "/lessons/asl/videos/PLEASE.webm",
+  },
+  {
+    id: "asl:SORRY",
+    glyph: "SORRY",
+    trained: true,
+    phonology: {
+      handshape: "A (fist, thumb side)",
+      location: "Chest",
+      movement: "Circular",
+      palmOrientation: "Facing in",
+    },
+    referenceVideo: "/lessons/asl/videos/SORRY.webm",
+  },
+  {
+    id: "asl:HELP",
+    glyph: "HELP",
+    trained: true,
+    phonology: {
+      handshape: "A on B (thumbs-up on flat palm)",
+      location: "Palm of other hand",
+      movement: "Upward lift",
+      palmOrientation: "Up",
+    },
+    referenceVideo: "/lessons/asl/videos/HELP.webm",
+  },
+  {
+    id: "asl:FRIEND",
+    glyph: "FRIEND",
+    trained: true,
+    phonology: {
+      handshape: "X (hooked index)",
+      location: "Neutral space",
+      movement: "Hook-link / toggle",
+      palmOrientation: "Varied",
+    },
+    referenceVideo: "/lessons/asl/videos/FRIEND.webm",
+  },
+];
+
+// ─── Public exports ─────────────────────────────────────────────────────────
+
+/**
+ * 34 trained signs: 26 letters A–Z (recognized by the current model),
+ * followed by 8 word signs (kept in the sequence — will register as
+ * "uncertain" until face/pose tracking lands).
+ */
+export const TRAINED_SIGNS: Sign[] = [...LETTER_SIGNS, ...WORD_SIGNS];
+
+/** Catalog signs — not trained, no phonology, no video. */
 const CATALOG_WORDS: string[] = [
-  // Previously trained word signs — now untrained (model is letter-only)
-  "HELLO", "THANK YOU", "YES", "NO", "PLEASE", "SORRY", "HELP", "FRIEND",
-  // Existing untrained catalog
   "MOTHER", "FATHER", "BABY", "BROTHER", "SISTER", "FAMILY",
   "LOVE", "HAPPY", "SAD", "ANGRY", "SCARED", "HUNGRY", "THIRSTY",
   "TIRED", "SICK", "GOOD", "BAD", "BIG", "SMALL", "MORE",
@@ -105,7 +217,7 @@ const CATALOG_SIGNS: Sign[] = CATALOG_WORDS.map((glyph) => ({
   trained: false,
 }));
 
-/** Full catalog: trained letters first (A→Z), then alphabetized words. */
+/** Full catalog: trained signs first (letters then words), then alphabetized catalog. */
 export const ALL_SIGNS: Sign[] = [
   ...TRAINED_SIGNS,
   ...CATALOG_SIGNS.slice().sort((a, b) => a.glyph.localeCompare(b.glyph)),

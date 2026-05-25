@@ -2,26 +2,28 @@ import { describe, it, expect } from "vitest";
 import { ALL_SIGNS, TRAINED_SIGNS, getTrainedSigns, getSignById } from "./vocab";
 
 describe("ASL vocab catalog", () => {
-  it("has 26 trained letters (A–Z)", () => {
-    expect(TRAINED_SIGNS.length).toBe(26);
-    expect(getTrainedSigns().length).toBe(26);
+  it("has 34 trained signs (26 letters + 8 words)", () => {
+    expect(TRAINED_SIGNS.length).toBe(34);
+    expect(getTrainedSigns().length).toBe(34);
   });
 
-  it("trained signs are A–Z in alphabetical order, single uppercase letters", () => {
-    const expected = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-    expect(TRAINED_SIGNS.map((s) => s.glyph)).toEqual(expected);
-    for (const sign of TRAINED_SIGNS) {
+  it("first 26 trained signs are letters A–Z in order", () => {
+    const letters = TRAINED_SIGNS.slice(0, 26);
+    expect(letters.map((s) => s.glyph)).toEqual("ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""));
+    for (const sign of letters) {
       expect(sign.glyph).toMatch(/^[A-Z]$/);
-    }
-  });
-
-  it("trained letter IDs follow asl:<LETTER> format", () => {
-    for (const sign of TRAINED_SIGNS) {
       expect(sign.id).toBe(`asl:${sign.glyph}`);
     }
   });
 
-  it("all trained signs have non-empty handshape phonology", () => {
+  it("trailing 8 trained signs are the legacy word signs", () => {
+    const words = TRAINED_SIGNS.slice(26);
+    expect(words.map((s) => s.glyph)).toEqual([
+      "HELLO", "THANK YOU", "YES", "NO", "PLEASE", "SORRY", "HELP", "FRIEND",
+    ]);
+  });
+
+  it("all trained signs have non-empty phonology", () => {
     for (const sign of TRAINED_SIGNS) {
       expect(sign.trained).toBe(true);
       expect(sign.phonology).toBeDefined();
@@ -39,20 +41,22 @@ describe("ASL vocab catalog", () => {
     expect(z.phonology!.movement.toLowerCase()).not.toBe("static");
   });
 
-  it("the 8 former word signs are now catalog (untrained)", () => {
-    for (const glyph of ["HELLO", "THANK YOU", "YES", "NO", "PLEASE", "SORRY", "HELP", "FRIEND"]) {
-      const sign = ALL_SIGNS.find((s) => s.glyph === glyph);
-      expect(sign, `expected ${glyph} in catalog`).toBeDefined();
-      expect(sign!.trained).toBe(false);
+  it("word signs have reference videos, letter signs do not", () => {
+    for (const sign of TRAINED_SIGNS.slice(0, 26)) {
+      expect(sign.referenceVideo).toBeUndefined();
+    }
+    for (const sign of TRAINED_SIGNS.slice(26)) {
+      expect(sign.referenceVideo).toBeTruthy();
+      expect(sign.referenceVideo).toMatch(/^\/lessons\/asl\/videos\/.+\.webm$/);
     }
   });
 
-  it("ALL_SIGNS contains the 26 letters + word catalog (~110 total)", () => {
+  it("ALL_SIGNS combines trained + catalog (~110 total)", () => {
     expect(ALL_SIGNS.length).toBeGreaterThanOrEqual(100);
-    expect(ALL_SIGNS.length).toBeLessThanOrEqual(115);
+    expect(ALL_SIGNS.length).toBeLessThanOrEqual(120);
   });
 
-  it("no duplicate IDs across catalog", () => {
+  it("no duplicate IDs", () => {
     const ids = ALL_SIGNS.map((s) => s.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
@@ -68,6 +72,14 @@ describe("ASL vocab catalog", () => {
     expect(a).toBeDefined();
     expect(a!.glyph).toBe("A");
     expect(a!.trained).toBe(true);
+  });
+
+  it("getSignById returns correct word sign", () => {
+    const hello = getSignById("asl:HELLO");
+    expect(hello).toBeDefined();
+    expect(hello!.glyph).toBe("HELLO");
+    expect(hello!.trained).toBe(true);
+    expect(hello!.referenceVideo).toBeTruthy();
   });
 
   it("getSignById returns undefined for unknown ID", () => {

@@ -5,7 +5,7 @@ type LockupVariant = "onDark" | "onLight";
 interface SuperTutorsLockupProps {
   variant?: LockupVariant;
   className?: string;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "inline";
   /** Render the EDU/ACC subtag below the wordmark. Off by default. */
   showSubtag?: boolean;
 }
@@ -14,6 +14,14 @@ const SIZE_CLASSES: Record<
   NonNullable<SuperTutorsLockupProps["size"]>,
   { line1: string; line2: string; mark: string; gap: string }
 > = {
+  // Inline: laurel mark is the same height as a chrome button (w-14 h-14 sm:w-16 sm:h-16).
+  // Wordmark sits baseline-aligned on a single horizontal axis with the mark.
+  inline: {
+    line1: "text-[28px] sm:text-[32px] md:text-[36px]",
+    line2: "text-[14px] sm:text-[16px] md:text-[18px]",
+    mark: "w-14 h-14 sm:w-16 sm:h-16",
+    gap: "gap-3 sm:gap-4",
+  },
   sm: {
     line1: "text-[28px] sm:text-[32px]",
     line2: "text-[14px] sm:text-[16px]",

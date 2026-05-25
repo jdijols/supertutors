@@ -3,7 +3,7 @@ import type { LessonModule } from "@/platform/lesson-sdk";
 export const acutisLesson: LessonModule = {
   slug: "acutis",
   meta: {
-    title: "Carlo's Classical Studies",
+    title: "Acutis Institute — BrainLift",
     tutorName: "Carlo",
     subject: "Classical Studies",
     audience: "All ages",
