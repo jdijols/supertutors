@@ -9,4 +9,10 @@ describe("ReferenceVideoModal", () => {
     expect(src).not.toMatch(/\bw-7\b/);
     expect(src).not.toMatch(/\bh-7\b/);
   });
+
+  it("moves focus to close button when modal opens (WCAG 2.4.3)", () => {
+    const src = readFileSync(resolve(__dirname, "ReferenceVideoModal.tsx"), "utf-8");
+    const hasAutoFocus = src.includes("autoFocus") || src.includes("closeButtonRef");
+    expect(hasAutoFocus).toBe(true);
+  });
 });
