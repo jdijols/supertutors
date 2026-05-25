@@ -89,8 +89,12 @@ export class OnnxSignRecognizer implements SignRecognizer {
   private async load(): Promise<void> {
     try {
       const ort = await import("onnxruntime-web");
-      // Point to the WASM files that were copied to /public
-      ort.env.wasm.wasmPaths = "/";
+      // Load the WASM/MJS runtime from JSDelivr. We cannot use /public —
+      // Vite refuses to serve static files via dynamic ES imports, and
+      // onnxruntime-web's loader does `import('/ort-wasm-...mjs')`.
+      // The CDN avoids Vite's module pipeline entirely.
+      // Version pinned to match package.json onnxruntime-web dependency.
+      ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.26.0/dist/";
       this.session = await ort.InferenceSession.create(MODEL_URL, {
         executionProviders: ["wasm"],
       });

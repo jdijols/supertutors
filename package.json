@@ -20,9 +20,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "generate-voice": "node --env-file=.env.local scripts/generate-voice.ts",
-    "extract-dialogue": "echo 'TODO: implement dialogue extraction from Stately export into dialogue.json'",
-    "setup:ort": "cp node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded* public/",
-    "postinstall": "npm run setup:ort"
+    "extract-dialogue": "echo 'TODO: implement dialogue extraction from Stately export into dialogue.json'"
   },
   "repository": {
     "type": "git",
