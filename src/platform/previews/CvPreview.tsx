@@ -135,6 +135,7 @@ function CvPreviewInner() {
 
   useEffect(() => {
     if (!result?.landmarks) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPinchStates([]);
       return;
     }
@@ -149,7 +150,7 @@ function CvPreviewInner() {
   const anyPinching = pinchStates.some((s) => s?.isPinching);
 
   return (
-    <div className="min-h-screen bg-sb-surface flex flex-col items-center justify-center gap-4 p-6">
+    <div className="min-h-[100dvh] bg-sb-surface flex flex-col items-center justify-center gap-4 p-6">
       <h1 className="text-sb-ink text-2xl font-bold">CV Preview — Hand Tracking</h1>
 
       <div className="relative w-full max-w-2xl aspect-video bg-black rounded-xl overflow-hidden shadow-xl">
