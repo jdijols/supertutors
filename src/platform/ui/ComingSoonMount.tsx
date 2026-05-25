@@ -29,7 +29,7 @@ export function ComingSoonMount({ tutorName, subject, tagline, onComplete }: Pro
         <button
           type="button"
           onClick={() => onComplete({ outcome: "exit", durationMs: 0 })}
-          className="font-mono text-[12px] uppercase tracking-[0.18em] text-sb-ink px-5 py-2.5 rounded-full border border-sb-border hover:bg-sb-surface transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface"
+          className="font-mono text-[12px] uppercase tracking-[0.18em] text-sb-ink px-5 py-2.5 rounded-full border border-sb-border hover:bg-sb-surface transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface"
         >
           ← Back
         </button>

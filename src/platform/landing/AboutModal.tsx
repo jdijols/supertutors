@@ -137,7 +137,7 @@ export function AboutModal({
                       onNavigate(lesson.slug);
                       onClose();
                     }}
-                    className="font-mono text-[12px] sm:text-[13px] px-3 py-1.5 rounded-full border border-sb-border text-sb-ink bg-sb-surface hover:bg-sb-card transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface"
+                    className="font-mono text-[12px] sm:text-[13px] px-3 py-1.5 rounded-full border border-sb-border text-sb-ink bg-sb-surface hover:bg-sb-card transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface"
                   >
                     {lesson.meta.subject}
                   </button>

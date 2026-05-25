@@ -107,7 +107,7 @@ export function LessonHost() {
           <button
             type="button"
             onClick={() => navigate("/")}
-            className="px-4 py-2 rounded-lg border-2 border-sb-ink bg-sb-paper hover:bg-sb-paper-deep transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface"
+            className="px-4 py-2 rounded-lg border-2 border-sb-ink bg-sb-paper hover:bg-sb-paper-deep transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface"
           >
             Back to home
           </button>
