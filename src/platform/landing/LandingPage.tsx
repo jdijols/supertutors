@@ -8,6 +8,8 @@ import { ASLPosterCard } from "@/lessons/asl/ASLPosterCard";
 import { SignInDialog } from "@/platform/auth/SignInDialog";
 import { useAuth } from "@/platform/auth/useAuth";
 import { useProgress } from "@/platform/progress/useProgress";
+import { MuteToggle } from "@/platform/ui/MuteToggle";
+import { UserMenu } from "@/platform/ui/UserMenu";
 import type { MasteryEntry } from "@/platform/progress/types";
 
 export function LandingPage() {
@@ -26,7 +28,7 @@ export function LandingPage() {
   }, [status, progress]);
 
   const freddyMastery = mastery.length > 0
-    ? { mastered: mastery.filter(m => m.mastered).length, total: mastery.length }
+    ? { mastered: mastery.filter((m) => m.status === "mastered").length, total: mastery.length }
     : undefined;
 
   const handleActivate = useCallback(
@@ -44,10 +46,15 @@ export function LandingPage() {
     <main
       className="h-[100dvh] w-full bg-sb-ink text-sb-paper-soft antialiased flex flex-col px-6 sm:px-8 md:px-12 lg:px-16 py-6 sm:py-8 md:py-10 gap-4 sm:gap-5 md:gap-6 ring-offset-sb-ink"
     >
-      {/* Header row — lockup left, chrome right */}
+      {/* Header row — lockup left, chrome right. Both are inline in the
+          flow so they share the same baseline. App.tsx skips rendering
+          its fixed-positioned chrome on this route. */}
       <header className="flex items-center justify-between gap-4 shrink-0 h-14 sm:h-16">
         <SuperTutorsLockup variant="onDark" size="inline" />
-        {/* Chrome buttons (MuteToggle, UserMenu) are fixed-positioned and float over */}
+        <div className="flex items-center gap-3 sm:gap-4">
+          <UserMenu inline />
+          <MuteToggle inline surface="dark" />
+        </div>
       </header>
 
       {/* Bento grid — fills remaining viewport */}

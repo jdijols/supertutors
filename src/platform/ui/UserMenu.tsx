@@ -9,8 +9,11 @@ import { useAuth } from "@/platform/auth/useAuth";
  * Positioned left of the ExitButton/InfoToggle slot. Follows the
  * same sizing and visual language as MuteToggle / ExitButton.
  * "Active = dark" rule: dropdown-open → inverted.
+ *
+ * `inline` strips the fixed positioning so the parent surface can
+ * compose the chrome into its own header row (LandingPage).
  */
-export function UserMenu() {
+export function UserMenu({ inline = false }: { inline?: boolean }) {
   const { user, status, signOut } = useAuth();
   const location = useLocation();
   const [open, setOpen] = useState(false);
@@ -61,7 +64,14 @@ export function UserMenu() {
   const initial = displayName.charAt(0).toUpperCase();
 
   return (
-    <div ref={ref} className="fixed top-4 right-36 sm:top-6 sm:right-[11rem] z-[60]">
+    <div
+      ref={ref}
+      className={
+        inline
+          ? "relative"
+          : "fixed top-4 right-36 sm:top-6 sm:right-[11rem] z-[60]"
+      }
+    >
       <motion.button
         type="button"
         onClick={() => setOpen((o) => !o)}

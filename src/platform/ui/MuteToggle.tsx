@@ -1,7 +1,16 @@
 import { motion } from "framer-motion";
 import { usePlatformStore } from "@/platform/stores/platformStore";
 
-export function MuteToggle({ surface = "light" }: { surface?: "light" | "dark" }) {
+export function MuteToggle({
+  surface = "light",
+  inline = false,
+}: {
+  surface?: "light" | "dark";
+  /** When true, drop the fixed-position chrome and render inline (the
+   * parent owns layout). Used by surfaces that compose a header row
+   * containing the chrome controls (LandingPage, BrainliftViewer). */
+  inline?: boolean;
+}) {
   const muted = usePlatformStore((s) => s.muted);
   const toggle = usePlatformStore((s) => s.toggleMute);
 
@@ -33,7 +42,7 @@ export function MuteToggle({ surface = "light" }: { surface?: "light" | "dark" }
       data-muted={muted}
       data-cursor-pointing
       className={`
-        fixed top-4 right-4 sm:top-6 sm:right-6 z-[60]
+        ${inline ? "" : "fixed top-4 right-4 sm:top-6 sm:right-6 z-[60]"}
         w-14 h-14 sm:w-16 sm:h-16
         rounded-2xl border-2 border-sb-ink
         shadow-xl shadow-sb-accent-deep/25
