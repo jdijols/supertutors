@@ -1,0 +1,51 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { describe, expect, it } from "vitest";
+
+const read = (name: string) =>
+  readFileSync(resolve(__dirname, name), "utf-8");
+
+describe("Chrome buttons — DESIGN.md §Component Patterns", () => {
+  it("MuteToggle meets 56px minimum touch target", () => {
+    const src = read("MuteToggle.tsx");
+    expect(src).toMatch(/w-14\b/);
+    expect(src).toMatch(/h-14\b/);
+  });
+
+  it("InfoToggle meets 56px minimum touch target", () => {
+    const src = read("InfoToggle.tsx");
+    expect(src).toMatch(/w-14\b/);
+    expect(src).toMatch(/h-14\b/);
+  });
+
+  it("ExitButton meets 56px minimum height", () => {
+    const src = read("ExitButton.tsx");
+    expect(src).toMatch(/h-14\b/);
+  });
+
+  it("MuteToggle uses focus-visible:ring-sb-accent (DESIGN.md §Accessibility)", () => {
+    const src = read("MuteToggle.tsx");
+    expect(src).toMatch(/focus-visible:ring-2/);
+    expect(src).toMatch(/focus-visible:ring-sb-accent\b/);
+  });
+
+  it("InfoToggle uses focus-visible:ring-sb-accent (DESIGN.md §Accessibility)", () => {
+    const src = read("InfoToggle.tsx");
+    expect(src).toMatch(/focus-visible:ring-2/);
+    expect(src).toMatch(/focus-visible:ring-sb-accent\b/);
+  });
+
+  it("ExitButton uses focus-visible:ring-sb-accent (DESIGN.md §Accessibility)", () => {
+    const src = read("ExitButton.tsx");
+    expect(src).toMatch(/focus-visible:ring-2/);
+    expect(src).toMatch(/focus-visible:ring-sb-accent\b/);
+  });
+
+  it("Chrome buttons use shadow-sb-accent-deep/25 not shadow-black (DESIGN.md §Shadow)", () => {
+    for (const file of ["MuteToggle.tsx", "InfoToggle.tsx", "ExitButton.tsx"]) {
+      const src = read(file);
+      expect(src, `${file}: no shadow-black`).not.toMatch(/\bshadow-black\b/);
+      expect(src, `${file}: uses sb-accent-deep shadow`).toMatch(/shadow-sb-accent-deep/);
+    }
+  });
+});
