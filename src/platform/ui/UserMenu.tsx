@@ -38,8 +38,15 @@ export function UserMenu() {
 
   if (status !== "signed-in" || !user) return null;
 
+  const metadataName = user.user_metadata?.display_name as string | undefined;
+  const emailPrefix = user.email?.split("@")[0];
+  // Use explicit display_name verbatim, otherwise capitalize email prefix.
   const displayName =
-    user.user_metadata?.display_name || user.email?.split("@")[0] || "User";
+    metadataName && metadataName.trim()
+      ? metadataName
+      : emailPrefix
+        ? emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1)
+        : "User";
   const initial = displayName.charAt(0).toUpperCase();
 
   return (

@@ -38,10 +38,10 @@ export function LandingPage() {
 
   const comingSoon = lessons.filter((l) => l.slug !== "freddy-fractions");
 
-  const displayName =
-    user?.user_metadata?.display_name ||
-    user?.email?.split("@")[0] ||
-    "learner";
+  const displayName = formatDisplayName(
+    user?.user_metadata?.display_name as string | undefined,
+    user?.email,
+  );
 
   // If signed-out user clicks a lesson card, prompt sign-in first
   const handleActivate = useCallback(
@@ -112,4 +112,19 @@ export function LandingPage() {
       />
     </main>
   );
+}
+
+/**
+ * Derive a friendly display name. If the user provided one explicitly
+ * (auth user_metadata.display_name), use it verbatim. Otherwise derive
+ * from the email prefix and capitalize the first letter — "demo" → "Demo".
+ */
+function formatDisplayName(
+  metadataName: string | undefined,
+  email: string | undefined,
+): string {
+  if (metadataName && metadataName.trim()) return metadataName;
+  const prefix = email?.split("@")[0];
+  if (!prefix) return "learner";
+  return prefix.charAt(0).toUpperCase() + prefix.slice(1);
 }
