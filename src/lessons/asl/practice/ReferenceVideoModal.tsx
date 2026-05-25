@@ -82,7 +82,7 @@ export function ReferenceVideoModal({
               bg-sb-surface hover:bg-sb-paper
               flex items-center justify-center text-sb-ink
               transition-colors duration-200
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface
             "
           >
             <svg

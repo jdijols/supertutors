@@ -98,7 +98,7 @@ export function HintCard({
               bg-sb-surface text-sb-ink
               hover:bg-sb-paper transition-colors duration-200
               border border-sb-border
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface
             "
           >
             Show me the sign
