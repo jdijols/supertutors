@@ -51,7 +51,7 @@ export class ErrorBoundary extends Component<
       return (
         <div
           role="alert"
-          className="min-h-screen w-full grid place-items-center p-6 text-center bg-mozzarella-50"
+          className="min-h-[100dvh] w-full grid place-items-center p-6 text-center bg-sb-surface"
         >
           <div className="max-w-md">
             <div aria-hidden className="text-6xl mb-4">
