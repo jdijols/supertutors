@@ -8,20 +8,33 @@ import { useTutorStore, type FreddyDisplay } from "../store/tutorStore";
 import { LessonTable, type LessonTableHandle, type LessonTableSliceEvent } from "./LessonTable";
 import { AhaAnimation } from "./AhaAnimation";
 import { WinConfetti } from "./WinConfetti";
-import type { TableState } from "./tableState";
+import type { TableState, TablePattern } from "./tableState";
 import type { CvCameraHandle } from "@/platform/lesson-sdk";
 
 /**
- * LessonScripted — Act 2 of the 3-act demo arc: "Share the Pizza".
+ * LessonScripted — Freddy's fraction-equivalence lesson (v2 arc).
  *
- * Mounts after LessonExploration's onComplete fires. Owns its own LessonTable
- * (fresh pizza) and drives a scripted lesson on fraction equivalence (1/2 = 2/4)
- * through a local state machine. Audio maps to existing keys where available;
- * new lesson_intro / lesson_react_halves have generated audio.
+ * Goal: show that 2/4 = 1/2 with the half RIGHT THERE on the table for
+ * comparison, instead of destroying it before the compare moment (v1 bug).
  *
- * Arc:
- *   intro → wait_halves → react_halves → wait_quarters → react_quarters →
- *   compare_prompt → wait_compare → aha_animating → reveal → win → done
+ * Arc (6 main stages + nudges):
+ *   intro          → kid slices whole pizza
+ *   wait_halves    → table reaches 'twoHalves' pattern
+ *   react_halves   → "Two halves. Now cut just ONE of those halves in two."
+ *   wait_mixed     → table reaches 'oneHalfTwoQuarters' (target) or 'fourQuarters' (over-slice)
+ *   react_mixed    → "Push those two quarters together right next to the half."
+ *   react_mixed_alt→ recovery: kid sliced both halves; uses 4 quarters as the pair
+ *   wait_compare   → table proximity finds an equal cluster
+ *   aha_animating  → AhaAnimation playing
+ *   reveal         → "Two-of-four equals one-of-two — equivalent fractions."
+ *   win            → "Beautiful work."
+ *   done           → completion card with Play again
+ *
+ * Architecture: stage transitions are STATE-DRIVEN (read tableState's
+ * derived `pattern`), not EVENT-DRIVEN (no slice-count refs). This kills
+ * the entire class of bugs where slicing ahead of Freddy's audio
+ * silently locks the kid out — the world is the source of truth, and
+ * the lesson catches up the moment it sees a recognized pattern.
  */
 
 export interface LessonScriptedProps {
@@ -31,49 +44,45 @@ export interface LessonScriptedProps {
 }
 
 type Stage =
+  // Active prompts
   | "intro"
   | "wait_halves"
-  | "stuck_halves"
-  | "wrong_eighths_h"
   | "react_halves"
-  | "wait_quarters"
-  | "stuck_quarters"
-  | "wrong_eighths_q"
-  | "react_quarters"
-  | "compare_prompt"
+  | "wait_mixed"
+  | "react_mixed"
+  | "react_mixed_alt"
   | "wait_compare"
-  | "not_equal"
-  | "stuck_compare"
   | "aha_animating"
   | "reveal"
   | "win"
-  | "done";
+  | "done"
+  // Nudges (timer- or off-track-triggered)
+  | "stuck_halves"
+  | "stuck_mixed"
+  | "stuck_compare"
+  | "wrong_eighths";
 
 const KEY_BY_STAGE: Partial<Record<Stage, DialogueKey>> = {
-  intro: "lesson_intro",
-  stuck_halves: "lesson_stuck_halves",
-  wrong_eighths_h: "lesson_wrong_eighths",
-  react_halves: "lesson_react_halves",
-  stuck_quarters: "lesson_stuck_quarters",
-  wrong_eighths_q: "lesson_wrong_eighths",
-  react_quarters: "lesson_react_quarters",
-  compare_prompt: "lesson_compare_prompt",
-  not_equal: "lesson_not_equal",
-  stuck_compare: "lesson_stuck_compare",
-  reveal: "lesson_reveal",
-  win: "lesson_end",
+  intro: "lesson_intro_v2",
+  stuck_halves: "lesson_stuck_halves_v2",
+  react_halves: "lesson_react_halves_v2",
+  stuck_mixed: "lesson_stuck_mixed_v2",
+  react_mixed: "lesson_react_mixed_v2",
+  react_mixed_alt: "lesson_react_mixed_alt_v2",
+  wrong_eighths: "lesson_wrong_eighths_v2",
+  stuck_compare: "lesson_stuck_compare_v2",
+  reveal: "lesson_reveal_v2",
+  win: "lesson_win_v2",
 };
 
 const NEXT_AFTER_DONE: Partial<Record<Stage, Stage>> = {
   intro: "wait_halves",
   stuck_halves: "wait_halves",
-  wrong_eighths_h: "wait_halves",
-  react_halves: "wait_quarters",
-  stuck_quarters: "wait_quarters",
-  wrong_eighths_q: "wait_quarters",
-  react_quarters: "compare_prompt",
-  compare_prompt: "wait_compare",
-  not_equal: "wait_compare",
+  react_halves: "wait_mixed",
+  stuck_mixed: "wait_mixed",
+  react_mixed: "wait_compare",
+  react_mixed_alt: "wait_compare",
+  wrong_eighths: "wait_mixed",
   stuck_compare: "wait_compare",
   reveal: "win",
   win: "done",
@@ -85,15 +94,13 @@ const FREDDY_BY_STAGE: Partial<
   intro: { facing: "student", gesture: "neutral" },
   wait_halves: { facing: "student", gesture: "neutral" },
   stuck_halves: { facing: "student", gesture: "neutral" },
-  wrong_eighths_h: { facing: "student", gesture: "neutral" },
   react_halves: { facing: "student", gesture: "excited" },
-  wait_quarters: { facing: "student", gesture: "neutral" },
-  stuck_quarters: { facing: "student", gesture: "neutral" },
-  wrong_eighths_q: { facing: "student", gesture: "neutral" },
-  react_quarters: { facing: "student", gesture: "excited" },
-  compare_prompt: { facing: "student", gesture: "neutral" },
+  wait_mixed: { facing: "student", gesture: "neutral" },
+  stuck_mixed: { facing: "student", gesture: "neutral" },
+  react_mixed: { facing: "student", gesture: "excited" },
+  react_mixed_alt: { facing: "student", gesture: "excited" },
+  wrong_eighths: { facing: "student", gesture: "neutral" },
   wait_compare: { facing: "student", gesture: "neutral" },
-  not_equal: { facing: "student", gesture: "neutral" },
   stuck_compare: { facing: "student", gesture: "neutral" },
   aha_animating: { facing: "student", gesture: "excited" },
   reveal: { facing: "student", gesture: "excited" },
@@ -102,6 +109,27 @@ const FREDDY_BY_STAGE: Partial<
 };
 
 const STUCK_DELAY_MS = 30_000;
+
+/** Stages where the lesson is waiting for the kid to do something. */
+function isWaitingStage(s: Stage): boolean {
+  return s === "wait_halves" || s === "wait_mixed" || s === "wait_compare";
+}
+
+/**
+ * Audio preconditions — before playing a line, check the world matches
+ * what the line assumes. If the world drifted (kid did something unexpected
+ * during audio), the precondition fails and we route to a fallback stage
+ * instead of speaking a contradictory line.
+ *
+ * The intro line is unconditional. The react_* lines are precondition-gated
+ * because that's where contradictions hurt most.
+ */
+const PRECONDITIONS: Partial<Record<Stage, (p: TablePattern) => boolean>> = {
+  react_halves: (p) =>
+    p === "twoHalves" || p === "oneHalfTwoQuarters" || p === "fourQuarters",
+  react_mixed: (p) => p === "oneHalfTwoQuarters",
+  react_mixed_alt: (p) => p === "fourQuarters",
+};
 
 export function LessonScripted({ name, cv }: LessonScriptedProps) {
   const setFreddy = useTutorStore((s) => s.setFreddy);
@@ -112,36 +140,30 @@ export function LessonScripted({ name, cv }: LessonScriptedProps) {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [ahaActive, setAhaActive] = useState(false);
   const [winActive, setWinActive] = useState(false);
-  // Derived snapshot of the table — fed by LessonTable via callback.
-  // Held but unused this commit; Commit 3 wires it into stage transitions.
+  // Derived snapshot of the table — fed by LessonTable's onTableStateChange.
+  // Single source of truth for stage transitions. See ./tableState.ts.
   const [tableState, setTableState] = useState<TableState | null>(null);
-  void tableState; // intentional — consumed in Commit 3
 
   // Ref to LessonTable so we can reset its internal AHA lock on stage entry.
   const tableRef = useRef<LessonTableHandle>(null);
-  // Count slices regardless of stage so a kid who cuts ahead of Freddy's
-  // audio prompts isn't silently locked out. The pre-emptive-slice
-  // recovery effect below auto-advances the stage when the kid has
-  // already done what the next prompt was about to ask for.
-  //
-  // halfSliceCount = how many "1/2" events fired (1 expected: whole → 2 halves)
-  // quarterSliceCount = how many "1/4" events fired (2 expected: each half → quarters)
-  const halfSliceCount = useRef(0);
-  const quarterSliceCount = useRef(0);
   // Guard: AHA fires only once per lesson run.
   const ahaFiredRef = useRef(false);
+  // Guard: wrong_eighths nudge fires once per lesson (kid can't easily
+  // recover from over-slicing; bouncing them through the nudge repeatedly
+  // would loop forever as the table stays in 'hasEighths').
+  const wrongEighthsFiredRef = useRef(false);
 
-  useFreddyIdle({ enabled: stage === "wait_halves" || stage === "wait_quarters" || stage === "wait_compare" });
+  useFreddyIdle({ enabled: isWaitingStage(stage) });
 
-  // On mount: clear spotlight, warm up audio.
+  // On mount: clear spotlight, warm up all v2 audio.
   useEffect(() => {
     setSpotlight(null);
-    audioEngine.preloadDialogue("lesson_intro");
-    audioEngine.preloadDialogue("lesson_react_halves");
-    audioEngine.preloadDialogue("lesson_react_quarters");
-    audioEngine.preloadDialogue("lesson_compare_prompt");
-    audioEngine.preloadDialogue("lesson_reveal");
-    audioEngine.preloadDialogue("lesson_end");
+    audioEngine.preloadDialogue("lesson_intro_v2");
+    audioEngine.preloadDialogue("lesson_react_halves_v2");
+    audioEngine.preloadDialogue("lesson_react_mixed_v2");
+    audioEngine.preloadDialogue("lesson_react_mixed_alt_v2");
+    audioEngine.preloadDialogue("lesson_reveal_v2");
+    audioEngine.preloadDialogue("lesson_win_v2");
   }, [setSpotlight]);
 
   // Freddy pose per stage.
@@ -155,15 +177,33 @@ export function LessonScripted({ name, cv }: LessonScriptedProps) {
     setFreddy({ speaking: isSpeaking });
   }, [isSpeaking, setFreddy]);
 
-  // Drive bubble from stage.
+  // Drive bubble from stage with audio precondition gating.
+  // If the world drifted away from what this stage's line assumes, we
+  // route to a recovery stage instead of speaking the contradictory line.
   useEffect(() => {
     const key = KEY_BY_STAGE[stage];
     if (!key) {
       setActiveBubble(null);
       return;
     }
+    const precondition = PRECONDITIONS[stage];
+    if (precondition && tableState && !precondition(tableState.pattern)) {
+      // World doesn't match what this line assumes — try to recover by
+      // re-deriving from current pattern.
+      const recovered = recoverStageFromPattern(tableState.pattern);
+      if (recovered && recovered !== stage) {
+        setStage(recovered);
+        return;
+      }
+      // No clean recovery — skip the bubble; the state-driven effect
+      // below will catch up when the world settles.
+      setActiveBubble(null);
+      return;
+    }
     setActiveBubble(key);
-  }, [stage]);
+    // tableState in deps so a precondition that initially failed gets
+    // re-checked after the world settles into a matching pattern.
+  }, [stage, tableState]);
 
   // Audio playback — fires when activeBubble changes.
   useEffect(() => {
@@ -191,7 +231,54 @@ export function LessonScripted({ name, cv }: LessonScriptedProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeBubble, name]);
 
-  // Stuck timer for wait_halves — fires after STUCK_DELAY_MS of inaction.
+  // ─── State-driven transitions (the heart of v2) ──────────────────────
+  // Read tableState's pattern; transition based on world state, not events.
+  // This single effect replaces the v1 event-driven handleSlice branches
+  // AND the v1 pre-emptive-slice recovery effect — both subsumed by
+  // reading the world directly.
+  useEffect(() => {
+    if (!tableState) return;
+
+    // Off-track first: over-sliced into eighths. One-shot to avoid
+    // looping (the table stays in 'hasEighths' until reset).
+    if (
+      tableState.pattern === "hasEighths" &&
+      !wrongEighthsFiredRef.current &&
+      isWaitingStage(stage)
+    ) {
+      wrongEighthsFiredRef.current = true;
+      setStage("wrong_eighths");
+      return;
+    }
+
+    // wait_halves: any pattern at or beyond 2 halves means the kid has
+    // sliced (or sliced way ahead). Advance to react_halves; the next
+    // stage's transition will catch up to whatever the world looks like.
+    if (stage === "wait_halves") {
+      if (
+        tableState.pattern === "twoHalves" ||
+        tableState.pattern === "oneHalfTwoQuarters" ||
+        tableState.pattern === "fourQuarters"
+      ) {
+        setStage("react_halves");
+      }
+      return;
+    }
+
+    // wait_mixed: target is oneHalfTwoQuarters (clean half + 2 quarters).
+    // Recovery is fourQuarters (kid sliced both halves). Each routes to
+    // its matching dialogue branch.
+    if (stage === "wait_mixed") {
+      if (tableState.pattern === "oneHalfTwoQuarters") {
+        setStage("react_mixed");
+      } else if (tableState.pattern === "fourQuarters") {
+        setStage("react_mixed_alt");
+      }
+      return;
+    }
+  }, [tableState, stage]);
+
+  // Stuck timers — fire only when no recognized advancement happens.
   useEffect(() => {
     if (stage !== "wait_halves") return;
     const t = setTimeout(() => {
@@ -200,16 +287,14 @@ export function LessonScripted({ name, cv }: LessonScriptedProps) {
     return () => clearTimeout(t);
   }, [stage]);
 
-  // Stuck timer for wait_quarters.
   useEffect(() => {
-    if (stage !== "wait_quarters") return;
+    if (stage !== "wait_mixed") return;
     const t = setTimeout(() => {
-      setStage((s) => (s === "wait_quarters" ? "stuck_quarters" : s));
+      setStage((s) => (s === "wait_mixed" ? "stuck_mixed" : s));
     }, STUCK_DELAY_MS);
     return () => clearTimeout(t);
   }, [stage]);
 
-  // Stuck timer for wait_compare.
   useEffect(() => {
     if (stage !== "wait_compare") return;
     const t = setTimeout(() => {
@@ -226,57 +311,12 @@ export function LessonScripted({ name, cv }: LessonScriptedProps) {
     }
   }, [stage]);
 
-  const handleSlice = useCallback(
-    (event: LessonTableSliceEvent) => {
-      const { childrenFraction } = event;
-
-      // Always tally — even slices that fire during Freddy's audio (when
-      // stage is intro / react_halves / react_quarters) must count, so
-      // the kid doesn't get locked out by slicing ahead of the prompts.
-      // The pre-emptive-slice recovery effect below acts on these tallies
-      // when the stage finally reaches a wait_* state.
-      if (childrenFraction === "1/2") halfSliceCount.current += 1;
-      if (childrenFraction === "1/4") quarterSliceCount.current += 1;
-
-      if (stage === "wait_halves") {
-        if (childrenFraction === "1/2") {
-          setStage("react_halves");
-        } else if (childrenFraction === "1/8") {
-          // Already cut too small — nudge.
-          setStage("wrong_eighths_h");
-        }
-        // "1/4" isn't reachable from a whole pizza — ignore.
-        return;
-      }
-
-      if (stage === "wait_quarters") {
-        if (childrenFraction === "1/4") {
-          if (quarterSliceCount.current >= 2) {
-            setStage("react_quarters");
-          }
-          // First quarter slice: stay in wait_quarters, reset stuck timer via stage re-enter.
-        } else if (childrenFraction === "1/8") {
-          setStage("wrong_eighths_q");
-        }
-        return;
-      }
-    },
-    [stage],
-  );
-
-  // Pre-emptive slice recovery: if the kid sliced ahead of Freddy's audio
-  // (slicing while intro / react_halves is still playing), catch the
-  // stage machine up the moment it transitions into a wait_* state.
-  // Without this, slices that fired during the wrong stage are silently
-  // swallowed and the lesson stalls with pieces already cut and no
-  // prompt the kid can satisfy.
-  useEffect(() => {
-    if (stage === "wait_halves" && halfSliceCount.current >= 1) {
-      setStage("react_halves");
-    } else if (stage === "wait_quarters" && quarterSliceCount.current >= 2) {
-      setStage("react_quarters");
-    }
-  }, [stage]);
+  // handleSlice is a no-op for stage transitions — those are state-driven.
+  // Kept as a sink for the LessonTable onSlice event in case we want to
+  // add inline reactions (sound effects, particles) later.
+  const handleSlice = useCallback((_event: LessonTableSliceEvent) => {
+    void _event;
+  }, []);
 
   const handleAha = useCallback(() => {
     if (stage !== "wait_compare") return;
@@ -295,19 +335,15 @@ export function LessonScripted({ name, cv }: LessonScriptedProps) {
   }
 
   // WinConfetti starts when stage becomes "win" and the win line plays.
-  // We fire WinConfetti during the win dialogue so the celebration overlays the voice.
   useEffect(() => {
     if (stage === "win") {
       setWinActive(true);
-    }
-    if (stage === "done") {
-      // confetti already auto-dismissed via onDone
     }
   }, [stage]);
 
   // Clear stage-specific spotlight when entering compare beat.
   useEffect(() => {
-    if (stage === "compare_prompt" || stage === "wait_compare") {
+    if (stage === "wait_compare") {
       setSpotlight(null);
     }
   }, [stage, setSpotlight]);
@@ -360,13 +396,13 @@ export function LessonScripted({ name, cv }: LessonScriptedProps) {
               Lesson complete!
             </div>
             <div className="text-base text-sb-ink/70 mb-5">
-              1/2 = 2/4 🍕
+              2/4 = 1/2 🍕
             </div>
             <motion.button
               type="button"
               data-testid="lesson-play-again"
               onClick={() => {
-                const target = `/lesson?lesson=scripted${name ? `&name=${encodeURIComponent(name)}` : ""}`;
+                const target = `/lessons/freddy-fractions?lesson=scripted${name ? `&name=${encodeURIComponent(name)}` : ""}`;
                 window.location.href = target;
               }}
               whileHover={{ scale: 1.04 }}
@@ -381,4 +417,16 @@ export function LessonScripted({ name, cv }: LessonScriptedProps) {
       )}
     </>
   );
+}
+
+/**
+ * Recovery routing for failed audio preconditions. If we tried to play a
+ * line that doesn't match the world, pick a stage whose precondition
+ * matches the current pattern.
+ */
+function recoverStageFromPattern(pattern: TablePattern): Stage | null {
+  if (pattern === "twoHalves") return "react_halves";
+  if (pattern === "oneHalfTwoQuarters") return "react_mixed";
+  if (pattern === "fourQuarters") return "react_mixed_alt";
+  return null;
 }
