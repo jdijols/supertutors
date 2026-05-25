@@ -32,3 +32,6 @@ export {
 export type { ProximityGroup, ProximityPiece } from "./proximity";
 
 export { Table } from "./Table";
+
+export { GuestBox } from "./GuestBox";
+export type { GuestBoxHandle, GuestBoxProps, PieceRect } from "./GuestBox";
