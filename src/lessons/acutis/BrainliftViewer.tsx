@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -9,12 +9,32 @@ interface BrainliftViewerProps {
   title: string;
 }
 
+/**
+ * Brief "success" pulse for fire-and-forget actions like Copy and Download.
+ * Returns [active, trigger]. Active stays true for `duration` ms after
+ * trigger is called, then auto-resets. Cleans up on unmount.
+ */
+function useTransientPulse(duration = 2000): [boolean, () => void] {
+  const [active, setActive] = useState(false);
+  useEffect(() => {
+    if (!active) return;
+    const t = setTimeout(() => setActive(false), duration);
+    return () => clearTimeout(t);
+  }, [active, duration]);
+  return [active, () => setActive(true)];
+}
+
 export function BrainliftViewer({ markdown, title }: BrainliftViewerProps) {
   const navigate = useNavigate();
   const [mode, setMode] = useState<"rendered" | "raw">("rendered");
+  const [copied, flashCopied] = useTransientPulse();
+  const [downloaded, flashDownloaded] = useTransientPulse();
 
   function handleCopy() {
-    navigator.clipboard.writeText(markdown).catch(() => {});
+    navigator.clipboard
+      .writeText(markdown)
+      .then(() => flashCopied())
+      .catch(() => {});
   }
 
   function handleDownload() {
@@ -26,15 +46,25 @@ export function BrainliftViewer({ markdown, title }: BrainliftViewerProps) {
     a.download = "acutis-institute-brainlift.md";
     a.click();
     URL.revokeObjectURL(url);
+    flashDownloaded();
   }
 
-  // Shared button class — used by Back, Copy, Download. 44×44 honors
-  // iOS HIG tap target minimum without imposing the lesson chrome's
-  // brutalist border/shadow weight on a document reader audience.
-  const iconButtonClass = [
-    "w-11 h-11 rounded-xl border border-white/15 bg-white/5",
-    "flex items-center justify-center",
+  // Shared idle styling — used by Back at all times, and Copy/Download
+  // when not in success state. 44×44 honors iOS HIG tap target minimum
+  // without imposing lesson chrome's brutalist border/shadow weight.
+  const iconButtonIdle = [
+    "border border-white/15 bg-white/5",
     "text-sb-paper/70 hover:text-sb-paper hover:bg-white/[0.08]",
+  ].join(" ");
+
+  // Shared success styling — inverts to paper-on-ink, matching the
+  // system-wide "active state on dark surface = bg-sb-paper text-sb-ink"
+  // rule from DESIGN.md. Visible from across the room.
+  const iconButtonSuccess = "border border-sb-paper bg-sb-paper text-sb-ink";
+
+  const iconButtonBase = [
+    "w-11 h-11 rounded-xl",
+    "flex items-center justify-center",
     "transition-colors duration-200",
     "focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-ink",
   ].join(" ");
@@ -53,7 +83,7 @@ export function BrainliftViewer({ markdown, title }: BrainliftViewerProps) {
             onClick={() => navigate("/")}
             aria-label="Back to SuperTutors home"
             data-cursor-pointing
-            className={iconButtonClass}
+            className={`${iconButtonBase} ${iconButtonIdle}`}
           >
             <BackArrowIcon />
           </button>
@@ -99,23 +129,32 @@ export function BrainliftViewer({ markdown, title }: BrainliftViewerProps) {
 
           <button
             onClick={handleCopy}
-            aria-label="Copy markdown to clipboard"
+            aria-label={copied ? "Copied to clipboard" : "Copy markdown to clipboard"}
             data-cursor-pointing
-            className={iconButtonClass}
+            data-state={copied ? "success" : "idle"}
+            className={`${iconButtonBase} ${copied ? iconButtonSuccess : iconButtonIdle}`}
           >
-            <CopyIcon />
+            {copied ? <CheckIcon /> : <CopyIcon />}
           </button>
 
           <button
             onClick={handleDownload}
-            aria-label="Download markdown file"
+            aria-label={downloaded ? "Downloaded markdown file" : "Download markdown file"}
             data-cursor-pointing
-            className={iconButtonClass}
+            data-state={downloaded ? "success" : "idle"}
+            className={`${iconButtonBase} ${downloaded ? iconButtonSuccess : iconButtonIdle}`}
           >
-            <DownloadIcon />
+            {downloaded ? <CheckIcon /> : <DownloadIcon />}
           </button>
         </div>
       </header>
+
+      {/* Visually hidden live region — screen readers announce action
+          completion without disrupting sighted users. */}
+      <div role="status" aria-live="polite" className="sr-only">
+        {copied && "Markdown copied to clipboard."}
+        {downloaded && "Markdown file downloaded."}
+      </div>
 
       {/* Body */}
       <main className="flex-1 overflow-y-auto py-12 px-6 sm:px-8">
@@ -191,6 +230,26 @@ function DownloadIcon() {
       <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
       <polyline points="7 10 12 15 17 10" />
       <line x1="12" y1="15" x2="12" y2="3" />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  // Slightly heavier stroke on the success state — reads as "done" from
+  // across the room and reinforces the inverted bg's confidence signal.
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polyline points="20 6 9 17 4 12" />
     </svg>
   );
 }

@@ -47,4 +47,32 @@ describe("BrainliftViewer — structure", () => {
   it("uses focus-visible:ring-sb-accent for focus rings (DESIGN.md §Accessibility)", () => {
     expect(src()).toMatch(/focus-visible:ring-sb-accent/);
   });
+
+  it("provides transient success feedback for copy + download", () => {
+    // The useTransientPulse hook drives the brief "done" state after
+    // fire-and-forget actions. Silent success was the bug we're fixing.
+    expect(src()).toMatch(/useTransientPulse/);
+    expect(src()).toMatch(/flashCopied/);
+    expect(src()).toMatch(/flashDownloaded/);
+  });
+
+  it("success state uses the inverted surface treatment (bg-sb-paper text-sb-ink)", () => {
+    // Matches the DESIGN.md "active = max contrast with page surface"
+    // rule for the dark/ink surface family.
+    expect(src()).toMatch(/iconButtonSuccess/);
+    expect(src()).toMatch(/bg-sb-paper text-sb-ink/);
+  });
+
+  it("renders a checkmark icon when an action succeeds", () => {
+    expect(src()).toMatch(/function CheckIcon/);
+    expect(src()).toMatch(/copied \? <CheckIcon \/> : <CopyIcon \/>/);
+    expect(src()).toMatch(/downloaded \? <CheckIcon \/> : <DownloadIcon \/>/);
+  });
+
+  it("announces success to assistive tech via aria-live polite region", () => {
+    expect(src()).toMatch(/aria-live="polite"/);
+    expect(src()).toMatch(/sr-only/);
+    expect(src()).toMatch(/Markdown copied to clipboard/);
+    expect(src()).toMatch(/Markdown file downloaded/);
+  });
 });
