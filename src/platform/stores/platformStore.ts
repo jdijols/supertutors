@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { Session, User } from "@supabase/supabase-js";
 
 const MUTED_STORAGE_KEY = "supertutors:muted";
 
@@ -20,6 +21,8 @@ function writePersistedMuted(muted: boolean): void {
   }
 }
 
+export type AuthStatus = "loading" | "signed-in" | "signed-out";
+
 interface PlatformState {
   name: string | null;
   setName: (name: string) => void;
@@ -30,6 +33,12 @@ interface PlatformState {
 
   currentLessonSlug: string | null;
   setCurrentLessonSlug: (slug: string | null) => void;
+
+  // Auth slice — driven by Supabase onAuthStateChange via AuthMount
+  authStatus: AuthStatus;
+  session: Session | null;
+  user: User | null;
+  setSession: (session: Session | null) => void;
 }
 
 // CV / camera state is NOT in platformStore — it's per-lesson and lives
@@ -56,4 +65,14 @@ export const usePlatformStore = create<PlatformState>((set) => ({
 
   currentLessonSlug: null,
   setCurrentLessonSlug: (currentLessonSlug) => set({ currentLessonSlug }),
+
+  authStatus: "loading" as AuthStatus,
+  session: null,
+  user: null,
+  setSession: (session) =>
+    set({
+      session,
+      user: session?.user ?? null,
+      authStatus: session ? "signed-in" : "signed-out",
+    }),
 }));
