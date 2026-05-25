@@ -64,3 +64,7 @@ supabase/.branches/
 # ORT WASM runtime files (large binaries, copied by `npm run setup:ort`)
 public/ort-wasm*.wasm
 public/ort-wasm*.mjs
+
+# ASL training pipeline — kept local, never committed
+ASL-ComputerVision/training/
+**/__pycache__/
