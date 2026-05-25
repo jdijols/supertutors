@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { LessonModule } from "@/platform/lesson-sdk";
 
 /**
@@ -25,9 +25,11 @@ export function AboutModal({
   // headless preview environments where requestAnimationFrame stalls.
   const [mounted, setMounted] = useState(open);
   const [visible, setVisible] = useState(false);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMounted(true);
       // Microtask-after-mount flip flips `visible` so the enter
       // transition runs. setTimeout (vs rAF) keeps working when the
@@ -39,6 +41,11 @@ export function AboutModal({
     const t = setTimeout(() => setMounted(false), 200);
     return () => clearTimeout(t);
   }, [open]);
+
+  // Move focus to close button when modal becomes visible (WCAG 2.4.3)
+  useEffect(() => {
+    if (visible) closeButtonRef.current?.focus();
+  }, [visible]);
 
   useEffect(() => {
     if (!open) return;
@@ -83,6 +90,7 @@ export function AboutModal({
         `}
       >
         <button
+          ref={closeButtonRef}
           type="button"
           onClick={onClose}
           aria-label="Close about"
