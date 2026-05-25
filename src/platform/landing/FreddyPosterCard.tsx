@@ -44,7 +44,7 @@ export function FreddyPosterCard({
         }}
       />
 
-      <div className="relative h-full min-h-[420px] md:min-h-[520px]">
+      <div className="relative h-full min-h-[280px] md:min-h-[340px]">
         <div className="absolute top-7 sm:top-9 md:top-10 left-7 sm:left-10 md:left-12 right-7 sm:right-10 md:right-12 flex items-center justify-between">
           <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-sb-accent-deep">
             Lesson 01
@@ -56,12 +56,12 @@ export function FreddyPosterCard({
 
         <div
           aria-hidden
-          className="absolute right-[2%] sm:right-[4%] bottom-[58px] sm:bottom-[64px] md:bottom-[72px] w-[55%] h-[40%] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(26,26,26,0.10)_0%,rgba(26,26,26,0)_70%)]"
+          className="absolute right-[2%] sm:right-[4%] bottom-[80px] sm:bottom-[88px] md:bottom-[96px] w-[50%] h-[35%] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(26,26,26,0.10)_0%,rgba(26,26,26,0)_70%)]"
         />
         <img
           src="/lessons/freddy-fractions/images/characters/freddy/facing-student-excited-open.png"
           alt="Freddy Fractions"
-          className="absolute right-[-2%] sm:right-0 md:right-[2%] bottom-[56px] sm:bottom-[64px] md:bottom-[72px] h-[80%] max-h-[560px] w-auto max-w-[55%] sm:max-w-[58%] md:max-w-[58%] lg:max-w-[65%] object-contain object-bottom drop-shadow-[0_24px_36px_rgba(26,26,26,0.25)] transition-transform duration-500 ease-out group-hover:translate-y-[-4px]"
+          className="absolute right-[-2%] sm:right-0 md:right-[2%] bottom-[78px] sm:bottom-[88px] md:bottom-[96px] h-[72%] max-h-[440px] w-auto max-w-[50%] sm:max-w-[52%] md:max-w-[52%] lg:max-w-[55%] object-contain object-bottom drop-shadow-[0_24px_36px_rgba(26,26,26,0.25)] transition-transform duration-500 ease-out group-hover:translate-y-[-4px]"
         />
 
         <div className="absolute left-7 sm:left-10 md:left-12 top-1/2 -translate-y-1/2 max-w-[44%] sm:max-w-[44%] md:max-w-[42%] lg:max-w-[58%]">
