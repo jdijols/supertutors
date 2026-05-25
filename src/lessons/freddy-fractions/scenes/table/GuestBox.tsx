@@ -1,4 +1,12 @@
-import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
+import { motion } from "framer-motion";
 import type { SandboxPiece } from "./useSandboxPieces";
 
 /**
@@ -64,6 +72,39 @@ export const GuestBox = forwardRef<GuestBoxHandle, GuestBoxProps>(
   ) {
     const boxRef = useRef<HTMLDivElement>(null);
 
+    // Pointer tracking: true while the kid drags a piece over the box.
+    // Drives the mozzarella-cream glow filter (matches DeliveryBox).
+    // Uses a global pointermove listener because PizzaPiece's
+    // touch-action:none would otherwise block direct hover events.
+    const [isDragOver, setIsDragOver] = useState(false);
+    useEffect(() => {
+      function onMove(e: PointerEvent) {
+        if (e.buttons === 0) {
+          setIsDragOver(false);
+          return;
+        }
+        const rect = boxRef.current?.getBoundingClientRect();
+        if (!rect) return;
+        const isInside =
+          e.clientX >= rect.left &&
+          e.clientX <= rect.right &&
+          e.clientY >= rect.top &&
+          e.clientY <= rect.bottom;
+        setIsDragOver(isInside);
+      }
+      function onUp() {
+        setIsDragOver(false);
+      }
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
+      window.addEventListener("pointercancel", onUp);
+      return () => {
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
+        window.removeEventListener("pointercancel", onUp);
+      };
+    }, []);
+
     const contains = useCallback((px: number, py: number): boolean => {
       const rect = boxRef.current?.getBoundingClientRect();
       if (!rect) return false;
@@ -108,18 +149,29 @@ export const GuestBox = forwardRef<GuestBoxHandle, GuestBoxProps>(
         ref={boxRef}
         data-testid="guest-box"
         data-guest-id={guestId}
+        data-drag-over={isDragOver}
         className="absolute select-none"
         style={{ left: x, top: y, width: size, height: size }}
         role="region"
         aria-label={`${label}'s pizza box`}
       >
-        <img
-          src="/lessons/freddy-fractions/images/ui/delivery-box-opened.png"
-          alt=""
-          aria-hidden
-          className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
-          draggable={false}
-        />
+        <motion.div
+          className="absolute inset-0"
+          animate={{
+            filter: isDragOver
+              ? "drop-shadow(0 0 24px rgba(255, 251, 242, 0.95))"
+              : "drop-shadow(0 0 0px rgba(255, 251, 242, 0))",
+          }}
+          transition={{ filter: { duration: 0.18 } }}
+        >
+          <img
+            src="/lessons/freddy-fractions/images/ui/delivery-box-opened.png"
+            alt=""
+            aria-hidden
+            className="w-full h-full object-contain pointer-events-none select-none"
+            draggable={false}
+          />
+        </motion.div>
         {/* Contents stacked inside the lid — small grid for countability. */}
         <div
           data-testid="guest-box-contents"

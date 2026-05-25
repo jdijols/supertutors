@@ -9,6 +9,7 @@ import {
   type PizzaFraction,
   type SandboxPiece,
 } from "../../scenes/table";
+import { SliceBurst } from "../../scenes/table/SliceBurst";
 import { derivePerGuestTableState } from "../tableState";
 import { CvToggle, SpeechBubble, ToolPicker } from "../../scenes/world";
 import { MCQ, type MCQOption } from "./MCQ";
@@ -603,6 +604,9 @@ export function LessonV3({ name, cv }: LessonV3Props) {
   const [stage, setStage] = useState<V3Stage>("beat_1_distribute_4");
   const [hint, setHint] = useState<string | undefined>(undefined);
   const [fractionRetryCount, setFractionRetryCount] = useState(0);
+  // Slice particle bursts — visual flourish when the kid taps to cut.
+  const [bursts, setBursts] = useState<Array<{ id: number; x: number; y: number }>>([]);
+  const burstIdRef = useRef(0);
 
   const config = STAGES[stage];
   const guestLayout: GuestLayoutKey = config.guestLayout ?? "two";
@@ -721,9 +725,35 @@ export function LessonV3({ name, cv }: LessonV3Props) {
 
   const handlePieceTap = useCallback(
     (id: string) => {
-      slice(id);
+      const piece = pieces.find((p) => p.id === id);
+      const result = slice(id);
+      if (result && piece) {
+        // Trigger a particle burst at the piece's center as visual
+        // feedback for the cut. Burst removes itself via onDone.
+        const cx = piece.x + piece.width / 2;
+        const cy = piece.y + piece.height / 2;
+        setBursts((prev) => [
+          ...prev,
+          { id: ++burstIdRef.current, x: cx, y: cy },
+        ]);
+      }
     },
-    [slice],
+    [pieces, slice],
+  );
+
+  // dropZoneTest — passed to every PizzaPiece so the dragged piece
+  // shrinks (PizzaPiece does the visual itself) when over a GuestBox.
+  // The corresponding box-side glow lives inside GuestBox via its own
+  // pointer-tracking effect.
+  const dropZoneTest = useCallback(
+    (x: number, y: number) => {
+      for (const guest of guestsToRender) {
+        if (boxRefMap[guest.id].current?.contains(x, y)) return true;
+      }
+      return false;
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [guestsToRender],
   );
 
   const handleMCAnswer = useCallback(
@@ -793,6 +823,7 @@ export function LessonV3({ name, cv }: LessonV3Props) {
       className="absolute inset-0 z-[25]"
       data-testid="lesson-v3"
       data-stage={stage}
+      data-cursor-pointing
     >
       {/* Guest boxes — rendered FIRST so free pizzas paint above them
           when a kid drags a pizza over a box (DOM order = paint order
@@ -816,7 +847,8 @@ export function LessonV3({ name, cv }: LessonV3Props) {
 
       {/* Free pizzas — draggable + tappable. Rendered AFTER boxes so a
           dragged pizza always appears on top of any box it's hovering
-          over (no flicker on drop). */}
+          over (no flicker on drop). dropZoneTest triggers PizzaPiece's
+          built-in shrink-to-50% when over a GuestBox. */}
       {freePieces.map((piece) => (
         <PizzaPiece
           key={piece.id}
@@ -829,6 +861,17 @@ export function LessonV3({ name, cv }: LessonV3Props) {
           height={piece.height}
           onDragEnd={handleDragEnd}
           onTap={handlePieceTap}
+          dropZoneTest={dropZoneTest}
+        />
+      ))}
+
+      {/* Slice particle bursts — each removes itself via onDone. */}
+      {bursts.map((b) => (
+        <SliceBurst
+          key={b.id}
+          x={b.x}
+          y={b.y}
+          onDone={() => setBursts((prev) => prev.filter((p) => p.id !== b.id))}
         />
       ))}
 
