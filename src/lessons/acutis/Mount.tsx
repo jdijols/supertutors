@@ -1,13 +1,13 @@
-import { ComingSoonMount } from "@/platform/ui/ComingSoonMount";
-import type { LessonMountProps } from "@/platform/lesson-sdk";
+import brainliftMd from "../../../Acutis-Institute/Acutis-Institute_Brainlift.md?raw";
+import { BrainliftViewer } from "./BrainliftViewer";
 
-export function AcutisMount(props: LessonMountProps) {
+export function AcutisMount() {
   return (
-    <ComingSoonMount
-      {...props}
-      tutorName="Carlo"
-      subject="Classical Studies"
-      tagline="Virtue, great books, and the classical tradition — guided by your AI tutor Carlo."
+    <BrainliftViewer
+      markdown={brainliftMd}
+      title="Acutis Institute — BrainLift"
     />
   );
 }
+
+export default AcutisMount;
