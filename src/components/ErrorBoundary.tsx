@@ -57,17 +57,17 @@ export class ErrorBoundary extends Component<
             <div aria-hidden className="text-6xl mb-4">
               🍕💥
             </div>
-            <h1 className="font-display text-3xl text-terracotta-600 mb-2">
+            <h1 className="font-mono font-bold text-2xl text-sb-ink mb-2">
               Oops! Let&apos;s restart.
             </h1>
-            <p className="text-terracotta-600 mb-6">
+            <p className="font-sans text-sb-muted mb-6">
               Something hiccuped on our end. Freddy&apos;s gonna take a quick
               break.
             </p>
             <button
               type="button"
               onClick={this.reset}
-              className="py-3 px-6 rounded-2xl bg-tomato-500 text-white font-display text-lg shadow-lg shadow-tomato-500/30 focus:outline-none focus-visible:ring-4 focus-visible:ring-tomato-400/40"
+              className="py-3 px-6 rounded-2xl bg-sb-ink text-white font-mono text-sm uppercase tracking-[0.12em] shadow-lg shadow-sb-accent-deep/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface"
             >
               Start over
             </button>

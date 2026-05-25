@@ -11,4 +11,20 @@ describe("ErrorBoundary", () => {
     expect(src).not.toMatch(/\bh-screen\b/);
     expect(src).not.toMatch(/\bmin-h-screen\b/);
   });
+
+  it("does not use banned tomato-* tokens (DESIGN.md §Color — tomato is deprecated)", () => {
+    const src = readFileSync(resolve(__dirname, "ErrorBoundary.tsx"), "utf-8");
+    expect(src).not.toMatch(/\btomato-/);
+  });
+
+  it("does not use deprecated font-display class (DESIGN.md §Typography)", () => {
+    const src = readFileSync(resolve(__dirname, "ErrorBoundary.tsx"), "utf-8");
+    expect(src).not.toMatch(/\bfont-display\b/);
+  });
+
+  it("CTA button uses focus-visible:ring-2 ring-sb-accent (DESIGN.md §Accessibility)", () => {
+    const src = readFileSync(resolve(__dirname, "ErrorBoundary.tsx"), "utf-8");
+    expect(src).toMatch(/focus-visible:ring-2/);
+    expect(src).toMatch(/focus-visible:ring-sb-accent\b/);
+  });
 });
