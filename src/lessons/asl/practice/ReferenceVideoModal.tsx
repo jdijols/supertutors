@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /**
  * ReferenceVideoModal — CSS-transition modal with autoplay-loop video.
@@ -20,9 +20,11 @@ export function ReferenceVideoModal({
 }) {
   const [mounted, setMounted] = useState(open);
   const [visible, setVisible] = useState(false);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMounted(true);
       const id = setTimeout(() => setVisible(true), 0);
       return () => clearTimeout(id);
@@ -31,6 +33,11 @@ export function ReferenceVideoModal({
     const t = setTimeout(() => setMounted(false), 200);
     return () => clearTimeout(t);
   }, [open]);
+
+  // Move focus to close button when modal becomes visible (WCAG 2.4.3)
+  useEffect(() => {
+    if (visible) closeButtonRef.current?.focus();
+  }, [visible]);
 
   useEffect(() => {
     if (!open) return;
@@ -74,6 +81,7 @@ export function ReferenceVideoModal({
             {signName}
           </span>
           <button
+            ref={closeButtonRef}
             type="button"
             onClick={onClose}
             aria-label="Close"
