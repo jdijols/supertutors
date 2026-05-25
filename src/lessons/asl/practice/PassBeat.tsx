@@ -19,7 +19,7 @@ export function PassBeat({ active }: { active: boolean }) {
           className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none"
         >
           {/* Green wash */}
-          <div className="absolute inset-0 bg-green-500/30" />
+          <div className="absolute inset-0 bg-basil-400/30" />
 
           {/* Checkmark with spring */}
           <motion.div
@@ -31,7 +31,7 @@ export function PassBeat({ active }: { active: boolean }) {
               stiffness: 380,
               damping: 18,
             }}
-            className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-green-500 flex items-center justify-center shadow-2xl shadow-green-500/50"
+            className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-basil-400 flex items-center justify-center shadow-2xl shadow-basil-400/50"
           >
             <svg
               aria-hidden
