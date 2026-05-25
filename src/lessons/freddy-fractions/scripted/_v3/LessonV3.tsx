@@ -69,6 +69,15 @@ type V3Stage =
   | "beat_25_slice_again"
   | "beat_27_distribute_quarters"
   | "beat_28_each_got_extra"
+  // Scene 5 — name + write the quarter
+  | "beat_29_mc_quarter_name"
+  | "beat_30_bingo_quarter"
+  | "beat_31_mc_count_quarters"
+  | "beat_32_four_quarters_whole"
+  | "beat_33_type_one_fourth"
+  | "beat_34_nailed_it"
+  | "beat_35_quarter_notation"
+  | "beat_36_mc_continue_yn"
   // End of currently-built content
   | "complete";
 
@@ -374,7 +383,100 @@ const STAGES: Record<V3Stage, V3StageConfig> = {
     maxFraction: "1/4",
     guestLayout: "four",
     autoAdvance: 2500,
-    // Scene 5 (name + write the quarter) lands in the next commit
+    next: "beat_29_mc_quarter_name",
+  },
+  // ─── Scene 5 — Name + write the quarter ──────────────────────────────
+  beat_29_mc_quarter_name: {
+    speech: () =>
+      "This time the extra part is half of a half. Do you know what that's called?",
+    maxFraction: "1/4",
+    guestLayout: "four",
+    mc: {
+      options: [
+        { value: "quarter", label: "Quarter" },
+        { value: "third", label: "Third" },
+        { value: "fourth", label: "Fourth" },
+      ],
+      correctValue: "quarter",
+      mode: "re-prompt-until-correct",
+      hintOnWrong: "Close! Think about it — half OF a half. Try again.",
+    },
+    next: "beat_30_bingo_quarter",
+  },
+  beat_30_bingo_quarter: {
+    speech: () => "Bingo. It's a quarter pizza.",
+    maxFraction: "1/4",
+    guestLayout: "four",
+    autoAdvance: 2000,
+    next: "beat_31_mc_count_quarters",
+  },
+  beat_31_mc_count_quarters: {
+    speech: () => "How many quarter pizzas are there in a full pizza?",
+    maxFraction: "1/4",
+    guestLayout: "four",
+    mc: {
+      options: [
+        { value: "1", label: "1" },
+        { value: "2", label: "2" },
+        { value: "3", label: "3" },
+        { value: "4", label: "4" },
+        { value: "5", label: "5" },
+        { value: "6", label: "6" },
+      ],
+      correctValue: "4",
+      mode: "re-prompt-until-correct",
+      hintOnWrong: "Try counting — a quarter is one of four equal pieces!",
+    },
+    next: "beat_32_four_quarters_whole",
+  },
+  beat_32_four_quarters_whole: {
+    speech: () => "Right. 4 quarters make one whole.",
+    maxFraction: "1/4",
+    guestLayout: "four",
+    autoAdvance: 2500,
+    next: "beat_33_type_one_fourth",
+  },
+  beat_33_type_one_fourth: {
+    speech: () =>
+      "So if a quarter is 1 out of 4 pieces — guess how we write the fraction for a quarter?",
+    maxFraction: "1/4",
+    guestLayout: "four",
+    fractionInput: {
+      expected: { numerator: 1, denominator: 4 },
+      hintOnWrong:
+        "Try again — one slice out of four. Top number, then bottom number.",
+    },
+    next: "beat_34_nailed_it",
+  },
+  beat_34_nailed_it: {
+    speech: () => "Nailed it.",
+    maxFraction: "1/4",
+    guestLayout: "four",
+    autoAdvance: 1500,
+    next: "beat_35_quarter_notation",
+  },
+  beat_35_quarter_notation: {
+    speech: () =>
+      "Since a quarter is 1 out of 4 pieces, the fraction for a quarter is ¼.",
+    maxFraction: "1/4",
+    guestLayout: "four",
+    numeralOverlay: { numerator: 1, denominator: 4 },
+    showContinue: true,
+    next: "beat_36_mc_continue_yn",
+  },
+  beat_36_mc_continue_yn: {
+    speech: () => "Want to continue learning about fractions?",
+    maxFraction: "1/4",
+    guestLayout: "four",
+    numeralOverlay: { numerator: 1, denominator: 4 },
+    mc: {
+      options: [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" },
+      ],
+      mode: "any-advances",
+    },
+    // Both Yes/No end the lesson for V3 MVP
     next: "complete",
   },
   complete: {
