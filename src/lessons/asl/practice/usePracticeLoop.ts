@@ -143,6 +143,7 @@ export function usePracticeLoop(opts: UsePracticeLoopOpts = {}) {
 
   return useMemo(
     () => ({
+      // eslint-disable-next-line react-hooks/refs -- intentional: recognizer is a stable ref set once on mount
       recognizer: recognizerRef.current,
       currentSign: trainedSigns[currentSignIdx],
     }),
