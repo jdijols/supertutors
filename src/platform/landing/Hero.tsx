@@ -44,7 +44,7 @@ export function Hero({
               bg-sb-ink text-white
               hover:bg-sb-ink/90
               transition-colors duration-200
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface
             "
           >
             Continue practicing <span aria-hidden>→</span>
@@ -73,7 +73,7 @@ export function Hero({
           bg-sb-ink text-white
           hover:bg-sb-ink/90
           transition-colors duration-200
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent
+          focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface
         "
       >
         Sign in <span aria-hidden>→</span>
