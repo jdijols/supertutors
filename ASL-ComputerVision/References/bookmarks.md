@@ -13,3 +13,7 @@
 ## Articles
 
 - [North Texas Teens Build AI Tool to Translate Sign Language in Real Time (NBC DFW)](https://www.nbcdfw.com/news/local/north-texas-teens-build-ai-tool-translate-sign-language-real-time/4024875/)
+
+## Platforms
+
+- [Signs AI](https://signs-ai.com/)
