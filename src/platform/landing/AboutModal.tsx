@@ -72,9 +72,8 @@ export function AboutModal({
       aria-modal="true"
       aria-labelledby="about-modal-heading"
     >
-      <button
-        type="button"
-        aria-label="Close about"
+      <div
+        aria-hidden="true"
         onClick={onClose}
         className="absolute inset-0 bg-sb-ink/60 backdrop-blur-sm cursor-pointer"
       />

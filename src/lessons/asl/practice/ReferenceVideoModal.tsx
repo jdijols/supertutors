@@ -59,9 +59,8 @@ export function ReferenceVideoModal({
       aria-modal="true"
       aria-label={`Reference video for ${signName}`}
     >
-      <button
-        type="button"
-        aria-label="Close video"
+      <div
+        aria-hidden="true"
         onClick={onClose}
         className="absolute inset-0 bg-sb-ink/70 backdrop-blur-sm cursor-pointer"
       />

@@ -17,4 +17,13 @@ describe("AboutModal", () => {
     // with a visible focus indicator.
     expect(src).toMatch(/focus-visible:ring-2.*focus-visible:ring-sb-accent|focus-visible:ring-sb-accent.*focus-visible:ring-2/);
   });
+
+  it("backdrop is aria-hidden so screen readers don't encounter duplicate close (WCAG §Keyboard)", () => {
+    const src = readFileSync(resolve(__dirname, "AboutModal.tsx"), "utf-8");
+    // The backdrop must use aria-hidden="true" and not be a focusable <button>.
+    // Keyboard dismiss is handled by Escape key + visible close button.
+    // Backdrop must be an aria-hidden div, not a keyboard-reachable button
+    expect(src).toMatch(/<div[\s\S]*?aria-hidden="true"[\s\S]*?inset-0/);
+    expect(src).not.toMatch(/<button[^>]*inset-0/s);
+  });
 });

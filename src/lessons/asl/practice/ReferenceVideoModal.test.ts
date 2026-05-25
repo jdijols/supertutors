@@ -15,4 +15,11 @@ describe("ReferenceVideoModal", () => {
     const hasAutoFocus = src.includes("autoFocus") || src.includes("closeButtonRef");
     expect(hasAutoFocus).toBe(true);
   });
+
+  it("backdrop is aria-hidden so screen readers don't encounter duplicate close (WCAG §Keyboard)", () => {
+    const src = readFileSync(resolve(__dirname, "ReferenceVideoModal.tsx"), "utf-8");
+    // Backdrop must be an aria-hidden div, not a keyboard-reachable button
+    expect(src).toMatch(/<div[\s\S]*?aria-hidden="true"[\s\S]*?inset-0/);
+    expect(src).not.toMatch(/<button[^>]*inset-0/s);
+  });
 });
