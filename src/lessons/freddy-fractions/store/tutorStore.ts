@@ -53,7 +53,11 @@ interface TutorState {
 
 const initialState = {
   currentBeat: "splash" as Beat,
-  toolMode: "cutter" as ToolMode,
+  // Default to glove (move) — safer entry into the sandbox. The cutter
+  // is destructive; defaulting to it means any stray tap reshapes the
+  // pizza. The scripted lesson explicitly switches to cutter for slice
+  // stages and back to glove for the compare stage (see LessonScripted).
+  toolMode: "glove" as ToolMode,
   spotlight: null as Spotlight,
   freddy: {
     facing: "student",

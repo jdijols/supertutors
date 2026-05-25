@@ -131,9 +131,32 @@ const PRECONDITIONS: Partial<Record<Stage, (p: TablePattern) => boolean>> = {
   react_mixed_alt: (p) => p === "fourQuarters",
 };
 
+/** Which tool the kid needs for each stage. Scripted lesson sets this
+ * explicitly so Freddy hands the kid the right tool at the right moment
+ * — they never have to figure out tool-switching mid-flow. */
+const TOOL_BY_STAGE: Partial<Record<Stage, "cutter" | "glove">> = {
+  intro: "cutter",
+  wait_halves: "cutter",
+  react_halves: "cutter",
+  wait_mixed: "cutter",
+  stuck_halves: "cutter",
+  stuck_mixed: "cutter",
+  wrong_eighths: "cutter",
+  // Compare + reveal + win: pieces only get moved, not sliced.
+  react_mixed: "glove",
+  react_mixed_alt: "glove",
+  wait_compare: "glove",
+  stuck_compare: "glove",
+  aha_animating: "glove",
+  reveal: "glove",
+  win: "glove",
+  done: "glove",
+};
+
 export function LessonScripted({ name, cv }: LessonScriptedProps) {
   const setFreddy = useTutorStore((s) => s.setFreddy);
   const setSpotlight = useTutorStore((s) => s.setSpotlight);
+  const setToolMode = useTutorStore((s) => s.setToolMode);
 
   const [stage, setStage] = useState<Stage>("intro");
   const [activeBubble, setActiveBubble] = useState<DialogueKey | null>(null);
@@ -171,6 +194,13 @@ export function LessonScripted({ name, cv }: LessonScriptedProps) {
     const pose = FREDDY_BY_STAGE[stage];
     if (pose) setFreddy(pose);
   }, [stage, setFreddy]);
+
+  // Tool per stage — Freddy hands the kid the right tool at the right
+  // moment so they never have to pick between glove + cutter mid-flow.
+  useEffect(() => {
+    const tool = TOOL_BY_STAGE[stage];
+    if (tool) setToolMode(tool);
+  }, [stage, setToolMode]);
 
   // Mirror speaking state into store so FreddyCharacter mouth animates.
   useEffect(() => {
