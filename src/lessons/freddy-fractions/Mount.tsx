@@ -10,6 +10,7 @@ import { AhaAnimation } from "./scripted/AhaAnimation";
 import { WinConfetti } from "./scripted/WinConfetti";
 import { LessonExploration } from "./scripted/LessonExploration";
 import { LessonScripted } from "./scripted/LessonScripted";
+import { LessonV3 } from "./scripted/_v3/LessonV3";
 import { useDemoMode } from "@/lib/demoMode";
 import { getInspectorOption } from "@/lib/inspector";
 import {
@@ -25,15 +26,18 @@ export function FreddyMount({ name: propName, onComplete: _onComplete, platform 
   const [searchParams] = useSearchParams();
 
   const [searchParamsInitial] = useState(() => new URLSearchParams(window.location.search));
+  const initialLessonParam = searchParamsInitial.get("lesson");
   const skipImmediately =
     searchParamsInitial.get("skip") === "true" ||
-    searchParamsInitial.get("lesson") === "scripted";
-  const skipToScriptedImmediately = searchParamsInitial.get("lesson") === "scripted";
+    initialLessonParam === "scripted" ||
+    initialLessonParam === "v3";
+  const skipToScriptedImmediately = initialLessonParam === "scripted";
+  const skipToV3Immediately = initialLessonParam === "v3";
 
   const [greetingDismissed, setGreetingDismissed] = useState(skipImmediately || !!propName);
   const [responseShown, setResponseShown] = useState(false);
   const [onboardingDone, setOnboardingDone] = useState(skipImmediately || !!propName);
-  const [explorationDone, setExplorationDone] = useState(skipToScriptedImmediately);
+  const [explorationDone, setExplorationDone] = useState(skipToScriptedImmediately || skipToV3Immediately);
   const [nameInputPulsing, setNameInputPulsing] = useState(false);
 
   // name is the live value — propName updates when platformStore changes
@@ -48,19 +52,20 @@ export function FreddyMount({ name: propName, onComplete: _onComplete, platform 
   const skipOnboarding = searchParams.get("skip") === "true";
   const nameOverride = searchParams.get("name");
   const skipToScripted = searchParams.get("lesson") === "scripted";
+  const skipToV3 = searchParams.get("lesson") === "v3";
 
   useEffect(() => {
-    if ((skipOnboarding || skipToScripted) && !name) {
+    if ((skipOnboarding || skipToScripted || skipToV3) && !name) {
       usePlatformStore.getState().setName(nameOverride ?? "Chef");
       setGreetingDismissed(true);
       setResponseShown(false);
       setOnboardingDone(true);
     }
-    if (skipToScripted && !explorationDone) {
+    if ((skipToScripted || skipToV3) && !explorationDone) {
       setExplorationDone(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [skipOnboarding, skipToScripted, nameOverride]);
+  }, [skipOnboarding, skipToScripted, skipToV3, nameOverride]);
 
   function handleNameSubmit(submitted: string) {
     usePlatformStore.getState().setName(submitted);
@@ -162,7 +167,11 @@ export function FreddyMount({ name: propName, onComplete: _onComplete, platform 
           <LessonMachineRoot name={name} platform={platform} />
         ) : null
       ) : explorationDone && name ? (
-        <LessonScripted name={name} cv={platform.cv} />
+        skipToV3 ? (
+          <LessonV3 name={name} cv={platform.cv} />
+        ) : (
+          <LessonScripted name={name} cv={platform.cv} />
+        )
       ) : (
         <LessonExploration
           name={name ?? ""}

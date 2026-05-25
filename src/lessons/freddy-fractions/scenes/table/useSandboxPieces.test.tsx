@@ -290,6 +290,50 @@ describe("useSandboxPieces.move", () => {
   });
 });
 
+describe("useSandboxPieces.setGuestId (V3)", () => {
+  it("assigns a guestId to a free piece", () => {
+    const { result } = renderHook(() =>
+      useSandboxPieces([freshWhole("w1", 0, 0)]),
+    );
+    expect(result.current.pieces[0].guestId).toBeUndefined();
+
+    act(() => {
+      result.current.setGuestId("w1", "maya");
+    });
+
+    expect(result.current.pieces[0].guestId).toBe("maya");
+  });
+
+  it("clears a guestId when passed undefined (drag-out-of-box path)", () => {
+    const guested: SandboxPiece = {
+      ...freshWhole("w1", 0, 0),
+      guestId: "maya",
+    };
+    const { result } = renderHook(() => useSandboxPieces([guested]));
+    expect(result.current.pieces[0].guestId).toBe("maya");
+
+    act(() => {
+      result.current.setGuestId("w1", undefined);
+    });
+
+    expect(result.current.pieces[0].guestId).toBeUndefined();
+  });
+
+  it("is a no-op for unknown pieceId", () => {
+    const guested: SandboxPiece = {
+      ...freshWhole("w1", 0, 0),
+      guestId: "maya",
+    };
+    const { result } = renderHook(() => useSandboxPieces([guested]));
+
+    act(() => {
+      result.current.setGuestId("does-not-exist", "theo");
+    });
+
+    expect(result.current.pieces[0].guestId).toBe("maya");
+  });
+});
+
 describe("useSandboxPieces.reset", () => {
   it("restores the original initial pieces", () => {
     const initial = [freshWhole("w1", 100, 100)];

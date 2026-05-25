@@ -320,6 +320,21 @@ export function useSandboxPieces(
     );
   }, []);
 
+  /**
+   * V3: assign or clear a piece's `guestId`. Pass `undefined` to clear
+   * (e.g., when a piece is dragged out of a `GuestBox` back onto the
+   * free table). "In a box" and "free" are mutually exclusive — there
+   * is no third state.
+   */
+  const setGuestId = useCallback(
+    (pieceId: string, guestId: string | undefined) => {
+      setPieces((prev) =>
+        prev.map((p) => (p.id === pieceId ? { ...p, guestId } : p)),
+      );
+    },
+    [],
+  );
+
   const remove = useCallback((pieceId: string) => {
     setPieces((prev) => prev.filter((p) => p.id !== pieceId));
   }, []);
@@ -432,6 +447,7 @@ export function useSandboxPieces(
     pieces,
     slice,
     move,
+    setGuestId,
     remove,
     addPizza,
     reset,
