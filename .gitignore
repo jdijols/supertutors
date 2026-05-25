@@ -61,5 +61,6 @@ ASL-ComputerVision/References/WLASL-dataset/
 supabase/.temp/
 supabase/.branches/
 
-# ORT WASM runtime files (large binaries, copy from node_modules at setup)
+# ORT WASM runtime files (large binaries, copied by `npm run setup:ort`)
 public/ort-wasm*.wasm
+public/ort-wasm*.mjs
