@@ -1,20 +1,34 @@
 import { useHandLandmarks } from "@/platform/cv/HandTracker";
+import type { ProgressHandle } from "@/platform/progress/types";
 import { useAslStore } from "../store/aslStore";
 import { getTrainedSigns } from "../vocab";
-import { PromptCard } from "./PromptCard";
+import { ConfidenceCue } from "./ConfidenceCue";
 import { HintCard } from "./HintCard";
+import { PassBeat } from "./PassBeat";
+import { PromptCard } from "./PromptCard";
 import { ReferenceVideoModal } from "./ReferenceVideoModal";
+import { usePracticeLoop } from "./usePracticeLoop";
+
+interface PracticeScreenProps {
+  progress?: ProgressHandle;
+  onComplete: () => void;
+}
 
 /**
  * PracticeScreen — full-viewport practice surface.
  *
- * Camera feed as background, PromptCard at top, HintCard at bottom
- * when needed. The classifier wiring + state machine come in U8 —
- * this is the UI shell.
+ * Camera feed as background, PromptCard at top, HintCard at bottom,
+ * PassBeat on success, ReferenceVideoModal on demand. The practice
+ * loop drives all state transitions.
  */
-export function PracticeScreen() {
+export function PracticeScreen({ progress, onComplete }: PracticeScreenProps) {
   const { videoRef, result, status } = useHandLandmarks();
   const trainedSigns = getTrainedSigns();
+
+  const { recognizer } = usePracticeLoop({
+    progress,
+    onAllSignsCompleted: onComplete,
+  });
 
   const currentSignIdx = useAslStore((s) => s.currentSignIdx);
   const attemptState = useAslStore((s) => s.attemptState);
@@ -29,7 +43,7 @@ export function PracticeScreen() {
 
   return (
     <div className="relative h-[100dvh] w-full bg-black overflow-hidden">
-      {/* Camera feed — full viewport background */}
+      {/* Camera feed — mirrored so the user sees themselves naturally */}
       <video
         ref={videoRef}
         autoPlay
@@ -38,7 +52,10 @@ export function PracticeScreen() {
         className="absolute inset-0 w-full h-full object-cover -scale-x-100"
       />
 
-      {/* Dark overlay when loading */}
+      {/* Confidence cue at top */}
+      <ConfidenceCue recognizer={recognizer} />
+
+      {/* Loading overlay */}
       {status === "loading" && (
         <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-30">
           <span className="font-mono text-white text-sm animate-pulse">
@@ -54,7 +71,7 @@ export function PracticeScreen() {
         total={trainedSigns.length}
       />
 
-      {/* Hand detection indicator — subtle bottom-center cue */}
+      {/* Hand detection indicator */}
       <div className="absolute bottom-32 sm:bottom-36 left-1/2 -translate-x-1/2 z-10">
         <div
           className={`
@@ -66,16 +83,20 @@ export function PracticeScreen() {
       </div>
 
       {/* Hint card — shown on fail/uncertain */}
-      {hintShown && (attemptState === "failing" || attemptState === "uncertain") && (
-        <HintCard
-          targetSign={currentSign}
-          onShowReference={
-            currentSign.referenceVideo
-              ? () => setReferenceShown(true)
-              : undefined
-          }
-        />
-      )}
+      {hintShown &&
+        (attemptState === "failing" || attemptState === "uncertain") && (
+          <HintCard
+            targetSign={currentSign}
+            onShowReference={
+              currentSign.referenceVideo
+                ? () => setReferenceShown(true)
+                : undefined
+            }
+          />
+        )}
+
+      {/* Pass beat — full screen celebration */}
+      <PassBeat active={attemptState === "passing"} />
 
       {/* Reference video modal */}
       {currentSign.referenceVideo && (
@@ -86,6 +107,11 @@ export function PracticeScreen() {
           onClose={() => setReferenceShown(false)}
         />
       )}
+
+      {/* Demo hint — small text bottom-left showing keyboard shortcuts */}
+      <div className="absolute bottom-3 left-3 z-10 font-mono text-[9px] uppercase tracking-[0.18em] text-white/40">
+        Demo: P=pass · F=fail · U=uncertain
+      </div>
     </div>
   );
 }
