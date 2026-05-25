@@ -5,7 +5,7 @@ export function AcutisMount() {
   return (
     <BrainliftViewer
       markdown={brainliftMd}
-      title="Acutis Institute — BrainLift"
+      title="Acutis-Institute_Brainlift.md"
     />
   );
 }

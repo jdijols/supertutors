@@ -87,7 +87,11 @@ export function BrainliftViewer({ markdown, title }: BrainliftViewerProps) {
           >
             <BackArrowIcon />
           </button>
-          <span className="font-mono text-[13px] uppercase tracking-[0.18em] text-sb-paper/60">
+          {/* Filename label — literal mixed-case mono so users know
+              exactly which file they're copying or downloading. No
+              uppercase / tracking treatment here; that's reserved for
+              editorial eyebrows. This is identification, not chrome. */}
+          <span className="font-mono text-[14px] sm:text-[15px] text-sb-paper/80 truncate">
             {title}
           </span>
         </div>
