@@ -27,8 +27,8 @@ export function BrainliftViewer({ markdown, title }: BrainliftViewerProps) {
 
   return (
     <div className="flex flex-col h-[100dvh] bg-sb-ink text-sb-paper-soft">
-      {/* Top bar */}
-      <header className="flex items-center justify-between gap-4 px-6 sm:px-8 h-16 shrink-0 border-b border-white/10">
+      {/* Top bar — right padding clears the fixed chrome buttons (ExitButton + MuteToggle) */}
+      <header className="flex items-center justify-between gap-4 pl-6 sm:pl-8 pr-44 sm:pr-52 h-16 shrink-0 border-b border-white/10">
         <span className="font-mono text-[13px] uppercase tracking-[0.18em] text-sb-paper/60">
           {title}
         </span>
