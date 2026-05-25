@@ -78,7 +78,7 @@ export function ReferenceVideoModal({
             onClick={onClose}
             aria-label="Close"
             className="
-              w-7 h-7 rounded-full border border-sb-border
+              w-14 h-14 rounded-full border border-sb-border
               bg-sb-surface hover:bg-sb-paper
               flex items-center justify-center text-sb-ink
               transition-colors duration-200
