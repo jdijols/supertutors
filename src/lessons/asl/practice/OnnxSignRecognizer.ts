@@ -216,6 +216,64 @@ export class OnnxSignRecognizer implements SignRecognizer {
     return null;
   }
 
+  /**
+   * Debug snapshot for the diagnostic HUD. Returns the latest smoothed
+   * probability distribution along with model status. Safe to call on
+   * every render; reads in-memory state with no allocations beyond the
+   * returned arrays.
+   */
+  getDebugInfo(): {
+    status: "loading" | "ready" | "error";
+    labels: string[];
+    probs: number[];
+    framesBuffered: number;
+    passHoldCount: number;
+    passHoldFramesNeeded: number;
+    thresholds: { pass: number; fail: number };
+  } | null {
+    if (this.loadError) {
+      return {
+        status: "error",
+        labels: this.labelMap?.labels ?? [],
+        probs: [],
+        framesBuffered: 0,
+        passHoldCount: 0,
+        passHoldFramesNeeded: PASS_HOLD_FRAMES,
+        thresholds: { pass: PASS_THRESHOLD, fail: FAIL_THRESHOLD },
+      };
+    }
+    if (!this.session || !this.labelMap) {
+      return {
+        status: "loading",
+        labels: [],
+        probs: [],
+        framesBuffered: 0,
+        passHoldCount: 0,
+        passHoldFramesNeeded: PASS_HOLD_FRAMES,
+        thresholds: { pass: PASS_THRESHOLD, fail: FAIL_THRESHOLD },
+      };
+    }
+
+    const n = this.probBuffer.length;
+    const len = this.labelMap.labels.length;
+    const smoothed = new Array<number>(len).fill(0);
+    if (n > 0) {
+      for (const p of this.probBuffer) {
+        for (let i = 0; i < len; i++) smoothed[i] += p[i] / n;
+      }
+    }
+
+    return {
+      status: "ready",
+      labels: this.labelMap.labels,
+      probs: smoothed,
+      framesBuffered: n,
+      passHoldCount: this.passHoldCount,
+      passHoldFramesNeeded: PASS_HOLD_FRAMES,
+      thresholds: { pass: PASS_THRESHOLD, fail: FAIL_THRESHOLD },
+    };
+  }
+
   reset(): void {
     this.passHoldCount = 0;
     this.probBuffer.length = 0;

@@ -7,6 +7,7 @@ import { HandMeshOverlay } from "./HandMeshOverlay";
 import { HintCard } from "./HintCard";
 import { PassBeat } from "./PassBeat";
 import { PromptCard } from "./PromptCard";
+import { RecognitionHUD } from "./RecognitionHUD";
 import { ReferenceVideoModal } from "./ReferenceVideoModal";
 import { usePracticeLoop } from "./usePracticeLoop";
 
@@ -58,6 +59,9 @@ export function PracticeScreen({ progress, onComplete }: PracticeScreenProps) {
 
       {/* Confidence cue at top */}
       <ConfidenceCue recognizer={recognizer} />
+
+      {/* Diagnostic HUD — toggle with D */}
+      <RecognitionHUD recognizer={recognizer} target={currentSign} />
 
       {/* Loading overlay */}
       {status === "loading" && (
