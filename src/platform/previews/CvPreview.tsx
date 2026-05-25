@@ -179,7 +179,7 @@ function CvPreviewInner() {
           </div>
         )}
         {status === 'error' && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-red-400 text-sm text-center px-4">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-terracotta-300 text-sm text-center px-4">
             {error ?? 'Camera unavailable'}
           </div>
         )}
