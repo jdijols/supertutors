@@ -3,6 +3,7 @@ import type { ProgressHandle } from "@/platform/progress/types";
 import { useAslStore } from "../store/aslStore";
 import { getTrainedSigns } from "../vocab";
 import { ConfidenceCue } from "./ConfidenceCue";
+import { HandMeshOverlay } from "./HandMeshOverlay";
 import { HintCard } from "./HintCard";
 import { PassBeat } from "./PassBeat";
 import { PromptCard } from "./PromptCard";
@@ -51,6 +52,9 @@ export function PracticeScreen({ progress, onComplete }: PracticeScreenProps) {
         muted
         className="absolute inset-0 w-full h-full object-cover -scale-x-100"
       />
+
+      {/* Hand landmark mesh overlay */}
+      <HandMeshOverlay result={result} videoRef={videoRef} />
 
       {/* Confidence cue at top */}
       <ConfidenceCue recognizer={recognizer} />
