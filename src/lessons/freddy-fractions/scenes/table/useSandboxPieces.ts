@@ -415,6 +415,17 @@ export function useSandboxPieces(
   }, [initialPieces]);
 
   /**
+   * V3: reset the workspace to an explicit new piece set. Used for
+   * scene transitions where the new scene starts from a different
+   * arrangement than the lesson's original initialPieces (e.g., Scene
+   * 2 spawns 5 fresh pizzas, replacing whatever Scene 1 left behind).
+   */
+  const resetTo = useCallback((newInitial: SandboxPiece[]) => {
+    setPieces(newInitial);
+    idCounter.current = newInitial.length;
+  }, []);
+
+  /**
    * Pre-flight check: would the next addPizza() succeed? Two gates:
    *   1. Mass cap: current workspace mass must be ≤ `maxPizzas - 1`
    *      (so adding a fresh whole brings the table to at most
@@ -451,6 +462,7 @@ export function useSandboxPieces(
     remove,
     addPizza,
     reset,
+    resetTo,
     canAddPizza,
     /** Current effective pizza mass on the table (sum of fractions). */
     pizzaMass: workspaceMass(pieces),

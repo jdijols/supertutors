@@ -351,3 +351,49 @@ describe("useSandboxPieces.reset", () => {
     expect(result.current.pieces[0].id).toBe("w1");
   });
 });
+
+describe("useSandboxPieces.resetTo (V3)", () => {
+  it("replaces the workspace with an explicit new piece set (scene transition)", () => {
+    const sceneOne = [freshWhole("w1", 0, 0)];
+    const { result } = renderHook(() => useSandboxPieces(sceneOne));
+    expect(result.current.pieces).toHaveLength(1);
+    expect(result.current.pieces[0].id).toBe("w1");
+
+    const sceneTwo = [
+      freshWhole("s2-1", 0, 0),
+      freshWhole("s2-2", 100, 0),
+      freshWhole("s2-3", 200, 0),
+      freshWhole("s2-4", 300, 0),
+      freshWhole("s2-5", 400, 0),
+    ];
+    act(() => {
+      result.current.resetTo(sceneTwo);
+    });
+
+    expect(result.current.pieces).toHaveLength(5);
+    expect(result.current.pieces.map((p) => p.id)).toEqual([
+      "s2-1",
+      "s2-2",
+      "s2-3",
+      "s2-4",
+      "s2-5",
+    ]);
+  });
+
+  it("clears guestId assignments when resetting (previous scene's box contents do not leak)", () => {
+    const guestedScene: SandboxPiece = {
+      ...freshWhole("w1", 0, 0),
+      guestId: "maya",
+    };
+    const { result } = renderHook(() => useSandboxPieces([guestedScene]));
+    expect(result.current.pieces[0].guestId).toBe("maya");
+
+    act(() => {
+      result.current.resetTo([freshWhole("fresh", 0, 0)]);
+    });
+
+    expect(result.current.pieces).toHaveLength(1);
+    expect(result.current.pieces[0].id).toBe("fresh");
+    expect(result.current.pieces[0].guestId).toBeUndefined();
+  });
+});
