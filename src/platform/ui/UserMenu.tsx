@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "@/platform/auth/useAuth";
 
 /**
@@ -11,8 +12,13 @@ import { useAuth } from "@/platform/auth/useAuth";
  */
 export function UserMenu() {
   const { user, status, signOut } = useAuth();
+  const location = useLocation();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+
+  // Hide on lesson routes — sign-out is reachable via Exit → dashboard.
+  // Keeping it off lesson chrome reduces visual noise during focused practice.
+  const onLessonRoute = location.pathname.startsWith("/lessons/");
 
   // Close on outside click
   useEffect(() => {
@@ -37,6 +43,7 @@ export function UserMenu() {
   }, [open]);
 
   if (status !== "signed-in" || !user) return null;
+  if (onLessonRoute) return null;
 
   const metadataName = user.user_metadata?.display_name as string | undefined;
   const emailPrefix = user.email?.split("@")[0];
