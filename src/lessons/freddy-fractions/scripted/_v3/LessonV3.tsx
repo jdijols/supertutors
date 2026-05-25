@@ -9,8 +9,9 @@ import {
   type PizzaFraction,
   type SandboxPiece,
 } from "../../scenes/table";
+import { SliceBurst } from "../../scenes/table/SliceBurst";
 import { derivePerGuestTableState } from "../tableState";
-import { SpeechBubble } from "../../scenes/world";
+import { CvToggle, SpeechBubble, ToolPicker } from "../../scenes/world";
 import { MCQ, type MCQOption } from "./MCQ";
 import { FractionInput } from "./FractionInput";
 import { MixedNumberDisplay } from "./MixedNumberDisplay";
@@ -522,12 +523,12 @@ function getLayout(width: number, height: number): SceneLayout {
 
   // Boxes — right side, right edge aligned to the mute-toggle right
   // edge (~20px from viewport right). Box width = 200, so box left =
-  // width - 220. Vertically centered on the counter; shifted up
-  // slightly so they don't crowd the bottom.
+  // width - 220. Shifted up further so the ToolPicker (bottom-right)
+  // and CvToggle (bottom-left) have clear room beneath the counter.
   const guests2X = Math.max(width - 220, 800);
   const guests2 = [
-    { id: "maya", label: "Maya", x: guests2X, y: counterTop + 20 },
-    { id: "theo", label: "Theo", x: guests2X, y: counterTop + 250 },
+    { id: "maya", label: "Maya", x: guests2X, y: counterTop - 30 },
+    { id: "theo", label: "Theo", x: guests2X, y: counterTop + 200 },
   ] as const;
 
   // 4-guest layout: 2×2 grid on the right, also right-edge-aligned.
@@ -536,10 +537,10 @@ function getLayout(width: number, height: number): SceneLayout {
   const guests4Col1X = Math.max(width - 350, 700);
   const guests4Col2X = Math.max(width - 180, 900);
   const guests4 = [
-    { id: "maya", label: "Maya", x: guests4Col1X, y: counterTop + 20 },
-    { id: "theo", label: "Theo", x: guests4Col2X, y: counterTop + 20 },
-    { id: "nonna", label: "Nonna", x: guests4Col1X, y: counterTop + 210 },
-    { id: "nico", label: "Nico", x: guests4Col2X, y: counterTop + 210 },
+    { id: "maya", label: "Maya", x: guests4Col1X, y: counterTop - 20 },
+    { id: "theo", label: "Theo", x: guests4Col2X, y: counterTop - 20 },
+    { id: "nonna", label: "Nonna", x: guests4Col1X, y: counterTop + 170 },
+    { id: "nico", label: "Nico", x: guests4Col2X, y: counterTop + 170 },
   ] as const;
 
   const scene1Positions = [
@@ -598,12 +599,14 @@ export interface LessonV3Props {
   cv?: CvCameraHandle;
 }
 
-export function LessonV3({ name, cv: _cv }: LessonV3Props) {
-  void _cv;
+export function LessonV3({ name, cv }: LessonV3Props) {
 
   const [stage, setStage] = useState<V3Stage>("beat_1_distribute_4");
   const [hint, setHint] = useState<string | undefined>(undefined);
   const [fractionRetryCount, setFractionRetryCount] = useState(0);
+  // Slice particle bursts — visual flourish when the kid taps to cut.
+  const [bursts, setBursts] = useState<Array<{ id: number; x: number; y: number }>>([]);
+  const burstIdRef = useRef(0);
 
   const config = STAGES[stage];
   const guestLayout: GuestLayoutKey = config.guestLayout ?? "two";
@@ -722,9 +725,35 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
 
   const handlePieceTap = useCallback(
     (id: string) => {
-      slice(id);
+      const piece = pieces.find((p) => p.id === id);
+      const result = slice(id);
+      if (result && piece) {
+        // Trigger a particle burst at the piece's center as visual
+        // feedback for the cut. Burst removes itself via onDone.
+        const cx = piece.x + piece.width / 2;
+        const cy = piece.y + piece.height / 2;
+        setBursts((prev) => [
+          ...prev,
+          { id: ++burstIdRef.current, x: cx, y: cy },
+        ]);
+      }
     },
-    [slice],
+    [pieces, slice],
+  );
+
+  // dropZoneTest — passed to every PizzaPiece so the dragged piece
+  // shrinks (PizzaPiece does the visual itself) when over a GuestBox.
+  // The corresponding box-side glow lives inside GuestBox via its own
+  // pointer-tracking effect.
+  const dropZoneTest = useCallback(
+    (x: number, y: number) => {
+      for (const guest of guestsToRender) {
+        if (boxRefMap[guest.id].current?.contains(x, y)) return true;
+      }
+      return false;
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [guestsToRender],
   );
 
   const handleMCAnswer = useCallback(
@@ -794,6 +823,7 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
       className="absolute inset-0 z-[25]"
       data-testid="lesson-v3"
       data-stage={stage}
+      data-cursor-pointing
     >
       {/* Guest boxes — rendered FIRST so free pizzas paint above them
           when a kid drags a pizza over a box (DOM order = paint order
@@ -817,7 +847,8 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
 
       {/* Free pizzas — draggable + tappable. Rendered AFTER boxes so a
           dragged pizza always appears on top of any box it's hovering
-          over (no flicker on drop). */}
+          over (no flicker on drop). dropZoneTest triggers PizzaPiece's
+          built-in shrink-to-50% when over a GuestBox. */}
       {freePieces.map((piece) => (
         <PizzaPiece
           key={piece.id}
@@ -830,8 +861,27 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
           height={piece.height}
           onDragEnd={handleDragEnd}
           onTap={handlePieceTap}
+          dropZoneTest={dropZoneTest}
         />
       ))}
+
+      {/* Slice particle bursts — each removes itself via onDone. */}
+      {bursts.map((b) => (
+        <SliceBurst
+          key={b.id}
+          x={b.x}
+          y={b.y}
+          onDone={() => setBursts((prev) => prev.filter((p) => p.id !== b.id))}
+        />
+      ))}
+
+      {/* Chrome: CvToggle bottom-left (self-positions to fixed bottom-
+          left + z-[60]), ToolPicker bottom-right (needs wrapper to
+          position). */}
+      {cv && <CvToggle cv={cv} />}
+      <div className="absolute bottom-4 right-4 z-30">
+        <ToolPicker />
+      </div>
 
       {/* Numeral overlay — appears during notation beats (Scene 3+) */}
       {config.numeralOverlay && (
