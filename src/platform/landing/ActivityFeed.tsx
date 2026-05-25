@@ -77,13 +77,13 @@ export function ActivityFeed({
 function ResultIcon({ result }: { result: string }) {
   switch (result) {
     case "pass":
-      return <span className="text-green-600 text-xs" aria-label="Passed">✓</span>;
+      return <span className="text-basil-400 text-xs" aria-label="Passed">✓</span>;
     case "fail":
-      return <span className="text-red-500 text-xs" aria-label="Failed">✗</span>;
+      return <span className="text-terracotta-400 text-xs" aria-label="Failed">✗</span>;
     case "skip":
       return <span className="text-sb-muted text-xs" aria-label="Skipped">–</span>;
     default:
-      return <span className="text-yellow-500 text-xs" aria-label="Uncertain">?</span>;
+      return <span className="text-oven-glow text-xs" aria-label="Uncertain">?</span>;
   }
 }
 
