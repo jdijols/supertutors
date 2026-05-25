@@ -60,3 +60,6 @@ ASL-ComputerVision/References/WLASL-dataset/
 # Supabase CLI local state
 supabase/.temp/
 supabase/.branches/
+
+# ORT WASM runtime files (large binaries, copy from node_modules at setup)
+public/ort-wasm*.wasm
