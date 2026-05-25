@@ -28,11 +28,13 @@ const SIZE_CLASSES: Record<
   },
   lg: {
     // Tuned so the full lockup fits at iPad portrait (820w) without overflow
-    // while still scaling up convincingly on iPad Pro landscape.
-    line1: "text-[32px] sm:text-[56px] md:text-[72px] lg:text-[100px]",
-    line2: "text-[16px] sm:text-[28px] md:text-[36px] lg:text-[50px]",
-    mark: "w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-28 lg:h-28",
-    gap: "gap-3 sm:gap-5 md:gap-7 lg:gap-10",
+    // while still scaling up convincingly on iPad Pro landscape. Mobile
+    // size is intentionally compact — the landing banner reserves the
+    // top-right corner for the info + mute chrome buttons.
+    line1: "text-[22px] sm:text-[44px] md:text-[60px] lg:text-[100px]",
+    line2: "text-[12px] sm:text-[22px] md:text-[30px] lg:text-[50px]",
+    mark: "w-9 h-9 sm:w-14 sm:h-14 md:w-18 md:h-18 lg:w-28 lg:h-28",
+    gap: "gap-2 sm:gap-4 md:gap-6 lg:gap-10",
   },
 };
 
