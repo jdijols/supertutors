@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { GuestExpression } from "@/store/appStore";
+import type { GuestExpression } from "../../store/tutorStore";
 
 /**
  * Guest — renders a customer character at the counter (P2.8).
@@ -8,7 +8,7 @@ import type { GuestExpression } from "@/store/appStore";
  * (wrong fraction delivered), `smile` (happy with their order). State
  * lives in the Zustand `guests` slice; this component is a pure render.
  *
- * Asset matrix in `/public/images/characters/guests/`:
+ * Asset matrix in `/public/lessons/freddy-fractions/images/characters/guests/`:
  *   <guest-id>-{neutral|frown|smile}.png  (3 files per guest)
  *
  * Until assets land (PT.2), `onError` swaps the broken image for a
@@ -41,7 +41,7 @@ const PLACEHOLDER_TINT: Record<string, string> = {
 };
 
 function resolveSrc(id: string, expression: GuestExpression): string {
-  return `/images/characters/guests/${id}-${expression}.png`;
+  return `/lessons/freddy-fractions/images/characters/guests/${id}-${expression}.png`;
 }
 
 export function Guest({

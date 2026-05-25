@@ -162,12 +162,13 @@ export function FreddyMount({ name: propName, onComplete: _onComplete, platform 
           <LessonMachineRoot name={name} platform={platform} />
         ) : null
       ) : explorationDone && name ? (
-        <LessonScripted name={name} />
+        <LessonScripted name={name} cv={platform.cv} />
       ) : (
         <LessonExploration
           name={name ?? ""}
           active={onboardingDone && !!name}
           onComplete={() => setExplorationDone(true)}
+          cv={platform.cv}
         />
       )}
     </main>

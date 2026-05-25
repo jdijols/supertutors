@@ -160,7 +160,7 @@ function FreddyPosterCard({
           className="absolute right-[2%] sm:right-[4%] bottom-[58px] sm:bottom-[64px] md:bottom-[72px] w-[55%] h-[40%] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(26,26,26,0.10)_0%,rgba(26,26,26,0)_70%)]"
         />
         <img
-          src="/images/characters/freddy/facing-student-excited-open.png"
+          src="/lessons/freddy-fractions/images/characters/freddy/facing-student-excited-open.png"
           alt="Freddy Fractions"
           className="absolute right-[-2%] sm:right-0 md:right-[2%] bottom-[56px] sm:bottom-[64px] md:bottom-[72px] h-[80%] max-h-[560px] w-auto max-w-[55%] sm:max-w-[58%] md:max-w-[58%] lg:max-w-[65%] object-contain object-bottom drop-shadow-[0_24px_36px_rgba(26,26,26,0.25)] transition-transform duration-500 ease-out group-hover:translate-y-[-4px]"
         />

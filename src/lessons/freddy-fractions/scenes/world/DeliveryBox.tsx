@@ -7,7 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { useAppStore } from "@/store/appStore";
+import { useTutorStore } from "../../store/tutorStore";
 
 /**
  * DeliveryBox — drop target for sending pizza pieces off the table.
@@ -27,7 +27,7 @@ import { useAppStore } from "@/store/appStore";
  * happened over the box, and `receive()` to trigger the slide-off
  * animation when delivering.
  *
- * Assets: `/images/ui/delivery-box-opened.png` and `delivery-box-closed.png`
+ * Assets: `/lessons/freddy-fractions/images/ui/delivery-box-opened.png` and `delivery-box-closed.png`
  * (Pixar/Duolingo cartoon style — see Journals/May-19-1838-freddy-world-locked-in.md).
  */
 
@@ -76,7 +76,7 @@ export const DeliveryBox = forwardRef<DeliveryBoxHandle, DeliveryBoxProps>(
     // Spotlight is set by LessonExploration during the opener tour — when
     // Freddy says "deliveries go in the box," the box pulses + scales to
     // draw the kid's eye. Takes priority over the cap-hint pulse below.
-    const spotlit = useAppStore((s) => s.spotlight === "delivery");
+    const spotlit = useTutorStore((s) => s.spotlight === "delivery");
 
     // Pointer tracking — detect "piece dragged over me" via global
     // pointermove while a primary button is pressed. PizzaPiece's
@@ -210,7 +210,7 @@ export const DeliveryBox = forwardRef<DeliveryBoxHandle, DeliveryBoxProps>(
                 style={{ width: OPEN_SIZE, height: OPEN_SIZE }}
               >
                 <img
-                  src="/images/ui/delivery-box-opened.png"
+                  src="/lessons/freddy-fractions/images/ui/delivery-box-opened.png"
                   alt="Open delivery box"
                   className="w-full h-full object-contain pointer-events-none select-none"
                   draggable={false}
@@ -236,7 +236,7 @@ export const DeliveryBox = forwardRef<DeliveryBoxHandle, DeliveryBoxProps>(
               }}
             >
               <img
-                src="/images/ui/delivery-box-closed.png"
+                src="/lessons/freddy-fractions/images/ui/delivery-box-closed.png"
                 alt="Closed delivery box"
                 className="w-full h-full object-contain pointer-events-none select-none"
                 draggable={false}
@@ -259,7 +259,7 @@ export const DeliveryBox = forwardRef<DeliveryBoxHandle, DeliveryBoxProps>(
               }}
             >
               <img
-                src="/images/ui/delivery-box-closed.png"
+                src="/lessons/freddy-fractions/images/ui/delivery-box-closed.png"
                 alt=""
                 className="w-full h-full object-contain pointer-events-none select-none"
                 draggable={false}

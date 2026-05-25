@@ -5,7 +5,7 @@ import { PizzaPiece } from "./PizzaPiece";
 
 const DEFAULT_PROPS = {
   id: "p1",
-  src: "/images/pizza/pepperoni-v1/whole.png",
+  src: "/lessons/freddy-fractions/images/pizza/pepperoni-v1/whole.png",
   fraction: "1" as const,
   initialX: 100,
   initialY: 200,
@@ -19,7 +19,7 @@ describe("PizzaPiece", () => {
     const pizza = screen.getByTestId("pizza");
     expect(pizza).toHaveAttribute(
       "src",
-      "/images/pizza/pepperoni-v1/whole.png",
+      "/lessons/freddy-fractions/images/pizza/pepperoni-v1/whole.png",
     );
     expect(pizza).toHaveAttribute("data-fraction", "1");
   });

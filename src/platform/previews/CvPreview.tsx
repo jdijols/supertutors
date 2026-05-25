@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { HandTracker, useHandLandmarks } from '@/platform/cv/HandTracker';
 import { PinchRecognizer } from '@/platform/cv/gestures';
 import { usePointerFromHand } from '@/platform/cv/usePointerFromHand';
@@ -125,11 +125,26 @@ function CvPreviewInner() {
   ]);
   const { update: updatePointer } = usePointerFromHand();
 
-  const pinchStates = result?.landmarks.map((hand, i) => {
-    const state = recognizersRef.current[i]?.update(hand);
-    if (state) updatePointer(state);
-    return state;
-  }) ?? [];
+  // Recognizer state is derived from the latest landmark frame in an
+  // effect (not during render) so the ref+side-effect (updatePointer)
+  // doesn't trip react-hooks/refs. We keep the latest pinch states in
+  // local state so the JSX below can render the indicator badges.
+  const [pinchStates, setPinchStates] = useState<
+    Array<ReturnType<PinchRecognizer["update"]> | undefined>
+  >([]);
+
+  useEffect(() => {
+    if (!result?.landmarks) {
+      setPinchStates([]);
+      return;
+    }
+    const next = result.landmarks.map((hand, i) => {
+      const state = recognizersRef.current[i]?.update(hand);
+      if (state) updatePointer(state);
+      return state;
+    });
+    setPinchStates(next);
+  }, [result, updatePointer]);
 
   const anyPinching = pinchStates.some((s) => s?.isPinching);
 

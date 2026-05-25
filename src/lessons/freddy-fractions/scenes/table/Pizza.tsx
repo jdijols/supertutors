@@ -11,7 +11,7 @@ import type { CSSProperties } from "react";
  * Beat 1.5 (now Beat 3 — Numerator/Denominator) counts SLICES with pepperoni
  * vs. total slices, not individual pepperoni discs.
  *
- * Asset directory: `public/images/pizza/<variant>/{whole,half-*,quarter-*,eighth-*}.png`
+ * Asset directory: `public/lessons/freddy-fractions/images/pizza/<variant>/{whole,half-*,quarter-*,eighth-*}.png`
  *
  * The component itself is generic — it just renders an <img>. The slicing
  * mechanic + which asset corresponds to which fraction lives one layer up,
@@ -30,7 +30,7 @@ import type { CSSProperties } from "react";
 export type PizzaFraction = "1" | "1/2" | "1/3" | "1/4" | "1/8";
 
 export interface PizzaProps {
-  /** Path to the PNG asset (e.g., "/images/pizza/pepperoni-v1/whole.png"). */
+  /** Path to the PNG asset (e.g., "/lessons/freddy-fractions/images/pizza/pepperoni-v1/whole.png"). */
   src: string;
   /** Alt text for accessibility. Defaults to a fraction-aware description. */
   alt?: string;

@@ -15,7 +15,7 @@ describe("buildWholePiece", () => {
     const p = buildWholePiece({ id: "w", x: 100, y: 50 });
     expect(p.slot).toBe("whole");
     expect(p.fraction).toBe("1");
-    expect(p.src).toBe("/images/pizza/pepperoni-v1/whole.png");
+    expect(p.src).toBe("/lessons/freddy-fractions/images/pizza/pepperoni-v1/whole.png");
     expect(p.x).toBe(100);
     expect(p.y).toBe(50);
     expect(p.width).toBe(320);
@@ -76,7 +76,7 @@ describe("useSandboxPieces.slice", () => {
       id: "hl",
       slot: "half-left",
       fraction: "1/2",
-      src: "/images/pizza/pepperoni-v1/half-left.png",
+      src: "/lessons/freddy-fractions/images/pizza/pepperoni-v1/half-left.png",
       x: 100,
       y: 200,
       width: 160,
@@ -109,7 +109,7 @@ describe("useSandboxPieces.slice", () => {
       id: "qtl",
       slot: "quarter-tl",
       fraction: "1/4",
-      src: "/images/pizza/pepperoni-v1/quarter-tl.png",
+      src: "/lessons/freddy-fractions/images/pizza/pepperoni-v1/quarter-tl.png",
       x: 400,
       y: 300,
       width: 160,
@@ -135,7 +135,7 @@ describe("useSandboxPieces.slice", () => {
       id: "e1",
       slot: "eighth-tl-t",
       fraction: "1/8",
-      src: "/images/pizza/pepperoni-v1/eighth-tl-t.png",
+      src: "/lessons/freddy-fractions/images/pizza/pepperoni-v1/eighth-tl-t.png",
       x: 0,
       y: 0,
       width: 160,

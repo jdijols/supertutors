@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import type { PizzaVariant } from "../table";
-import { useAppStore } from "@/store/appStore";
+import { useTutorStore } from "../../store/tutorStore";
 
 /**
  * AddPizzaButton — fixed-position top-left "+" button that opens a small
@@ -43,7 +43,7 @@ export function AddPizzaButton({ onAdd, disabled = false }: AddPizzaButtonProps)
   // closes again when the spotlight moves off (purely a teaching beat,
   // not an action gate). During the spotlight the button toggle is a
   // no-op so the kid can't accidentally latch the menu open.
-  const spotlit = useAppStore((s) => s.spotlight === "add");
+  const spotlit = useTutorStore((s) => s.spotlight === "add");
   const open = userOpen || spotlit;
 
   // Close on outside click / Escape — but NOT while spotlit (the tour owns it).
@@ -130,13 +130,13 @@ export function AddPizzaButton({ onAdd, disabled = false }: AddPizzaButtonProps)
             <PizzaPickerButton
               label="Cheese"
               variant="cheese-v1"
-              src="/images/pizza/cheese-v1/whole.png"
+              src="/lessons/freddy-fractions/images/pizza/cheese-v1/whole.png"
               onPick={handlePick}
             />
             <PizzaPickerButton
               label="Pepperoni"
               variant="pepperoni-v1"
-              src="/images/pizza/pepperoni-v1/whole.png"
+              src="/lessons/freddy-fractions/images/pizza/pepperoni-v1/whole.png"
               onPick={handlePick}
             />
           </motion.div>

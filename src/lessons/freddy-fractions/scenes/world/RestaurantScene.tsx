@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
-const BACKGROUND_SRC = "/images/backgrounds/superslice-interior.png";
-const COUNTER_SRC = "/images/backgrounds/superslice-counter.png";
+const BACKGROUND_SRC = "/lessons/freddy-fractions/images/backgrounds/superslice-interior.png";
+const COUNTER_SRC = "/lessons/freddy-fractions/images/backgrounds/superslice-counter.png";
 
 /**
  * RestaurantScene — full-bleed backdrop for the SuperSlice Pizza world.

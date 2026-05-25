@@ -8,16 +8,17 @@ import {
 } from "../tutor/dialogue";
 import { SpeechBubble } from "../scenes/world";
 import {
-  useAppStore,
+  useTutorStore,
   type FreddyDisplay,
   type Spotlight,
-} from "@/store/appStore";
+} from "../store/tutorStore";
 import {
   LessonTable,
   type LessonTableAddEvent,
   type LessonTableHandle,
   type LessonTableSliceEvent,
 } from "./LessonTable";
+import type { CvCameraHandle } from "@/platform/lesson-sdk";
 
 /**
  * LessonExploration — Act 1 (Explore) of the 3-act demo arc.
@@ -81,6 +82,8 @@ export interface LessonExplorationProps {
    * now and the table will remain playable.
    */
   onComplete?: () => void;
+  /** Camera handle from the platform — threaded through to LessonTable. */
+  cv?: CvCameraHandle;
 }
 
 type Stage =
@@ -206,11 +209,12 @@ export function LessonExploration({
   name,
   active = true,
   onComplete,
+  cv,
 }: LessonExplorationProps) {
   const tableRef = useRef<LessonTableHandle>(null);
-  const toolMode = useAppStore((s) => s.toolMode);
-  const setSpotlight = useAppStore((s) => s.setSpotlight);
-  const setFreddy = useAppStore((s) => s.setFreddy);
+  const toolMode = useTutorStore((s) => s.toolMode);
+  const setSpotlight = useTutorStore((s) => s.setSpotlight);
+  const setFreddy = useTutorStore((s) => s.setFreddy);
 
   const [stage, setStage] = useState<Stage>("pre");
   const [activeBubble, setActiveBubble] = useState<ActiveBubble | null>(null);
@@ -420,6 +424,7 @@ export function LessonExploration({
         onDelivered={handleDelivered}
         onAha={handleAha}
         onWin={handleWin}
+        cv={cv}
       />
 
       {/* Tap-Freddy hit area — transparent overlay covering Freddy's upper

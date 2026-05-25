@@ -17,7 +17,7 @@ import { RestaurantScene } from "../scenes/world/RestaurantScene";
  * source via the re-prompt.
  */
 
-const ASSET_BASE = "/images/pizza/pepperoni-v1";
+const ASSET_BASE = "/lessons/freddy-fractions/images/pizza/pepperoni-v1";
 
 export function PizzaInScene() {
   return (

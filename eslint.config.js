@@ -71,6 +71,51 @@ export default tseslint.config(
       "@typescript-eslint/no-explicit-any": "off",
     },
   },
+  // Platform must not import from any specific lesson — the registry is
+  // the one allowed coupling point. Keeping platform code lesson-agnostic
+  // is the whole point of the lesson-server pattern.
+  {
+    files: ["src/platform/**/*.{ts,tsx}"],
+    ignores: ["src/platform/registry.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@/lessons/*", "../lessons/*", "../../lessons/*"],
+              message:
+                "Platform code must not import from a specific lesson. Use the LessonModule contract and load lessons via the registry.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  // A lesson must not import from another lesson — every lesson is
+  // self-contained. Cross-lesson sharing happens via the platform (move
+  // the shared bit there, or copy it).
+  {
+    files: ["src/lessons/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: [
+                "@/lessons/acutis/*",
+                "@/lessons/asl/*",
+                "@/lessons/freddy-fractions/*",
+              ],
+              message:
+                "Lessons must be self-contained. Don't import from another lesson — move shared code into src/platform/ or duplicate it.",
+            },
+          ],
+        },
+      ],
+    },
+  },
   // Always last — disables formatting rules that conflict with Prettier
   prettierConfig,
 );

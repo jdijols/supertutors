@@ -1,8 +1,9 @@
-import { useAppStore } from "@/store/appStore";
+import { usePlatformStore } from "@/platform/stores/platformStore";
+import { useTutorStore } from "../../store/tutorStore";
 
 export function Table() {
-  const name = useAppStore((s) => s.name);
-  const currentBeat = useAppStore((s) => s.currentBeat);
+  const name = usePlatformStore((s) => s.name);
+  const currentBeat = useTutorStore((s) => s.currentBeat);
 
   return (
     <section

@@ -28,12 +28,15 @@ interface PlatformState {
   toggleMute: () => void;
   setMuted: (muted: boolean) => void;
 
-  cvMode: boolean;
-  setCvMode: (enabled: boolean) => void;
-
   currentLessonSlug: string | null;
   setCurrentLessonSlug: (slug: string | null) => void;
 }
+
+// CV / camera state is NOT in platformStore — it's per-lesson and lives
+// on the LessonHost local state (synced to `?cv=true` URL), exposed to
+// lessons via `props.platform.cv` when the lesson declares `requires.camera`.
+// This keeps platform state truly cross-lesson and lesson-specific state
+// in the lesson where it belongs.
 
 export const usePlatformStore = create<PlatformState>((set) => ({
   name: null,
@@ -50,9 +53,6 @@ export const usePlatformStore = create<PlatformState>((set) => ({
     writePersistedMuted(muted);
     set({ muted });
   },
-
-  cvMode: false,
-  setCvMode: (cvMode) => set({ cvMode }),
 
   currentLessonSlug: null,
   setCurrentLessonSlug: (currentLessonSlug) => set({ currentLessonSlug }),

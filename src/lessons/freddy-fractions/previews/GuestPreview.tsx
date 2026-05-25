@@ -1,11 +1,11 @@
 import { Guest } from "../scenes/world";
-import type { GuestExpression } from "@/store/appStore";
+import type { GuestExpression } from "../store/tutorStore";
 
 /**
  * GuestPreview — visual test grid for the three guest characters in their
  * three expression states (9 cells total). Renders at `/preview/guests`.
  *
- * Until real PNGs land at `/public/images/characters/guests/*.png`, every
+ * Until real PNGs land at `/public/lessons/freddy-fractions/images/characters/guests/*.png`, every
  * cell shows the styled placeholder via `onError` fallback. When assets
  * ship, the placeholders disappear automatically.
  */
@@ -23,7 +23,7 @@ export function GuestPreview() {
       <h1 className="font-mono text-2xl mb-1">Guest preview</h1>
       <p className="font-mono text-sm text-sb-muted mb-8">
         3 guests × 3 expressions. Placeholder renders until real PNGs land at
-        <span className="font-mono"> /public/images/characters/guests/</span>.
+        <span className="font-mono"> /public/lessons/freddy-fractions/images/characters/guests/</span>.
       </p>
       <div className="grid grid-cols-3 gap-6 max-w-5xl">
         {GUESTS.map(({ id, displayName }) =>

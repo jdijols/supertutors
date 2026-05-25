@@ -4,10 +4,11 @@ import { audioEngine } from "../audioSingleton";
 import { useFreddyIdle } from "@/lib/useFreddyIdle";
 import { renderLine, type DialogueKey } from "../tutor/dialogue";
 import { SpeechBubble } from "../scenes/world";
-import { useAppStore, type FreddyDisplay } from "@/store/appStore";
+import { useTutorStore, type FreddyDisplay } from "../store/tutorStore";
 import { LessonTable, type LessonTableHandle, type LessonTableSliceEvent } from "./LessonTable";
 import { AhaAnimation } from "./AhaAnimation";
 import { WinConfetti } from "./WinConfetti";
+import type { CvCameraHandle } from "@/platform/lesson-sdk";
 
 /**
  * LessonScripted — Act 2 of the 3-act demo arc: "Share the Pizza".
@@ -24,6 +25,8 @@ import { WinConfetti } from "./WinConfetti";
 
 export interface LessonScriptedProps {
   name: string;
+  /** Camera handle from the platform — threaded through to LessonTable. */
+  cv?: CvCameraHandle;
 }
 
 type Stage =
@@ -99,9 +102,9 @@ const FREDDY_BY_STAGE: Partial<
 
 const STUCK_DELAY_MS = 30_000;
 
-export function LessonScripted({ name }: LessonScriptedProps) {
-  const setFreddy = useAppStore((s) => s.setFreddy);
-  const setSpotlight = useAppStore((s) => s.setSpotlight);
+export function LessonScripted({ name, cv }: LessonScriptedProps) {
+  const setFreddy = useTutorStore((s) => s.setFreddy);
+  const setSpotlight = useTutorStore((s) => s.setSpotlight);
 
   const [stage, setStage] = useState<Stage>("intro");
   const [activeBubble, setActiveBubble] = useState<DialogueKey | null>(null);
@@ -284,6 +287,7 @@ export function LessonScripted({ name }: LessonScriptedProps) {
         renderHeroAnimations={false}
         onSlice={handleSlice}
         onAha={handleAha}
+        cv={cv}
       />
 
       {/* Speech bubble — top-aligned matching LessonExploration position. */}

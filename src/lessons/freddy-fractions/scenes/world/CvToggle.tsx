@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useAppStore } from "@/store/appStore";
+import type { CvCameraHandle } from "@/platform/lesson-sdk";
 
 /**
  * CvToggle — fixed-position computer-vision (hand-tracking) mode toggle.
@@ -15,29 +15,20 @@ import { useAppStore } from "@/store/appStore";
  * lesson, not the tool being held. The FaceTime-evocative camera icon
  * tells the kid "this turns the camera on" without needing to read.
  *
- * Mounted from LessonTable so it shares the lesson lifecycle (mode only
- * makes sense inside the lesson). State + URL sync identical to the
- * previous inline implementation.
+ * Controlled by the platform: the `cv` handle is the single source of
+ * truth for enabled state. The platform (LessonHost) is responsible for
+ * URL sync (`?cv=true`) so this component stays pure.
  */
 
-function syncCvParam(enabled: boolean) {
-  const url = new URL(window.location.href);
-  if (enabled) {
-    url.searchParams.set("cv", "true");
-  } else {
-    url.searchParams.delete("cv");
-  }
-  window.history.replaceState(null, "", url.toString());
+export interface CvToggleProps {
+  cv: CvCameraHandle;
 }
 
-export function CvToggle() {
-  const cvMode = useAppStore((s) => s.cvMode);
-  const setCvMode = useAppStore((s) => s.setCvMode);
+export function CvToggle({ cv }: CvToggleProps) {
+  const cvMode = cv.enabled;
 
   function handleToggle() {
-    const next = !cvMode;
-    setCvMode(next);
-    syncCvParam(next);
+    cv.setEnabled(!cvMode);
   }
 
   return (

@@ -2,7 +2,7 @@
  * Freddy character — renders the Midjourney/ChatGPT-generated PNG variant
  * that matches the requested pose + gesture + mouth state.
  *
- * Asset matrix in `/public/images/characters/freddy/`:
+ * Asset matrix in `/public/lessons/freddy-fractions/images/characters/freddy/`:
  *   facing-student-{ok|neutral|excited|thinking}-{closed|open}.png  (8 files)
  *   facing-guest-pointing-{closed|open}.png                          (2 files)
  *
@@ -67,7 +67,7 @@ function resolveImageSrc(
   // than 404, in case the state machine asks for an invalid combo.
   const safeGesture: FreddyGesture =
     pose === "facing_guest" ? "pointing" : gesture;
-  return `/images/characters/freddy/${direction}-${safeGesture}-${mouth}.png`;
+  return `/lessons/freddy-fractions/images/characters/freddy/${direction}-${safeGesture}-${mouth}.png`;
 }
 
 export function FreddyCharacter({

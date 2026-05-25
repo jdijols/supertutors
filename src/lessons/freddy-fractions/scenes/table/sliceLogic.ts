@@ -91,7 +91,7 @@ export function assetSrcFor(
   slot: PieceSlot,
   variant: PizzaVariant = "pepperoni-v1",
 ): string {
-  return `/images/pizza/${variant}/${slot}.png`;
+  return `/lessons/freddy-fractions/images/pizza/${variant}/${slot}.png`;
 }
 
 /**

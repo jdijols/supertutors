@@ -24,10 +24,11 @@ import {
 import { SliceBurst } from "../scenes/table/SliceBurst";
 import { AhaAnimation } from "./AhaAnimation";
 import { WinConfetti } from "./WinConfetti";
-import { useAppStore } from "@/store/appStore";
+import { useTutorStore } from "../store/tutorStore";
 import { HandTracker, useHandLandmarks } from "@/platform/cv/HandTracker";
 import { PinchRecognizer } from "@/platform/cv/gestures";
 import { usePointerFromHand } from "@/platform/cv/usePointerFromHand";
+import type { CvCameraHandle } from "@/platform/lesson-sdk";
 import type {
   PieceSlot,
   PizzaFraction,
@@ -58,9 +59,9 @@ const INDEX_TIP = 8;
 const CURSOR_COLOR_IDLE = "#EFE7DA"; // sb-paper
 const CURSOR_COLOR_PINCH = "#1A1A1A"; // sb-ink
 
-function CvModeOverlayInner() {
+function CvModeOverlayInner({ cv }: { cv: CvCameraHandle }) {
   const { videoRef, result, status, error } = useHandLandmarks();
-  const setCvMode = useAppStore((s) => s.setCvMode);
+  const setEnabled = cv.setEnabled;
   const recognizersRef = useRef<PinchRecognizer[]>([
     new PinchRecognizer(),
     new PinchRecognizer(),
@@ -69,19 +70,29 @@ function CvModeOverlayInner() {
 
   useEffect(() => {
     if (status === "error") {
-      setCvMode(false);
-      const url = new URL(window.location.href);
-      url.searchParams.delete("cv");
-      window.history.replaceState(null, "", url.toString());
+      setEnabled(false);
     }
-  }, [status, setCvMode]);
+  }, [status, setEnabled]);
 
-  const pinchStates =
-    result?.landmarks.map((hand, i) => {
+  // Drive recognizer state + pointer updates in an effect (not during
+  // render) so the ref reads + updatePointer side-effect don't trip
+  // react-hooks/refs. Latest pinch states feed the SVG below via local
+  // state — re-renders on each new landmark frame.
+  const [pinchStates, setPinchStates] = useState<
+    Array<ReturnType<PinchRecognizer["update"]> | undefined>
+  >([]);
+  useEffect(() => {
+    if (!result?.landmarks) {
+      setPinchStates([]);
+      return;
+    }
+    const next = result.landmarks.map((hand, i) => {
       const state = recognizersRef.current[i]?.update(hand);
       if (state) updatePointer(state);
       return state;
-    }) ?? [];
+    });
+    setPinchStates(next);
+  }, [result, updatePointer]);
 
   if (status === "error") {
     return (
@@ -166,13 +177,12 @@ function CvModeOverlayInner() {
   );
 }
 
-function CvModeOverlay() {
+function CvModeOverlay({ cv }: { cv: CvCameraHandle }) {
   const [noticeAccepted, setNoticeAccepted] = useState(() =>
     typeof window !== "undefined"
       ? window.sessionStorage.getItem(CV_NOTICE_KEY) === "1"
       : false,
   );
-  const setCvMode = useAppStore((s) => s.setCvMode);
 
   function handleAccept() {
     window.sessionStorage.setItem(CV_NOTICE_KEY, "1");
@@ -180,10 +190,7 @@ function CvModeOverlay() {
   }
 
   function handleDecline() {
-    setCvMode(false);
-    const url = new URL(window.location.href);
-    url.searchParams.delete("cv");
-    window.history.replaceState(null, "", url.toString());
+    cv.setEnabled(false);
   }
 
   if (!noticeAccepted) {
@@ -215,7 +222,7 @@ function CvModeOverlay() {
             <div className="flex flex-col gap-3 text-sb-ink text-base leading-snug">
               <div className="flex items-start gap-3">
                 <img
-                  src="/images/ui/cutter-upright-cursor.png"
+                  src="/lessons/freddy-fractions/images/ui/cutter-upright-cursor.png"
                   alt=""
                   className="w-8 h-8 shrink-0 mt-0.5"
                   draggable={false}
@@ -227,7 +234,7 @@ function CvModeOverlay() {
               </div>
               <div className="flex items-start gap-3">
                 <img
-                  src="/images/ui/glove-open-cursor.png"
+                  src="/lessons/freddy-fractions/images/ui/glove-open-cursor.png"
                   alt=""
                   className="w-8 h-8 shrink-0 mt-0.5"
                   draggable={false}
@@ -263,7 +270,7 @@ function CvModeOverlay() {
 
   return (
     <HandTracker>
-      <CvModeOverlayInner />
+      <CvModeOverlayInner cv={cv} />
     </HandTracker>
   );
 }
@@ -406,6 +413,13 @@ export interface LessonTableProps {
    * whose total area equals one whole pizza. (Beat 8 Win condition.)
    */
   onWin?: () => void;
+  /**
+   * Optional camera handle from the platform. When provided, the CV toggle
+   * button and CV mode overlay render. URL sync (`?cv=true`) is the
+   * platform's responsibility; this prop is the single source of truth
+   * inside the lesson.
+   */
+  cv?: CvCameraHandle;
 }
 
 export interface LessonTableHandle {
@@ -445,31 +459,15 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
       onDelivered,
       onAha,
       onWin,
+      cv,
     },
     ref,
   ) {
     const [initialPos] = useState(
       () => initialPiecePosition ?? defaultInitialPosition(),
     );
-    const toolMode = useAppStore((s) => s.toolMode);
-    const cvModeStore = useAppStore((s) => s.cvMode);
-    const setCvMode = useAppStore((s) => s.setCvMode);
-    const cvMode =
-      cvModeStore ||
-      (typeof window !== "undefined" &&
-        new URLSearchParams(window.location.search).has("cv"));
-
-    // Sync Zustand when the URL param is the initial source (direct link).
-    useEffect(() => {
-      if (
-        typeof window !== "undefined" &&
-        new URLSearchParams(window.location.search).has("cv") &&
-        !cvModeStore
-      ) {
-        setCvMode(true);
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    const toolMode = useTutorStore((s) => s.toolMode);
+    const cvMode = cv?.enabled ?? false;
 
     const viewport = useViewport();
 
@@ -795,8 +793,9 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
 
         {/* Camera / hand-tracking toggle bottom-left — pairs visually
             with MuteToggle in the top-right (matching chrome pattern,
-            opposite corners). */}
-        <CvToggle />
+            opposite corners). Only renders when the platform provides
+            a camera handle (i.e. the lesson declared requires.camera). */}
+        {cv && <CvToggle cv={cv} />}
 
         {/* Delivery box right-side. Pulses when the table is too packed to
             accept another pizza — signal "send a pizza away to make room." */}
@@ -833,8 +832,8 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
           />
         ))}
 
-        {/* CV mode overlay — mounts when ?cv=true or appStore.cvMode is true. */}
-        {cvMode && <CvModeOverlay />}
+        {/* CV mode overlay — mounts when the platform camera handle is enabled. */}
+        {cv && cvMode && <CvModeOverlay cv={cv} />}
       </>
     );
   },

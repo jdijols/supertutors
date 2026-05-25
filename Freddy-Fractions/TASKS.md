@@ -57,7 +57,7 @@ Every task has a **Done when** line with concrete success criteria. Patterns:
 
 ## OVERNIGHT — 2026-05-21 (CV Physical Mode pivot, autonomous loop)
 
-> Pivot decision + full context in [`Journals/May-21-0308-cv-pivot-overnight.md`](./Journals/May-21-0308-cv-pivot-overnight.md). Hybrid pivot: keep polished SuperSlice, ADD a CV "physical mode" via MediaPipe Hands so the kid slices pizzas with webcam-tracked hand gestures. Ship by noon CDT 2026-05-21.
+> Pivot decision + full context in [`Journals/May-21-0308-cv-pivot-overnight.md`](./journals/May-21-0308-cv-pivot-overnight.md). Hybrid pivot: keep polished SuperSlice, ADD a CV "physical mode" via MediaPipe Hands so the kid slices pizzas with webcam-tracked hand gestures. Ship by noon CDT 2026-05-21.
 >
 > **Ship-ready invariant:** every commit must leave `main` deployable.
 > **Soft fallback gate at 07:00 CDT:** if OVN.2 (HandTracker) or OVN.3 (pinch recognizer) are still red, trigger OVN.11 (abandon CV, switch to polish).
@@ -166,7 +166,7 @@ These are independent of my (Claude's) build sequence and **must start ASAP** to
   - **Target:** end of day Wednesday 2026-05-20
 
 - [x] **PT.5 — Superbuilders brand research (S — C does the research, J validates)**
-  - Pulled from https://jobs.superbuilders.dev/jobs; `sb:` token namespace lives in [tailwind.config.js](./tailwind.config.js) with ink/surface/card/border/muted/accent + warm-bridge paper tokens. Brand notes in [PRD §2.3](./PRD.md#23-visual-language). Mono pair (Geist Mono / Inter / PP Variant Mono placeholder) registered. Lesson UI chrome warmed via paper tokens across commits `7e31f25` and `b0ba1a2`.
+  - Pulled from https://jobs.superbuilders.dev/jobs; `sb:` token namespace lives in [tailwind.config.js](../tailwind.config.js) with ink/surface/card/border/muted/accent + warm-bridge paper tokens. Brand notes in [PRD §2.3](./PRD.md#23-visual-language). Mono pair (Geist Mono / Inter / PP Variant Mono placeholder) registered. Lesson UI chrome warmed via paper tokens across commits `7e31f25` and `b0ba1a2`.
 
 ---
 

@@ -48,3 +48,6 @@ playwright/.cache/
 
 # Claude Code harness state
 .claude/
+
+# Local-only tooling state
+.cursor/

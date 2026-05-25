@@ -37,7 +37,7 @@ export interface DragBounds {
 export interface PizzaPieceProps {
   /** Unique ID — used for React keys and identifying the piece in handlers. */
   id: string;
-  /** Asset path (e.g., "/images/pizza/pepperoni-v1/whole.png"). */
+  /** Asset path (e.g., "/lessons/freddy-fractions/images/pizza/pepperoni-v1/whole.png"). */
   src: string;
   /** What fraction of a whole pizza this piece is. */
   fraction: PizzaFraction;

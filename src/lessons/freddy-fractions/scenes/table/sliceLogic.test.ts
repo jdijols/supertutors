@@ -113,28 +113,28 @@ describe("dimsForSlot", () => {
 describe("assetSrcFor", () => {
   it("resolves to the pepperoni-v1 directory by default", () => {
     expect(assetSrcFor("whole")).toBe(
-      "/images/pizza/pepperoni-v1/whole.png",
+      "/lessons/freddy-fractions/images/pizza/pepperoni-v1/whole.png",
     );
     expect(assetSrcFor("eighth-br-r")).toBe(
-      "/images/pizza/pepperoni-v1/eighth-br-r.png",
+      "/lessons/freddy-fractions/images/pizza/pepperoni-v1/eighth-br-r.png",
     );
   });
 
   it("respects an explicit variant", () => {
     expect(assetSrcFor("half-left", "pepperoni-v1")).toBe(
-      "/images/pizza/pepperoni-v1/half-left.png",
+      "/lessons/freddy-fractions/images/pizza/pepperoni-v1/half-left.png",
     );
   });
 
   it("resolves to the cheese-v1 directory when variant is cheese-v1", () => {
     expect(assetSrcFor("whole", "cheese-v1")).toBe(
-      "/images/pizza/cheese-v1/whole.png",
+      "/lessons/freddy-fractions/images/pizza/cheese-v1/whole.png",
     );
     expect(assetSrcFor("eighth-tl-t", "cheese-v1")).toBe(
-      "/images/pizza/cheese-v1/eighth-tl-t.png",
+      "/lessons/freddy-fractions/images/pizza/cheese-v1/eighth-tl-t.png",
     );
     expect(assetSrcFor("quarter-br", "cheese-v1")).toBe(
-      "/images/pizza/cheese-v1/quarter-br.png",
+      "/lessons/freddy-fractions/images/pizza/cheese-v1/quarter-br.png",
     );
   });
 });

@@ -4,13 +4,13 @@ import { Pizza } from "./Pizza";
 
 describe("Pizza", () => {
   it("renders an <img> with the supplied src", () => {
-    render(<Pizza src="/images/pizza/pepperoni-v1/whole.png" />);
+    render(<Pizza src="/lessons/freddy-fractions/images/pizza/pepperoni-v1/whole.png" />);
     const img = screen.getByTestId("pizza");
     expect(img).toBeInTheDocument();
     expect(img.tagName).toBe("IMG");
     expect(img).toHaveAttribute(
       "src",
-      "/images/pizza/pepperoni-v1/whole.png",
+      "/lessons/freddy-fractions/images/pizza/pepperoni-v1/whole.png",
     );
   });
 

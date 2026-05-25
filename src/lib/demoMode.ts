@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { Beat } from "@/store/appStore";
+import type { Beat } from "@/lessons/freddy-fractions/store/tutorStore";
 
 /**
  * Demo mode (CC.1) — keyboard shortcuts for jumping between beats during

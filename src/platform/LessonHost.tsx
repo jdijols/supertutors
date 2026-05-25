@@ -1,13 +1,26 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AudioEngine } from "./audio/AudioEngine";
 import { getNameAudioUrl } from "./audio/nameAudioCache";
 import { getLessonBySlug } from "./registry";
 import { usePlatformStore } from "./stores/platformStore";
-import type { AudioEngineHandle, LessonMountProps } from "./lesson-sdk";
+import type { AudioEngineHandle, CvCameraHandle, LessonMountProps } from "./lesson-sdk";
 import type React from "react";
 
 type LoadedModule = Awaited<ReturnType<NonNullable<ReturnType<typeof getLessonBySlug>>["load"]>>;
+
+function readInitialCvEnabled(): boolean {
+  if (typeof window === "undefined") return false;
+  return new URLSearchParams(window.location.search).get("cv") === "true";
+}
+
+function syncCvUrlParam(enabled: boolean): void {
+  if (typeof window === "undefined") return;
+  const url = new URL(window.location.href);
+  if (enabled) url.searchParams.set("cv", "true");
+  else url.searchParams.delete("cv");
+  window.history.replaceState(null, "", url.toString());
+}
 
 export function LessonHost() {
   const { slug } = useParams<{ slug: string }>();
@@ -15,20 +28,35 @@ export function LessonHost() {
   const { name, muted, setMuted, setCurrentLessonSlug } = usePlatformStore();
 
   const lesson = slug ? getLessonBySlug(slug) : undefined;
+  // Sync condition computed inline (no effect) so we don't trigger the
+  // react-hooks/set-state-in-effect rule. The "lesson not found" view is
+  // purely derived from the slug + registry lookup.
+  const slugNotFound = slug !== undefined && lesson === undefined;
 
   const [loaded, setLoaded] = useState<LoadedModule | null>(null);
   const [loadError, setLoadError] = useState(false);
-  const [cvEnabled, setCvEnabled] = useState(false);
+  const [cvEnabled, setCvEnabledRaw] = useState<boolean>(readInitialCvEnabled);
+
+  // Wrap setEnabled so URL stays in sync with state — keeps `?cv=true`
+  // deep links and back-button navigation honest.
+  const setCvEnabled = useCallback((enabled: boolean) => {
+    setCvEnabledRaw(enabled);
+    syncCvUrlParam(enabled);
+  }, []);
 
   useEffect(() => {
-    if (!lesson) {
-      setLoadError(true);
-      return;
-    }
+    if (!lesson) return;
     setCurrentLessonSlug(lesson.slug);
+    // Legitimate "reset state when input (lesson) changes" pattern.
+    // React 19's stricter rule flags this; the alternative is keying
+    // the whole subtree on lesson.slug, which is heavier. The intent
+    // is unambiguous and the inputs are stable.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoaded(null);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoadError(false);
-    setCvEnabled(false);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setCvEnabledRaw(readInitialCvEnabled());
     lesson
       .load()
       .then(setLoaded)
@@ -36,8 +64,17 @@ export function LessonHost() {
     return () => setCurrentLessonSlug(null);
   }, [lesson, setCurrentLessonSlug]);
 
-  const audioHandle: AudioEngineHandle | null = useMemo(() => {
-    if (!loaded?.audio) return null;
+  const audioHandle: AudioEngineHandle = useMemo<AudioEngineHandle>(() => {
+    // Lessons that don't declare audio get a no-op handle so the
+    // contract stays non-optional and Mounts can always call
+    // platform.audio.play() without null-checks.
+    if (!loaded?.audio) {
+      return {
+        play: () => Promise.resolve(),
+        preload: () => {},
+        stop: () => {},
+      };
+    }
     const voiceId = loaded.audio.voiceId;
     const engine = new AudioEngine({
       audioBasePath: loaded.audio.basePath,
@@ -61,7 +98,7 @@ export function LessonHost() {
     };
   }, [loaded]);
 
-  if (!lesson || loadError) {
+  if (slugNotFound || loadError) {
     return (
       <div className="flex items-center justify-center h-screen bg-sb-surface text-sb-ink font-mono">
         <div className="text-center p-8">
@@ -79,7 +116,11 @@ export function LessonHost() {
     );
   }
 
-  if (!loaded || !audioHandle) {
+  if (!lesson) {
+    return null;
+  }
+
+  if (!loaded) {
     return (
       <div className="flex items-center justify-center h-screen bg-sb-surface text-sb-ink font-mono">
         <p className="text-xl animate-pulse">Loading {lesson.meta.title}…</p>
@@ -90,12 +131,13 @@ export function LessonHost() {
   const Mount = loaded.Mount as React.ComponentType<LessonMountProps>;
 
   const requiresCamera = loaded?.requires?.camera ?? false;
+  const cvHandle: CvCameraHandle = { enabled: cvEnabled, setEnabled: setCvEnabled };
 
   const platform: LessonMountProps["platform"] = {
     audio: audioHandle,
     muted,
     setMuted,
-    ...(requiresCamera ? { cv: { enabled: cvEnabled, setEnabled: setCvEnabled } } : {}),
+    ...(requiresCamera ? { cv: cvHandle } : {}),
   };
 
   function handleComplete({ outcome }: { outcome: "win" | "exit"; durationMs: number }) {

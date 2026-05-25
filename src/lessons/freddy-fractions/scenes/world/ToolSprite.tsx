@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import type { ToolMode } from "@/store/appStore";
+import type { ToolMode } from "../../store/tutorStore";
 
 /**
  * ToolSprite — pointer-following tool artwork rendered as a DOM element.
@@ -42,16 +42,16 @@ function srcFor(opts: {
   overPicker: boolean;
 }): string {
   if (opts.overPicker) {
-    return "/images/ui/glove-pointing.png";
+    return "/lessons/freddy-fractions/images/ui/glove-pointing.png";
   }
   if (opts.toolMode === "cutter") {
     return opts.active
-      ? "/images/ui/cutter-cutting.png"
-      : "/images/ui/cutter-upright.png";
+      ? "/lessons/freddy-fractions/images/ui/cutter-cutting.png"
+      : "/lessons/freddy-fractions/images/ui/cutter-upright.png";
   }
   return opts.active
-    ? "/images/ui/glove-closed.png"
-    : "/images/ui/glove-open.png";
+    ? "/lessons/freddy-fractions/images/ui/glove-closed.png"
+    : "/lessons/freddy-fractions/images/ui/glove-open.png";
 }
 
 export function ToolSprite({ toolMode, size = 56 }: ToolSpriteProps) {

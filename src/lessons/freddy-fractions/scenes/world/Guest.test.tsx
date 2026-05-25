@@ -9,7 +9,7 @@ describe("Guest", () => {
     );
     const img = getByRole("img");
     expect(img.getAttribute("src")).toBe(
-      "/images/characters/guests/maya-neutral.png",
+      "/lessons/freddy-fractions/images/characters/guests/maya-neutral.png",
     );
     expect(getByTestId("guest-character").getAttribute("data-expression")).toBe(
       "neutral",
@@ -21,7 +21,7 @@ describe("Guest", () => {
       <Guest id="theo" expression="smile" />,
     );
     expect(getByRole("img").getAttribute("src")).toBe(
-      "/images/characters/guests/theo-smile.png",
+      "/lessons/freddy-fractions/images/characters/guests/theo-smile.png",
     );
   });
 

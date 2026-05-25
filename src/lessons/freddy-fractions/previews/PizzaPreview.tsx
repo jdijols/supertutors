@@ -4,7 +4,7 @@ import { Pizza } from "../scenes/table/Pizza";
  * PizzaPreview — visual inspection sandbox for the raster pizza assets.
  *
  * Lives at `/preview/pizza`. Renders the expected file paths under
- * `/images/pizza/<variant>/`; if an asset hasn't been generated yet, the
+ * `/lessons/freddy-fractions/images/pizza/<variant>/`; if an asset hasn't been generated yet, the
  * browser shows a broken-image icon — that's the signal to generate (or
  * regenerate) that piece via the ChatGPT prompts.
  *
@@ -66,7 +66,7 @@ const THIRD_SLOTS = [
 ] as const;
 
 function variantBase(variant: VariantConfig["id"]): string {
-  return `/images/pizza/${variant}`;
+  return `/lessons/freddy-fractions/images/pizza/${variant}`;
 }
 
 interface VariantSectionsProps {
@@ -227,7 +227,7 @@ export function PizzaPreview() {
           <p className="text-terracotta-500 mt-2 max-w-3xl">
             Raster assets from{" "}
             <code className="text-terracotta-600 bg-mozzarella-50 px-1 rounded">
-              /images/pizza/&lt;variant&gt;/
+              /lessons/freddy-fractions/images/pizza/&lt;variant&gt;/
             </code>{" "}
             · sequential ChatGPT decomposition. Broken-image icons mean that
             asset hasn't been generated yet.

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useAppStore, type ToolMode } from "@/store/appStore";
+import { useTutorStore, type ToolMode } from "../../store/tutorStore";
 
 /**
  * ToolPicker — bottom-RIGHT corner picker between Glove and Cutter.
@@ -21,23 +21,23 @@ export interface ToolPickerProps {
 const TOOLS: { mode: ToolMode; src: string; label: string }[] = [
   {
     mode: "glove",
-    src: "/images/ui/glove-open.png",
+    src: "/lessons/freddy-fractions/images/ui/glove-open.png",
     label: "Glove (move pieces)",
   },
   {
     mode: "cutter",
-    src: "/images/ui/cutter-upright.png",
+    src: "/lessons/freddy-fractions/images/ui/cutter-upright.png",
     label: "Pizza cutter (slice)",
   },
 ];
 
 export function ToolPicker({ visible = true }: ToolPickerProps) {
-  const toolMode = useAppStore((s) => s.toolMode);
-  const setToolMode = useAppStore((s) => s.setToolMode);
+  const toolMode = useTutorStore((s) => s.toolMode);
+  const setToolMode = useTutorStore((s) => s.setToolMode);
   // Spotlight is set by LessonExploration during the opener tour — when
   // Freddy says "slicer and glove are right down there," the picker pulses
   // + scales to draw the kid's eye.
-  const spotlit = useAppStore((s) => s.spotlight === "toolpicker");
+  const spotlit = useTutorStore((s) => s.spotlight === "toolpicker");
 
   if (!visible) return null;
 
