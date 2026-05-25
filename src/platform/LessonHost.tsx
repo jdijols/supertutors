@@ -102,7 +102,7 @@ export function LessonHost() {
 
   if (slugNotFound || loadError) {
     return (
-      <div className="flex items-center justify-center h-screen bg-sb-surface text-sb-ink font-mono">
+      <div className="flex items-center justify-center h-[100dvh] bg-sb-surface text-sb-ink font-mono">
         <div className="text-center p-8">
           <p className="text-2xl font-bold mb-2">Lesson not found</p>
           <p className="text-sm opacity-70 mb-4">No lesson registered for "{slug}"</p>
@@ -124,7 +124,7 @@ export function LessonHost() {
 
   if (!loaded) {
     return (
-      <div className="flex items-center justify-center h-screen bg-sb-surface text-sb-ink font-mono">
+      <div className="flex items-center justify-center h-[100dvh] bg-sb-surface text-sb-ink font-mono">
         <p className="text-xl animate-pulse">Loading {lesson.meta.title}…</p>
       </div>
     );
