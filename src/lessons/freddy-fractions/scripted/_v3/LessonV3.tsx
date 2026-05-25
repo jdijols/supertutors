@@ -786,7 +786,7 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
 
   return (
     <div
-      className="absolute inset-0"
+      className="absolute inset-0 z-[25]"
       data-testid="lesson-v3"
       data-stage={stage}
     >
