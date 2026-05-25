@@ -186,6 +186,81 @@ describe("useSandboxPieces.slice", () => {
       .sort();
     expect(fractions).toEqual(["1/2", "1/4", "1/4"]);
   });
+
+  it("children inherit parent's guestId when slicing a guested whole (V3)", () => {
+    const guestedWhole: SandboxPiece = {
+      ...freshWhole("w1", 200, 150),
+      guestId: "maya",
+    };
+    const { result } = renderHook(() => useSandboxPieces([guestedWhole]));
+
+    act(() => {
+      result.current.slice("w1");
+    });
+
+    expect(result.current.pieces).toHaveLength(2);
+    for (const piece of result.current.pieces) {
+      expect(piece.guestId).toBe("maya");
+    }
+  });
+
+  it("children stay free (guestId undefined) when slicing a free whole (V3)", () => {
+    const { result } = renderHook(() =>
+      useSandboxPieces([freshWhole("w1", 200, 150)]),
+    );
+
+    act(() => {
+      result.current.slice("w1");
+    });
+
+    expect(result.current.pieces).toHaveLength(2);
+    for (const piece of result.current.pieces) {
+      expect(piece.guestId).toBeUndefined();
+    }
+  });
+
+  it("respects maxFraction option — allows whole → halves at cap '1/2' (V3)", () => {
+    const { result } = renderHook(() =>
+      useSandboxPieces([freshWhole("w1", 200, 150)], { maxFraction: "1/2" }),
+    );
+
+    let sliceResult: ReturnType<typeof result.current.slice> | undefined;
+    act(() => {
+      sliceResult = result.current.slice("w1");
+    });
+
+    expect(sliceResult).not.toBeNull();
+    expect(result.current.pieces).toHaveLength(2);
+    for (const piece of result.current.pieces) {
+      expect(piece.fraction).toBe("1/2");
+    }
+  });
+
+  it("respects maxFraction option — blocks half → quarters at cap '1/2' (V3)", () => {
+    const half: SandboxPiece = {
+      id: "hl",
+      slot: "half-left",
+      fraction: "1/2",
+      variant: "pepperoni-v1",
+      src: "/lessons/freddy-fractions/images/pizza/pepperoni-v1/half-left.png",
+      x: 100,
+      y: 200,
+      width: 160,
+      height: 320,
+    };
+    const { result } = renderHook(() =>
+      useSandboxPieces([half], { maxFraction: "1/2" }),
+    );
+
+    let sliceResult: ReturnType<typeof result.current.slice> | undefined;
+    act(() => {
+      sliceResult = result.current.slice("hl");
+    });
+
+    expect(sliceResult).toBeNull();
+    expect(result.current.pieces).toHaveLength(1);
+    expect(result.current.pieces[0].fraction).toBe("1/2");
+  });
 });
 
 describe("useSandboxPieces.move", () => {

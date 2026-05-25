@@ -74,6 +74,14 @@ export interface SandboxPiece {
    * Cleared the tick after — never set again for the same piece.
    */
   enterFromX?: number;
+  /**
+   * V3: which guest's portion this slice belongs to (e.g., "maya", "theo").
+   * `undefined` = free on the table. Sliced children inherit `guestId`
+   * from the parent. "In a box" and "free" are mutually exclusive — there
+   * is no third state. See `docs/adr/0001-v3-manipulative-state-
+   * architecture.md` for the reasoning vs. a sidecar Map.
+   */
+  guestId?: string;
 }
 
 export interface SliceResult {
@@ -96,6 +104,15 @@ export interface UseSandboxPiecesOptions {
   /** Viewport width hint, used to clamp shifted pieces to the right edge.
    *  Falls back to window.innerWidth at runtime. */
   viewportWidth?: number;
+  /**
+   * V3 lesson-mode slice cap. When set, `slice()` refuses to produce
+   * children with fractions smaller than this. E.g., `"1/4"` caps slicing
+   * at quarters (eighths are blocked). The principle: during the scripted
+   * lesson (vs. exploration mode), heavily constrain student actions so
+   * the workspace can't drift into a state the lesson can't recover from.
+   * Per-beat configuration lives in the lesson stage machine.
+   */
+  maxFraction?: PizzaFraction;
 }
 
 /** Convenience: build a fresh whole-pizza piece at a given position. */
@@ -242,6 +259,17 @@ export function useSandboxPieces(
       const childSlots = childSlotsFor(piece.slot);
       if (!childSlots) return null;
 
+      // V3 lesson-mode cap: refuse if children would be smaller than the
+      // configured minimum fraction. Keeps the workspace inside the set
+      // of states the scripted lesson knows how to recover from. During
+      // exploration mode, `maxFraction` is undefined and slicing is free.
+      if (options.maxFraction !== undefined) {
+        const childFraction = fractionForSlot(childSlots[0]);
+        if (fractionToNumber(childFraction) < fractionToNumber(options.maxFraction)) {
+          return null;
+        }
+      }
+
       const offsets = childOffsetsFor(piece.slot, {
         width: piece.width,
         height: piece.height,
@@ -279,10 +307,11 @@ export function useSandboxPieces(
           y: parent.y + offset.dy,
           width: dims.width,
           height: dims.height,
+          guestId: parent.guestId,
         };
       }
     },
-    [pieces, baseSize, nextId],
+    [pieces, baseSize, nextId, options.maxFraction],
   );
 
   const move = useCallback((pieceId: string, x: number, y: number) => {
