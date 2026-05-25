@@ -84,7 +84,7 @@ export function PracticeScreen({ progress, onComplete }: PracticeScreenProps) {
         <div
           className={`
             w-3 h-3 rounded-full transition-all duration-300
-            ${handDetected ? "bg-green-400 shadow-lg shadow-green-400/50" : "bg-white/30"}
+            ${handDetected ? "bg-basil-400 shadow-lg shadow-basil-400/50" : "bg-white/30"}
           `}
           aria-label={handDetected ? "Hand detected" : "No hand detected"}
         />
