@@ -46,6 +46,19 @@ export interface RecordAttemptInput {
 }
 
 /**
+ * User-submitted correction. The user is confident they're signing
+ * `itemId` (e.g. "asl:C") even though the model predicted
+ * `predictedItemId` (e.g. "asl:D"). The 32-frame × 126-feature buffer
+ * is serialized to a number[][] for storage as jsonb.
+ */
+export interface SaveTrainingSampleInput {
+  itemId: string;
+  predictedItemId?: string;
+  landmarks: number[][];
+  source?: string;
+}
+
+/**
  * ProgressHandle — the contract exposed to lessons via platform.progress.
  *
  * Mirrors the DI pattern from NameAudioCache: an interface with
@@ -57,4 +70,6 @@ export interface ProgressHandle {
   recordAttempt(input: RecordAttemptInput): Promise<void>;
   getMastery(lessonSlug: string): Promise<MasteryEntry[]>;
   getRecentActivity(limit: number): Promise<Attempt[]>;
+  /** Persist a user-submitted correction for future model retraining. */
+  saveTrainingSample(input: SaveTrainingSampleInput): Promise<void>;
 }

@@ -10,19 +10,18 @@ interface UsePracticeLoopOpts {
   progress?: ProgressHandle;
 }
 
-/** Milliseconds the user can be stuck on a sign before the skip pill appears. */
-const SKIP_AVAILABLE_AFTER_MS = 10_000;
-
 /**
  * usePracticeLoop — the per-letter practice state machine.
  *
- * The lesson is now grid-driven: the user taps a letter on LetterGrid,
- * which calls selectSign(id) → viewMode 'practice'. This hook only acts
- * while viewMode === 'practice'. On pass/skip we update the outcome and
- * return to the grid.
+ * The lesson is grid-driven: the user taps a letter on LetterGrid, which
+ * calls selectSign(id) → viewMode 'practice'. This hook only acts while
+ * viewMode === 'practice'.
  *
- * Skip becomes available 10s after the user lands on a letter. Both pass
- * and skip route back to grid; the grid is the "what's left" dashboard.
+ * "Back to grid" is now an always-available affordance via the PromptCard
+ * (tap it to return). When the user backs out without a pass, we mark the
+ * letter "attempted" so the grid shows the ◐ state.
+ *
+ * Drill mode pipes pass → next-letter and skip-equivalents → setback.
  */
 export function usePracticeLoop(opts: UsePracticeLoopOpts = {}) {
   const { progress } = opts;
@@ -38,6 +37,7 @@ export function usePracticeLoop(opts: UsePracticeLoopOpts = {}) {
   const setHintShown = useAslStore((s) => s.setHintShown);
   const setOutcome = useAslStore((s) => s.setOutcome);
   const setObservedSignId = useAslStore((s) => s.setObservedSignId);
+  const outcomes = useAslStore((s) => s.outcomes);
   const advanceDrill = useAslStore((s) => s.advanceDrill);
   const drillSetback = useAslStore((s) => s.drillSetback);
 
@@ -59,16 +59,7 @@ export function usePracticeLoop(opts: UsePracticeLoopOpts = {}) {
     recognizerRef.current?.reset();
   }, [currentSignId]);
 
-  // ─── Skip availability (10s on the same letter) ───────────────────────────
-  const [canSkip, setCanSkip] = useState(false);
-  useEffect(() => {
-    setCanSkip(false);
-    if (viewMode !== "practice" || !currentSignId) return;
-    const id = window.setTimeout(() => setCanSkip(true), SKIP_AVAILABLE_AFTER_MS);
-    return () => window.clearTimeout(id);
-  }, [viewMode, currentSignId]);
-
-  // ─── Pass / fail / uncertain handlers (skip is exposed separately) ────────
+  // ─── Pass handler ─────────────────────────────────────────────────────────
   const handlePass = (confidence: number) => {
     if (!currentSignId) return;
     setAttemptState("passing");
@@ -95,19 +86,30 @@ export function usePracticeLoop(opts: UsePracticeLoopOpts = {}) {
     void confidence;
   };
 
-  const handleSkip = () => {
-    if (!currentSignId) return;
-    setOutcome(currentSignId, "attempted");
-    if (progress && sessionId) {
-      void progress.recordAttempt({
-        sessionId,
-        itemId: currentSignId,
-        result: "uncertain",
-        hintFired: true,
-      });
+  /**
+   * User tapped the PromptCard to return to the grid. If they haven't passed
+   * this letter yet, mark it "attempted" so the grid shows ◐. In drill mode,
+   * tapping back cancels the drill (handled by the store's cancelDrill via
+   * the banner ×; here we just exit to grid).
+   */
+  const handleBackToGrid = () => {
+    if (!currentSignId) {
+      setViewMode("grid");
+      return;
     }
-    // Drill mode: setback resets correctInARow and advances to the other letter
-    // instead of bailing back to the grid.
+    // Only mark attempted if not already mastered.
+    const existing = outcomes[currentSignId];
+    if (existing !== "mastered") {
+      setOutcome(currentSignId, "attempted");
+      if (progress && sessionId) {
+        void progress.recordAttempt({
+          sessionId,
+          itemId: currentSignId,
+          result: "uncertain",
+          hintFired: false,
+        });
+      }
+    }
     if (drill) {
       drillSetback();
     } else {
@@ -200,6 +202,42 @@ export function usePracticeLoop(opts: UsePracticeLoopOpts = {}) {
 
   const currentSign = currentSignId ? getSignById(currentSignId) : undefined;
 
+  // ─── "Save my example" — user-correction capture for Supabase ─────────────
+  const [savingExample, setSavingExample] = useState<
+    "idle" | "saving" | "saved" | "error"
+  >("idle");
+
+  const handleSaveExample = async () => {
+    if (!currentSignId) return;
+    const recognizer = recognizerRef.current as OnnxSeqSignRecognizer | null;
+    if (!recognizer) return;
+    const buffer = recognizer.getCurrentBuffer?.();
+    if (!buffer || !progress) {
+      setSavingExample("error");
+      window.setTimeout(() => setSavingExample("idle"), 2000);
+      return;
+    }
+    const predictedGlyph = recognizer.getCurrentBestLabel?.();
+    const predictedSign = predictedGlyph
+      ? getTrainedSigns().find((s) => s.glyph === predictedGlyph)
+      : undefined;
+    setSavingExample("saving");
+    try {
+      await progress.saveTrainingSample({
+        itemId: currentSignId,
+        predictedItemId: predictedSign?.id,
+        landmarks: buffer,
+        source: "user-correction",
+      });
+      setSavingExample("saved");
+      window.setTimeout(() => setSavingExample("idle"), 2500);
+    } catch (err) {
+      console.warn("[usePracticeLoop] saveTrainingSample failed:", err);
+      setSavingExample("error");
+      window.setTimeout(() => setSavingExample("idle"), 2500);
+    }
+  };
+
   // No useMemo: React 19 Strict Mode can create two recognizer instances per
   // mount. A memoized return would cache the first instance and hide the
   // second from any subscribers.
@@ -207,7 +245,8 @@ export function usePracticeLoop(opts: UsePracticeLoopOpts = {}) {
     // eslint-disable-next-line react-hooks/refs -- recognizer is a stable ref set once per mount
     recognizer: recognizerRef.current,
     currentSign,
-    canSkip,
-    handleSkip,
+    handleBackToGrid,
+    handleSaveExample,
+    savingExample,
   };
 }

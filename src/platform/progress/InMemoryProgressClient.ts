@@ -5,6 +5,7 @@ import type {
   MasteryStatus,
   ProgressHandle,
   RecordAttemptInput,
+  SaveTrainingSampleInput,
   SessionOutcome,
 } from "./types";
 
@@ -100,5 +101,10 @@ export class InMemoryProgressClient implements ProgressHandle {
     // Reverse insertion order (newest first) — more reliable than
     // timestamp sort for in-memory where inserts happen sub-ms apart.
     return this.attempts.slice().reverse().slice(0, limit);
+  }
+
+  /** No-op for the in-memory client (data isn't persisted across reloads). */
+  async saveTrainingSample(input: SaveTrainingSampleInput): Promise<void> {
+    void input;
   }
 }
