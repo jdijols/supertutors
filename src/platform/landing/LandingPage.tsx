@@ -44,7 +44,7 @@ export function LandingPage() {
 
   return (
     <main
-      className="h-[100dvh] w-full bg-sb-ink text-sb-paper-soft antialiased flex flex-col px-6 sm:px-8 md:px-12 lg:px-16 py-6 sm:py-8 md:py-10 gap-4 sm:gap-5 md:gap-6 ring-offset-sb-ink"
+      className="h-[100dvh] w-full bg-sb-ink text-sb-paper-soft antialiased flex flex-col px-6 sm:px-8 md:px-12 lg:px-16 py-4 sm:py-5 md:py-6 gap-4 sm:gap-5 md:gap-6 ring-offset-sb-ink"
     >
       {/* Header row — lockup left, chrome right. Both are inline in the
           flow so they share the same baseline. App.tsx skips rendering

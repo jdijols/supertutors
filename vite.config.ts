@@ -1,6 +1,31 @@
 import { defineConfig, loadEnv, type Plugin, type ViteDevServer } from "vite";
 import react from "@vitejs/plugin-react";
+import fs from "node:fs";
 import path from "node:path";
+
+/**
+ * Walk up from `start` to find the directory that owns `.env.local`
+ * (or `.env`). Lets git worktrees under `.claude/worktrees/*` reuse the
+ * main repo's env files without per-worktree symlinks. Falls back to
+ * `start` if nothing is found — Vite then surfaces the usual missing-env
+ * error.
+ */
+function findEnvDir(start: string): string {
+  let dir = start;
+  while (true) {
+    if (
+      fs.existsSync(path.join(dir, ".env.local")) ||
+      fs.existsSync(path.join(dir, ".env"))
+    ) {
+      return dir;
+    }
+    const parent = path.dirname(dir);
+    if (parent === dir) return start;
+    dir = parent;
+  }
+}
+
+const envDir = findEnvDir(__dirname);
 
 /**
  * Dev-only shim that serves the Vercel Edge function at `api/voice.ts`
@@ -20,7 +45,7 @@ function devVoiceApi(): Plugin {
     name: "supertutors:dev-voice-api",
     apply: "serve",
     configureServer(server: ViteDevServer) {
-      const env = loadEnv("development", process.cwd(), "");
+      const env = loadEnv("development", envDir, "");
       for (const [k, v] of Object.entries(env)) {
         if (process.env[k] === undefined) process.env[k] = v;
       }
@@ -77,6 +102,7 @@ function devVoiceApi(): Plugin {
 }
 
 export default defineConfig({
+  envDir,
   plugins: [react(), devVoiceApi()],
   resolve: {
     alias: {

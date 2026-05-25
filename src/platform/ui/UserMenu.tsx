@@ -107,7 +107,7 @@ export function UserMenu({ inline = false }: { inline?: boolean }) {
       {open && (
         <div
           className="
-            absolute top-full right-0 mt-2
+            absolute top-full right-0 mt-2 z-[100]
             w-56 rounded-xl
             bg-sb-card border border-sb-border
             shadow-xl shadow-sb-ink/20
