@@ -2,12 +2,88 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import rehypeRaw from "rehype-raw";
 import { LaurelMark } from "@/platform/landing/LaurelMark";
 
 interface BrainliftViewerProps {
   markdown: string;
   title: string;
+}
+
+/**
+ * remarkHeadingsToDetails — wrap each H2/H3/H4 heading + its following
+ * content into a <details>/<summary> toggle. Operates on mdast directly,
+ * so the heading's child content stays as parsed markdown (lists, links,
+ * bold, etc. all render correctly).
+ *
+ * The fix for the earlier bug: writing <details>...</details> in
+ * markdown source causes CommonMark to treat the body as a raw HTML
+ * block, which kills list parsing inside. Headings sidestep that —
+ * source stays clean markdown, toggles get generated at render time.
+ *
+ * Section nesting is hierarchical: an H2 details wraps until the next
+ * H2; H3 details inside it wraps until the next H3 or H2; H4 details
+ * wraps until the next H4, H3, or H2.
+ */
+function remarkHeadingsToDetails() {
+  return (tree: { children: AstNode[] }) => {
+    tree.children = wrapHeadingsAtLevel(tree.children, 2);
+  };
+}
+
+interface AstNode {
+  type: string;
+  depth?: number;
+  children?: AstNode[];
+  data?: { hName?: string; hProperties?: Record<string, unknown> };
+  value?: string;
+}
+
+function wrapHeadingsAtLevel(nodes: AstNode[], level: number): AstNode[] {
+  if (level > 4) return nodes;
+  const result: AstNode[] = [];
+  let i = 0;
+  while (i < nodes.length) {
+    const node = nodes[i];
+    if (node.type === "heading" && node.depth === level) {
+      const headingChildren = node.children ?? [];
+      const sectionContent: AstNode[] = [];
+      i++;
+      while (i < nodes.length) {
+        const next = nodes[i];
+        if (
+          next.type === "heading" &&
+          typeof next.depth === "number" &&
+          next.depth <= level
+        ) {
+          break;
+        }
+        sectionContent.push(next);
+        i++;
+      }
+      const wrappedInner = wrapHeadingsAtLevel(sectionContent, level + 1);
+      result.push({
+        type: "details",
+        data: { hName: "details" },
+        children: [
+          {
+            type: "summary",
+            data: { hName: "summary" },
+            children: [
+              {
+                type: "strong",
+                children: headingChildren,
+              },
+            ],
+          },
+          ...wrappedInner,
+        ],
+      });
+    } else {
+      result.push(node);
+      i++;
+    }
+  }
+  return result;
 }
 
 /**
@@ -198,14 +274,15 @@ export function BrainliftViewer({ markdown, title }: BrainliftViewerProps) {
           {mode === "rendered" ? (
             <article ref={articleRef} className="prose prose-invert prose-sb max-w-none">
               {/*
-                rehype-raw enables the <details>/<summary> HTML tags
-                authored in the brainlift markdown source. Safe here
-                because the markdown is bundled at build time via
-                Vite's ?raw import — not user input.
+                Markdown source uses ## / ### / #### headings for
+                sections, items, and sub-toggles. remarkHeadingsToDetails
+                wraps each heading + content into <details>/<summary>
+                at the AST level — keeps lists, links, and bold inside
+                parsing correctly (the bug we hit with raw <details>
+                tags in the source).
               */}
               <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                rehypePlugins={[rehypeRaw]}
+                remarkPlugins={[remarkGfm, remarkHeadingsToDetails]}
               >
                 {markdown}
               </ReactMarkdown>

@@ -75,4 +75,63 @@ describe("BrainliftViewer — structure", () => {
     expect(src()).toMatch(/Markdown copied to clipboard/);
     expect(src()).toMatch(/Markdown file downloaded/);
   });
+
+  it("wraps headings into <details> via remark plugin (not raw HTML in source)", () => {
+    // Why this matters: putting <details>/<summary> directly in markdown
+    // source causes CommonMark to treat the body as a raw HTML block,
+    // which kills list parsing and indentation inside. The fix is to
+    // keep markdown source clean (## / ### / #### headings) and wrap
+    // them in <details> at the AST level via remark-rehype hName.
+    expect(src()).toMatch(/remarkHeadingsToDetails/);
+    expect(src()).toMatch(/hName: "details"/);
+    expect(src()).toMatch(/hName: "summary"/);
+    expect(src()).not.toMatch(/rehype-raw/);
+  });
+
+  it("expand all / collapse all walks the rendered article via ref", () => {
+    expect(src()).toMatch(/articleRef/);
+    expect(src()).toMatch(/querySelectorAll\("details"\)/);
+    expect(src()).toMatch(/Expand all/);
+    expect(src()).toMatch(/Collapse all/);
+  });
+});
+
+describe("Acutis-Institute_Brainlift.md — source format", () => {
+  // The markdown source MUST use heading syntax (not raw <details> HTML).
+  // Raw HTML in markdown breaks list parsing inside the body.
+  const brainliftPath = resolve(
+    __dirname,
+    "../../../Acutis-Institute/Acutis-Institute_Brainlift.md"
+  );
+  const brainlift = () => readFileSync(brainliftPath, "utf-8");
+
+  it("has no raw <details> tags in source (toggles come from headings)", () => {
+    expect(brainlift()).not.toMatch(/<details>/);
+    expect(brainlift()).not.toMatch(/<summary>/);
+  });
+
+  it("has the 7 expected top-level (H2) sections", () => {
+    const md = brainlift();
+    expect(md).toMatch(/^## Owners$/m);
+    expect(md).toMatch(/^## Purpose$/m);
+    expect(md).toMatch(/^## Critical Open Question$/m);
+    expect(md).toMatch(/^## DOK 4 — Spiky POVs$/m);
+    expect(md).toMatch(/^## DOK 3 — Insights$/m);
+    expect(md).toMatch(/^## Experts$/m);
+    expect(md).toMatch(/^## DOK 2 — Knowledge Tree$/m);
+  });
+
+  it("has 5 SPOVs, 5 Insights, 5 Experts, 3 Categories as H3", () => {
+    const md = brainlift();
+    expect(md.match(/^### SPOV\d+/gm)?.length).toBe(5);
+    expect(md.match(/^### Insight \d+/gm)?.length).toBe(5);
+    expect(md.match(/^### Expert \d+/gm)?.length).toBe(5);
+    expect(md.match(/^### Category \d+/gm)?.length).toBe(3);
+  });
+
+  it("has H4 sub-toggles for Supporting Research and Connections", () => {
+    const md = brainlift();
+    expect(md.match(/^#### Supporting Research$/gm)?.length).toBe(5);
+    expect(md.match(/^#### Connections$/gm)?.length).toBe(5);
+  });
 });
