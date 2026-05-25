@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 import { LaurelMark } from "@/platform/landing/LaurelMark";
 
 interface BrainliftViewerProps {
@@ -29,6 +30,23 @@ export function BrainliftViewer({ markdown, title }: BrainliftViewerProps) {
   const [mode, setMode] = useState<"rendered" | "raw">("rendered");
   const [copied, flashCopied] = useTransientPulse();
   const [downloaded, flashDownloaded] = useTransientPulse();
+
+  // Bulk toggle state for Expand all / Collapse all. Tracks the most
+  // recent bulk action, not live DOM state — that keeps the button
+  // predictable even when the user clicks individual sections between
+  // bulk actions.
+  const articleRef = useRef<HTMLElement>(null);
+  const [lastBulk, setLastBulk] = useState<"collapsed" | "expanded">("collapsed");
+
+  function toggleAll() {
+    const next = lastBulk === "expanded" ? "collapsed" : "expanded";
+    setLastBulk(next);
+    articleRef.current
+      ?.querySelectorAll("details")
+      .forEach((d) => {
+        d.open = next === "expanded";
+      });
+  }
 
   function handleCopy() {
     navigator.clipboard
@@ -97,6 +115,20 @@ export function BrainliftViewer({ markdown, title }: BrainliftViewerProps) {
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Expand all / Collapse all — only meaningful in Rendered mode
+              since Raw shows the literal markdown source. */}
+          {mode === "rendered" && (
+            <button
+              type="button"
+              onClick={toggleAll}
+              aria-label={lastBulk === "expanded" ? "Collapse all sections" : "Expand all sections"}
+              data-cursor-pointing
+              className="h-11 px-4 rounded-xl border border-white/15 bg-white/5 font-mono text-xs uppercase tracking-[0.16em] text-sb-paper/70 hover:text-sb-paper hover:bg-white/[0.08] transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-ink"
+            >
+              {lastBulk === "expanded" ? "Collapse all" : "Expand all"}
+            </button>
+          )}
+
           {/* Rendered / Raw toggle */}
           <div
             role="group"
@@ -164,8 +196,19 @@ export function BrainliftViewer({ markdown, title }: BrainliftViewerProps) {
       <main className="flex-1 overflow-y-auto py-12 px-6 sm:px-8">
         <div className="max-w-prose mx-auto">
           {mode === "rendered" ? (
-            <article className="prose prose-invert prose-sb max-w-none">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdown}</ReactMarkdown>
+            <article ref={articleRef} className="prose prose-invert prose-sb max-w-none">
+              {/*
+                rehype-raw enables the <details>/<summary> HTML tags
+                authored in the brainlift markdown source. Safe here
+                because the markdown is bundled at build time via
+                Vite's ?raw import — not user input.
+              */}
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeRaw]}
+              >
+                {markdown}
+              </ReactMarkdown>
             </article>
           ) : (
             <pre className="font-mono text-sm text-sb-paper-soft whitespace-pre-wrap">

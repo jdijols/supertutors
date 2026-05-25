@@ -1,8 +1,97 @@
+import typography from "@tailwindcss/typography";
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      typography: ({ theme }) => ({
+        // prose-sb — Notion-style document treatment for the brainlift
+        // viewer on a dark (sb-ink) surface. Tunes prose colors to the
+        // sb-paper family and styles <details>/<summary> as collapsible
+        // toggles that read as Notion blocks.
+        sb: {
+          css: {
+            "--tw-prose-body": theme("colors.sb.paper-soft"),
+            "--tw-prose-headings": theme("colors.white"),
+            "--tw-prose-bold": theme("colors.white"),
+            "--tw-prose-links": theme("colors.sb.accent"),
+            "--tw-prose-code": theme("colors.sb.paper"),
+            "--tw-prose-bullets": "rgb(255 255 255 / 0.4)",
+            "--tw-prose-quotes": theme("colors.sb.paper"),
+            "--tw-prose-quote-borders": theme("colors.sb.accent-deep"),
+            "--tw-prose-counters": theme("colors.sb.paper-soft"),
+            "--tw-prose-hr": "rgb(255 255 255 / 0.1)",
+            // <details> / <summary> styling — Notion-like toggles.
+            details: {
+              marginTop: "1rem",
+              marginBottom: "1rem",
+              border: "1px solid rgb(255 255 255 / 0.1)",
+              borderRadius: "0.75rem",
+              background: "rgb(255 255 255 / 0.02)",
+              overflow: "hidden",
+              transition: "background-color 200ms",
+            },
+            "details[open]": {
+              background: "rgb(255 255 255 / 0.03)",
+            },
+            // Nested details — slightly less visual weight to imply hierarchy.
+            "details details": {
+              border: "1px solid rgb(255 255 255 / 0.08)",
+              background: "rgb(255 255 255 / 0.015)",
+            },
+            summary: {
+              cursor: "pointer",
+              listStyle: "none",
+              padding: "0.75rem 1rem",
+              fontFamily: theme("fontFamily.mono").join(", "),
+              fontSize: "0.9rem",
+              fontWeight: "600",
+              color: theme("colors.sb.paper"),
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              userSelect: "none",
+              transition: "color 200ms, background-color 200ms",
+            },
+            "summary:hover": {
+              color: theme("colors.white"),
+              backgroundColor: "rgb(255 255 255 / 0.04)",
+            },
+            "summary::-webkit-details-marker": { display: "none" },
+            "summary::marker": { content: '""' },
+            // CSS triangle that rotates when the details opens — replaces
+            // the browser default ▶ marker.
+            "summary::before": {
+              content: '""',
+              display: "inline-block",
+              width: "0",
+              height: "0",
+              borderTop: "5px solid transparent",
+              borderBottom: "5px solid transparent",
+              borderLeft: `7px solid ${theme("colors.sb.accent")}`,
+              transition: "transform 200ms",
+              flexShrink: "0",
+            },
+            "details[open] > summary::before": {
+              transform: "rotate(90deg)",
+            },
+            // Inner content padding — only when open.
+            "details[open] > *:not(summary)": {
+              padding: "0 1rem 0.75rem",
+            },
+            "details[open] > details": {
+              padding: "0",
+              margin: "0.5rem 1rem 0.75rem 1rem",
+            },
+            // Section name inside <summary><b>...</b></summary> should pop.
+            "summary b, summary strong": {
+              fontWeight: "700",
+              color: theme("colors.white"),
+            },
+          },
+        },
+      }),
       colors: {
         // SuperSlice / Freddy palette — warm Italian-American
         // (placeholder values — refine after Superbuilders brand research round)
@@ -75,7 +164,5 @@ export default {
       },
     },
   },
-  plugins: [
-    require("@tailwindcss/typography"),
-  ],
+  plugins: [typography],
 };

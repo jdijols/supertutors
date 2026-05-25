@@ -1,6 +1,7 @@
 # Brainlift: The Saint Carlo Acutis Institute, Superbuilders' Catholic Vertical
 
-**Owners**
+<details>
+<summary><b>Owners</b></summary>
 
 - **Jason Dijols**
   - **Background:** Practicing Catholic. Product Design Engineer with 10 years across UX/UI, front-end engineering, and team leadership. Founded the two-sided marketplace Trystate.fm from discovery through revenue. Led omnichannel customer journeys across 250+ Apple reseller e-commerce sites. Relocated to Austin to operate inside Texas' AI startup ecosystem.
@@ -8,7 +9,10 @@
   - **Current Role:** Gauntlet AI Cohort 5 Challenger. Owner & Principal at JasonDijols.com (Austin, June 2024–Present). Founding strategist for Acutis Institute.
   - **Relevant Experience:** Owns all three legs of an AI-native school launch: engineering (Clinical Copilot, ClawStaff scaffolds 30+ configurations across 5 LLM providers), design (SuperTutors, Apple omnichannel, Kith editorial-to-commerce, Trystate.fm trust-marketplace architecture with 100% positive reviews), and founder posture (Trystate.fm discovery-to-revenue, 30+ producer interviews). Austin-based, practicing Catholic, inside the ecosystem.
 
-**Purpose**
+</details>
+
+<details>
+<summary><b>Purpose</b></summary>
 
 - **Primary Purpose:** To produce a Brainlift demonstrating domain expertise in the founding of **Acutis Institute**, an independent, AI-native, Catholic learning community under the patronage of Saint Carlo Acutis (the first millennial saint, popularly called the "patron of the Internet" for his teenage web work cataloging Eucharistic miracles), designed as the **Catholic-formation specialized school** in the Timeback platform's portfolio. This Brainlift positions Acutis alongside Alpha School, Alpha High, Alpha Anywhere, Texas Sports Academy, GT School, NextGen Academy, Montessorium, Nova Academy, Prequel, Unbound Academy, The Novatio School, and learn + earn as the first **values-identity segment** Timeback has hosted, applying Alpha's documented per-student passion-alignment motivation theory to the largest values-coherent K-12 cohort on Earth. The ultimate vision is a Catholic-formation school category with physical micro-campuses and a federation of replicated schools; the entry path is a phased launch beginning with a Catholic homeschool cohort partnership in Austin for the 2026–2027 academic year.
 - **Out of Scope:**
@@ -38,7 +42,10 @@
     - Regional philanthropy networks
     - Sister-campus founding parent groups
 
-**Critical Open Question:**
+</details>
+
+<details>
+<summary><b>Critical Open Question</b></summary>
 
 The structural fit of Acutis on the Timeback platform depends on one question that primary-source research could not resolve: **how flexible is Timeback's academic engine on theologically-sensitive curriculum content?** Three subject areas in a Catholic K-12 curriculum intersect with Catholic teaching in ways that may require content overrides: history (the Reformation, the Crusades, the Church's role in Western civilization), life sciences (evolution framed within Catholic intellectual tradition, the framing of human dignity), and human anthropology (gender and sexuality under *Theology of the Body*). Three structural options are possible:
 
@@ -48,7 +55,10 @@ The structural fit of Acutis on the Timeback platform depends on one question th
 
 The answer determines how Acutis scopes Phase 2 (physical micro-campus) and the addressable subject surface for the Timeback license in Phase 1. **This is the highest-priority question**, and Acutis would prefer Option 1 (override), can operate fully on Option 2 (layer, following the Montessorium hybrid pattern), and would re-scope the entire engagement under Option 3.
 
-**DOK 4 - Spiky POVs**
+</details>
+
+<details>
+<summary><b>DOK 4 — Spiky POVs</b></summary>
 
 - **SPOV1:** Timeback's portfolio is currently differentiated by *interest segments* (Alpha = general; Texas Sports Academy = sports; NextGen Academy = gaming; GT School = gifted; Montessorium = Montessori method; plus Alpha High, Alpha Anywhere, Nova, Prequel, Unbound, Novatio, learn + earn). Acutis introduces the first **values-identity segment** to the portfolio: Catholic families, who self-select into Catholic-identity schools at densities no interest segment matches, and who already self-select *out* of secular schooling at scale (~3.4M US Catholic homeschoolers, 2x parochial enrollment). This is the next dimension of specialization Timeback can host, not a dimension it currently serves. Liemandt's stated TAM of "1 billion students over the next 20 years" requires reaching identity-coherent cohorts at scale; the Catholic cohort is the largest such cohort globally (1.422B adherents, 17.8% of humanity, single largest religious denomination on Earth). **Solution:** Position Acutis as the **Catholic-formation specialized school** on the Timeback platform, structurally parallel to how Montessorium overlays the Montessori method or Texas Sports Academy themes the skill-building afternoon around athletics. Same Timeback academic engine, same Guides model, themed skill-building afternoon (sacramental life, virtue formation, Catholic project work, Carlo-style web evangelization capstones). Superbuilders extracts platform fees; Acutis funds via tuition + endowment + Catholic philanthropic capital (Knights of Columbus, Catholic foundations, lay philanthropists); zero diocesan liability on the platform.
   <details>
@@ -90,7 +100,10 @@ The answer determines how Acutis scopes Phase 2 (physical micro-campus) and the 
 
   </details>
 
-**DOK 3 - Insights**
+</details>
+
+<details>
+<summary><b>DOK 3 — Insights</b></summary>
 
 - **Insight 1:** Timeback's portfolio differentiation has so far been by *interest segments* (sports, gifted, gaming, Montessori method, general). The Catholic cohort is the largest *values-identity segment* the platform has not yet hosted; serving it extends Timeback's specialization logic from a single dimension (interest) into a second dimension (values-identity) without changing the underlying academic engine. Liemandt's billion-student TAM is reachable only by addressing identity-coherent cohorts at scale, and the Catholic cohort is the largest such cohort globally.
   <details>
@@ -137,7 +150,10 @@ The answer determines how Acutis scopes Phase 2 (physical micro-campus) and the 
 
   </details>
 
-**Experts**
+</details>
+
+<details>
+<summary><b>Experts</b></summary>
 
 <details>
 <summary><b>Expert 1 — Joe Liemandt</b> (Builder, Alpha School / Trilogy / ESW Capital)</summary>
@@ -204,7 +220,10 @@ The answer determines how Acutis scopes Phase 2 (physical micro-campus) and the 
 
 </details>
 
-**DOK 2 - Knowledge Tree**
+</details>
+
+<details>
+<summary><b>DOK 2 — Knowledge Tree</b></summary>
 
 <details>
 <summary><b>Category 1 — The Catholic K-12 Market</b></summary>
@@ -366,5 +385,7 @@ The answer determines how Acutis scopes Phase 2 (physical micro-campus) and the 
       - 17.8% of world population.
       - Distribution: 47.7% Americas, 20.3% Africa, 20.1% Europe, 11.0% Asia, 0.9% Oceania.
     - **DOK 2 - Summary:** Structural math for SPOV1: Liemandt's "1 billion students" TAM is reachable only by addressing identity-coherent cohorts at scale, and the Catholic cohort is the largest such cohort globally.
+
+</details>
 
 </details>
