@@ -520,21 +520,26 @@ function getLayout(width: number, height: number): SceneLayout {
   const pizzaRow1Y = counterTop + 90;
   const pizzaRow2Y = counterTop + 290;
 
-  // Boxes — right side, vertically centered on the counter.
-  const guests2X = Math.max(width - 460, 800);
+  // Boxes — right side, right edge aligned to the mute-toggle right
+  // edge (~20px from viewport right). Box width = 200, so box left =
+  // width - 220. Vertically centered on the counter; shifted up
+  // slightly so they don't crowd the bottom.
+  const guests2X = Math.max(width - 220, 800);
   const guests2 = [
-    { id: "maya", label: "Maya", x: guests2X, y: counterTop + 60 },
-    { id: "theo", label: "Theo", x: guests2X, y: counterTop + 290 },
+    { id: "maya", label: "Maya", x: guests2X, y: counterTop + 20 },
+    { id: "theo", label: "Theo", x: guests2X, y: counterTop + 250 },
   ] as const;
 
-  // 4-guest layout: 2×2 grid on the right.
-  const guests4Col1X = Math.max(width - 530, 700);
-  const guests4Col2X = Math.max(width - 320, 900);
+  // 4-guest layout: 2×2 grid on the right, also right-edge-aligned.
+  // Box width = 150; right column right edge at ~width - 30; left
+  // column right edge ~170px to the left.
+  const guests4Col1X = Math.max(width - 350, 700);
+  const guests4Col2X = Math.max(width - 180, 900);
   const guests4 = [
-    { id: "maya", label: "Maya", x: guests4Col1X, y: counterTop + 50 },
-    { id: "theo", label: "Theo", x: guests4Col2X, y: counterTop + 50 },
-    { id: "nonna", label: "Nonna", x: guests4Col1X, y: counterTop + 240 },
-    { id: "nico", label: "Nico", x: guests4Col2X, y: counterTop + 240 },
+    { id: "maya", label: "Maya", x: guests4Col1X, y: counterTop + 20 },
+    { id: "theo", label: "Theo", x: guests4Col2X, y: counterTop + 20 },
+    { id: "nonna", label: "Nonna", x: guests4Col1X, y: counterTop + 210 },
+    { id: "nico", label: "Nico", x: guests4Col2X, y: counterTop + 210 },
   ] as const;
 
   const scene1Positions = [
@@ -790,23 +795,9 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
       data-testid="lesson-v3"
       data-stage={stage}
     >
-      {/* Free pizzas — draggable + tappable */}
-      {freePieces.map((piece) => (
-        <PizzaPiece
-          key={piece.id}
-          id={piece.id}
-          src={piece.src}
-          fraction={piece.fraction}
-          initialX={piece.x}
-          initialY={piece.y}
-          width={piece.width}
-          height={piece.height}
-          onDragEnd={handleDragEnd}
-          onTap={handlePieceTap}
-        />
-      ))}
-
-      {/* Guest boxes — layout depends on the current stage */}
+      {/* Guest boxes — rendered FIRST so free pizzas paint above them
+          when a kid drags a pizza over a box (DOM order = paint order
+          within the wrapper's stacking context). */}
       {guestsToRender.map((guest) => {
         const guestPieces = pieces.filter((p) => p.guestId === guest.id);
         const ref = boxRefMap[guest.id];
@@ -823,6 +814,24 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
           />
         );
       })}
+
+      {/* Free pizzas — draggable + tappable. Rendered AFTER boxes so a
+          dragged pizza always appears on top of any box it's hovering
+          over (no flicker on drop). */}
+      {freePieces.map((piece) => (
+        <PizzaPiece
+          key={piece.id}
+          id={piece.id}
+          src={piece.src}
+          fraction={piece.fraction}
+          initialX={piece.x}
+          initialY={piece.y}
+          width={piece.width}
+          height={piece.height}
+          onDragEnd={handleDragEnd}
+          onTap={handlePieceTap}
+        />
+      ))}
 
       {/* Numeral overlay — appears during notation beats (Scene 3+) */}
       {config.numeralOverlay && (
