@@ -114,8 +114,14 @@ export function LessonScripted({ name, cv }: LessonScriptedProps) {
 
   // Ref to LessonTable so we can reset its internal AHA lock on stage entry.
   const tableRef = useRef<LessonTableHandle>(null);
-  // Count how many "1/4" slices have been made in wait_quarters.
-  // A fresh pizza sliced to halves then each half to quarters = 2 events.
+  // Count slices regardless of stage so a kid who cuts ahead of Freddy's
+  // audio prompts isn't silently locked out. The pre-emptive-slice
+  // recovery effect below auto-advances the stage when the kid has
+  // already done what the next prompt was about to ask for.
+  //
+  // halfSliceCount = how many "1/2" events fired (1 expected: whole → 2 halves)
+  // quarterSliceCount = how many "1/4" events fired (2 expected: each half → quarters)
+  const halfSliceCount = useRef(0);
   const quarterSliceCount = useRef(0);
   // Guard: AHA fires only once per lesson run.
   const ahaFiredRef = useRef(false);
@@ -219,6 +225,14 @@ export function LessonScripted({ name, cv }: LessonScriptedProps) {
     (event: LessonTableSliceEvent) => {
       const { childrenFraction } = event;
 
+      // Always tally — even slices that fire during Freddy's audio (when
+      // stage is intro / react_halves / react_quarters) must count, so
+      // the kid doesn't get locked out by slicing ahead of the prompts.
+      // The pre-emptive-slice recovery effect below acts on these tallies
+      // when the stage finally reaches a wait_* state.
+      if (childrenFraction === "1/2") halfSliceCount.current += 1;
+      if (childrenFraction === "1/4") quarterSliceCount.current += 1;
+
       if (stage === "wait_halves") {
         if (childrenFraction === "1/2") {
           setStage("react_halves");
@@ -232,7 +246,6 @@ export function LessonScripted({ name, cv }: LessonScriptedProps) {
 
       if (stage === "wait_quarters") {
         if (childrenFraction === "1/4") {
-          quarterSliceCount.current += 1;
           if (quarterSliceCount.current >= 2) {
             setStage("react_quarters");
           }
@@ -245,6 +258,20 @@ export function LessonScripted({ name, cv }: LessonScriptedProps) {
     },
     [stage],
   );
+
+  // Pre-emptive slice recovery: if the kid sliced ahead of Freddy's audio
+  // (slicing while intro / react_halves is still playing), catch the
+  // stage machine up the moment it transitions into a wait_* state.
+  // Without this, slices that fired during the wrong stage are silently
+  // swallowed and the lesson stalls with pieces already cut and no
+  // prompt the kid can satisfy.
+  useEffect(() => {
+    if (stage === "wait_halves" && halfSliceCount.current >= 1) {
+      setStage("react_halves");
+    } else if (stage === "wait_quarters" && quarterSliceCount.current >= 2) {
+      setStage("react_quarters");
+    }
+  }, [stage]);
 
   const handleAha = useCallback(() => {
     if (stage !== "wait_compare") return;
