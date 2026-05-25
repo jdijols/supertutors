@@ -1,0 +1,15 @@
+{
+  "labels": [
+    "HELLO",
+    "THANK YOU",
+    "YES",
+    "NO",
+    "PLEASE",
+    "SORRY",
+    "HELP",
+    "FRIEND",
+    "BACKGROUND"
+  ],
+  "background_idx": 8,
+  "feature_dim": 63
+}
