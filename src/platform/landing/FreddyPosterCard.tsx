@@ -9,10 +9,13 @@ export function FreddyPosterCard({
   className,
   onActivate,
   ariaLabel = "Start the fractions lesson with Freddy",
+  progress,
 }: {
   className?: string;
   onActivate?: () => void;
   ariaLabel?: string;
+  /** Optional progress overlay rendered inside the card's bottom area. */
+  progress?: { mastered: number; total: number };
 }) {
   const outlineStyle: React.CSSProperties = {
     WebkitTextStrokeWidth: "1px",
@@ -76,6 +79,21 @@ export function FreddyPosterCard({
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 px-7 sm:px-10 md:px-12 pb-6 sm:pb-7 md:pb-8">
+          {progress && progress.total > 0 && (
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex-1 h-1 rounded-full bg-sb-ink/10 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-sb-accent-deep transition-all duration-500"
+                  style={{
+                    width: `${Math.round((progress.mastered / progress.total) * 100)}%`,
+                  }}
+                />
+              </div>
+              <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-sb-muted whitespace-nowrap">
+                {progress.mastered}/{progress.total} mastered
+              </span>
+            </div>
+          )}
           <div className="flex items-center justify-between gap-4 border-t border-sb-ink/10 pt-4">
             <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-sb-muted">
               Pizza · Slicer · Glove
