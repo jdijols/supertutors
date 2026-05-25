@@ -16,6 +16,7 @@ export function AslMount(props: LessonMountProps) {
   const reset = useAslStore((s) => s.reset);
   const setSessionId = useAslStore((s) => s.setSessionId);
   const sessionId = useAslStore((s) => s.sessionId);
+  // eslint-disable-next-line react-hooks/purity -- performance.now() is safe here; ref initialization is effectively synchronous on mount
   const startTimeRef = useRef<number>(performance.now());
 
   // Reset store on mount
