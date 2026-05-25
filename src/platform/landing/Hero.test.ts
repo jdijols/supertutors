@@ -12,4 +12,11 @@ describe("Hero", () => {
       expect(block).toMatch("focus-visible:ring-offset-2");
     }
   });
+
+  it("loading skeleton reserves enough height to prevent CLS on auth resolution (DESIGN.md §Layout)", () => {
+    const src = readFileSync(resolve(__dirname, "Hero.tsx"), "utf-8");
+    // h-24 (96px) is too short for the signed-out hero (~170px mobile),
+    // causing visible layout shift when auth resolves. Minimum is min-h-40 (160px).
+    expect(src).not.toMatch(/\bh-24\b/);
+  });
 });

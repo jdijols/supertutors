@@ -19,7 +19,7 @@ export function Hero({
 }) {
   if (authStatus === "loading") {
     return (
-      <div className="h-24 flex items-center justify-center">
+      <div className="min-h-40 flex items-center justify-center">
         <span className="font-mono text-sm text-sb-muted animate-pulse">
           Loading...
         </span>
