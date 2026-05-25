@@ -186,6 +186,81 @@ describe("useSandboxPieces.slice", () => {
       .sort();
     expect(fractions).toEqual(["1/2", "1/4", "1/4"]);
   });
+
+  it("children inherit parent's guestId when slicing a guested whole (V3)", () => {
+    const guestedWhole: SandboxPiece = {
+      ...freshWhole("w1", 200, 150),
+      guestId: "maya",
+    };
+    const { result } = renderHook(() => useSandboxPieces([guestedWhole]));
+
+    act(() => {
+      result.current.slice("w1");
+    });
+
+    expect(result.current.pieces).toHaveLength(2);
+    for (const piece of result.current.pieces) {
+      expect(piece.guestId).toBe("maya");
+    }
+  });
+
+  it("children stay free (guestId undefined) when slicing a free whole (V3)", () => {
+    const { result } = renderHook(() =>
+      useSandboxPieces([freshWhole("w1", 200, 150)]),
+    );
+
+    act(() => {
+      result.current.slice("w1");
+    });
+
+    expect(result.current.pieces).toHaveLength(2);
+    for (const piece of result.current.pieces) {
+      expect(piece.guestId).toBeUndefined();
+    }
+  });
+
+  it("respects maxFraction option — allows whole → halves at cap '1/2' (V3)", () => {
+    const { result } = renderHook(() =>
+      useSandboxPieces([freshWhole("w1", 200, 150)], { maxFraction: "1/2" }),
+    );
+
+    let sliceResult: ReturnType<typeof result.current.slice> | undefined;
+    act(() => {
+      sliceResult = result.current.slice("w1");
+    });
+
+    expect(sliceResult).not.toBeNull();
+    expect(result.current.pieces).toHaveLength(2);
+    for (const piece of result.current.pieces) {
+      expect(piece.fraction).toBe("1/2");
+    }
+  });
+
+  it("respects maxFraction option — blocks half → quarters at cap '1/2' (V3)", () => {
+    const half: SandboxPiece = {
+      id: "hl",
+      slot: "half-left",
+      fraction: "1/2",
+      variant: "pepperoni-v1",
+      src: "/lessons/freddy-fractions/images/pizza/pepperoni-v1/half-left.png",
+      x: 100,
+      y: 200,
+      width: 160,
+      height: 320,
+    };
+    const { result } = renderHook(() =>
+      useSandboxPieces([half], { maxFraction: "1/2" }),
+    );
+
+    let sliceResult: ReturnType<typeof result.current.slice> | undefined;
+    act(() => {
+      sliceResult = result.current.slice("hl");
+    });
+
+    expect(sliceResult).toBeNull();
+    expect(result.current.pieces).toHaveLength(1);
+    expect(result.current.pieces[0].fraction).toBe("1/2");
+  });
 });
 
 describe("useSandboxPieces.move", () => {
@@ -215,6 +290,50 @@ describe("useSandboxPieces.move", () => {
   });
 });
 
+describe("useSandboxPieces.setGuestId (V3)", () => {
+  it("assigns a guestId to a free piece", () => {
+    const { result } = renderHook(() =>
+      useSandboxPieces([freshWhole("w1", 0, 0)]),
+    );
+    expect(result.current.pieces[0].guestId).toBeUndefined();
+
+    act(() => {
+      result.current.setGuestId("w1", "maya");
+    });
+
+    expect(result.current.pieces[0].guestId).toBe("maya");
+  });
+
+  it("clears a guestId when passed undefined (drag-out-of-box path)", () => {
+    const guested: SandboxPiece = {
+      ...freshWhole("w1", 0, 0),
+      guestId: "maya",
+    };
+    const { result } = renderHook(() => useSandboxPieces([guested]));
+    expect(result.current.pieces[0].guestId).toBe("maya");
+
+    act(() => {
+      result.current.setGuestId("w1", undefined);
+    });
+
+    expect(result.current.pieces[0].guestId).toBeUndefined();
+  });
+
+  it("is a no-op for unknown pieceId", () => {
+    const guested: SandboxPiece = {
+      ...freshWhole("w1", 0, 0),
+      guestId: "maya",
+    };
+    const { result } = renderHook(() => useSandboxPieces([guested]));
+
+    act(() => {
+      result.current.setGuestId("does-not-exist", "theo");
+    });
+
+    expect(result.current.pieces[0].guestId).toBe("maya");
+  });
+});
+
 describe("useSandboxPieces.reset", () => {
   it("restores the original initial pieces", () => {
     const initial = [freshWhole("w1", 100, 100)];
@@ -230,5 +349,51 @@ describe("useSandboxPieces.reset", () => {
     });
     expect(result.current.pieces).toHaveLength(1);
     expect(result.current.pieces[0].id).toBe("w1");
+  });
+});
+
+describe("useSandboxPieces.resetTo (V3)", () => {
+  it("replaces the workspace with an explicit new piece set (scene transition)", () => {
+    const sceneOne = [freshWhole("w1", 0, 0)];
+    const { result } = renderHook(() => useSandboxPieces(sceneOne));
+    expect(result.current.pieces).toHaveLength(1);
+    expect(result.current.pieces[0].id).toBe("w1");
+
+    const sceneTwo = [
+      freshWhole("s2-1", 0, 0),
+      freshWhole("s2-2", 100, 0),
+      freshWhole("s2-3", 200, 0),
+      freshWhole("s2-4", 300, 0),
+      freshWhole("s2-5", 400, 0),
+    ];
+    act(() => {
+      result.current.resetTo(sceneTwo);
+    });
+
+    expect(result.current.pieces).toHaveLength(5);
+    expect(result.current.pieces.map((p) => p.id)).toEqual([
+      "s2-1",
+      "s2-2",
+      "s2-3",
+      "s2-4",
+      "s2-5",
+    ]);
+  });
+
+  it("clears guestId assignments when resetting (previous scene's box contents do not leak)", () => {
+    const guestedScene: SandboxPiece = {
+      ...freshWhole("w1", 0, 0),
+      guestId: "maya",
+    };
+    const { result } = renderHook(() => useSandboxPieces([guestedScene]));
+    expect(result.current.pieces[0].guestId).toBe("maya");
+
+    act(() => {
+      result.current.resetTo([freshWhole("fresh", 0, 0)]);
+    });
+
+    expect(result.current.pieces).toHaveLength(1);
+    expect(result.current.pieces[0].id).toBe("fresh");
+    expect(result.current.pieces[0].guestId).toBeUndefined();
   });
 });

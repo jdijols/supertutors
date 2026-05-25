@@ -1,5 +1,5 @@
 import { useAslStore } from "../store/aslStore";
-import { getTrainedSigns } from "../vocab";
+import { ALL_SIGNS, getTrainedSigns } from "../vocab";
 
 /**
  * The model's most-confused letter pairs (from the alphabet holdout
@@ -10,6 +10,11 @@ const CONFUSION_PAIRS: { pair: [string, string]; label: string; tip: string }[] 
   { pair: ["U", "V"], label: "U vs V", tip: "Fingers together vs apart" },
   { pair: ["I", "J"], label: "I vs J", tip: "Pinky up vs pinky tracing a hook" },
   { pair: ["S", "T"], label: "S vs T", tip: "Thumb in front vs between fingers" },
+];
+
+/** Word signs we want to surface as "coming soon" — pulled from the catalog. */
+const COMING_SOON_WORDS = [
+  "HELLO", "THANK YOU", "PLEASE", "SORRY", "YES", "NO", "HELP", "FRIEND",
 ];
 
 /**
@@ -24,7 +29,7 @@ const CONFUSION_PAIRS: { pair: [string, string]; label: string; tip: string }[] 
  * not basil-400 fills). basil-400 only appears as the semantic ✓ glyph,
  * matching ActivityFeed's pass-icon usage.
  */
-export function LetterGrid({ onEndSession }: { onEndSession: () => void }) {
+export function LetterGrid() {
   const outcomes = useAslStore((s) => s.outcomes);
   const selectSign = useAslStore((s) => s.selectSign);
   const startDrill = useAslStore((s) => s.startDrill);
@@ -41,39 +46,24 @@ export function LetterGrid({ onEndSession }: { onEndSession: () => void }) {
   return (
     <div
       data-testid="letter-grid"
-      className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-sb-ink/60 backdrop-blur-sm p-4 sm:p-8"
+      className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-sb-ink/60 backdrop-blur-sm p-4 sm:p-6 overflow-y-auto"
     >
-      {/* Header card */}
-      <div className="w-full max-w-3xl mb-4 sm:mb-6">
-        <div className="rounded-2xl bg-sb-card/95 backdrop-blur-sm border border-sb-border shadow-xl shadow-sb-ink/20 px-5 py-4 flex items-center justify-between gap-3">
-          <div className="min-w-0">
-            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-sb-muted">
-              Practice — tap a letter
-            </p>
-            <p className="font-mono text-base sm:text-lg text-sb-ink mt-1">
-              <span className="font-bold text-sb-ink">{masteredCount}</span>
-              <span className="text-sb-muted">{" mastered · "}</span>
-              <span className="text-sb-accent-deep">{attemptedCount}</span>
-              <span className="text-sb-muted">{" tried · "}</span>
-              <span className="text-sb-muted">
-                {letters.length - masteredCount - attemptedCount}
-              </span>
-              <span className="text-sb-muted">{" to go"}</span>
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onEndSession}
-            className="
-              shrink-0 px-3 py-2 rounded-2xl
-              font-mono text-[10px] uppercase tracking-[0.18em]
-              bg-sb-surface text-sb-ink border border-sb-border
-              hover:bg-sb-paper transition-colors duration-200
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-card
-            "
-          >
-            End session
-          </button>
+      {/* Header card — no End Session button; Exit chrome button handles leaving */}
+      <div className="w-full max-w-3xl mb-4">
+        <div className="rounded-2xl bg-sb-card/95 backdrop-blur-sm border border-sb-border shadow-xl shadow-sb-ink/20 px-5 py-4">
+          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-sb-muted">
+            Practice — tap a letter
+          </p>
+          <p className="font-mono text-base sm:text-lg text-sb-ink mt-1">
+            <span className="font-bold text-sb-ink">{masteredCount}</span>
+            <span className="text-sb-muted">{" mastered · "}</span>
+            <span className="text-sb-accent-deep">{attemptedCount}</span>
+            <span className="text-sb-muted">{" tried · "}</span>
+            <span className="text-sb-muted">
+              {letters.length - masteredCount - attemptedCount}
+            </span>
+            <span className="text-sb-muted">{" to go"}</span>
+          </p>
         </div>
       </div>
 
@@ -106,6 +96,20 @@ export function LetterGrid({ onEndSession }: { onEndSession: () => void }) {
               onClick={() => startDrill(pair)}
             />
           ))}
+        </div>
+      </div>
+
+      {/* Word signs — coming soon, not tappable */}
+      <div className="w-full max-w-3xl mt-5">
+        <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-sb-paper/80 mb-2 px-1">
+          Words — coming with face + pose tracking
+        </p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+          {COMING_SOON_WORDS.map((glyph) => {
+            const sign = ALL_SIGNS.find((s) => s.glyph === glyph);
+            const id = sign?.id ?? `asl:${glyph.replace(/\s+/g, "-")}`;
+            return <ComingSoonWordCard key={id} glyph={glyph} />;
+          })}
         </div>
       </div>
     </div>
@@ -142,6 +146,24 @@ function DrillCard({
   );
 }
 
+function ComingSoonWordCard({ glyph }: { glyph: string }) {
+  return (
+    <div
+      data-testid={`word-card-${glyph.replace(/\s/g, "")}`}
+      aria-disabled="true"
+      className="
+        rounded-2xl px-3 py-3 select-none cursor-not-allowed
+        bg-sb-card/55 backdrop-blur-sm border border-sb-border
+      "
+    >
+      <p className="font-mono font-bold text-sb-muted text-base">{glyph}</p>
+      <p className="font-mono text-[9px] uppercase tracking-[0.22em] text-sb-muted/70 mt-0.5">
+        Coming soon
+      </p>
+    </div>
+  );
+}
+
 function LetterTile({
   glyph,
   outcome,
@@ -162,7 +184,7 @@ function LetterTile({
       aria-label={`Practice the letter ${glyph}${mastered ? ", mastered" : attempted ? ", attempted" : ""}`}
       className={`
         aspect-square rounded-2xl
-        flex flex-col items-center justify-center
+        flex flex-col items-center justify-center gap-1
         font-mono font-bold text-3xl sm:text-4xl
         border-2 transition-all duration-200
         focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-ink
@@ -175,11 +197,11 @@ function LetterTile({
         }
       `}
     >
-      <span>{glyph}</span>
+      <span className="leading-none">{glyph}</span>
       <span
         aria-hidden
-        className={`mt-1 text-[10px] font-normal tracking-[0.18em] ${
-          mastered ? "text-basil-400" : attempted ? "text-sb-accent-deep" : "text-sb-muted/50"
+        className={`leading-none text-lg sm:text-xl font-normal ${
+          mastered ? "text-basil-400" : attempted ? "text-sb-accent-deep" : "text-sb-muted/60"
         }`}
       >
         {mastered ? "✓" : attempted ? "◐" : "○"}

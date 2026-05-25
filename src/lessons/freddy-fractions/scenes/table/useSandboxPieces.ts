@@ -74,6 +74,14 @@ export interface SandboxPiece {
    * Cleared the tick after — never set again for the same piece.
    */
   enterFromX?: number;
+  /**
+   * V3: which guest's portion this slice belongs to (e.g., "maya", "theo").
+   * `undefined` = free on the table. Sliced children inherit `guestId`
+   * from the parent. "In a box" and "free" are mutually exclusive — there
+   * is no third state. See `docs/adr/0001-v3-manipulative-state-
+   * architecture.md` for the reasoning vs. a sidecar Map.
+   */
+  guestId?: string;
 }
 
 export interface SliceResult {
@@ -96,6 +104,15 @@ export interface UseSandboxPiecesOptions {
   /** Viewport width hint, used to clamp shifted pieces to the right edge.
    *  Falls back to window.innerWidth at runtime. */
   viewportWidth?: number;
+  /**
+   * V3 lesson-mode slice cap. When set, `slice()` refuses to produce
+   * children with fractions smaller than this. E.g., `"1/4"` caps slicing
+   * at quarters (eighths are blocked). The principle: during the scripted
+   * lesson (vs. exploration mode), heavily constrain student actions so
+   * the workspace can't drift into a state the lesson can't recover from.
+   * Per-beat configuration lives in the lesson stage machine.
+   */
+  maxFraction?: PizzaFraction;
 }
 
 /** Convenience: build a fresh whole-pizza piece at a given position. */
@@ -242,6 +259,17 @@ export function useSandboxPieces(
       const childSlots = childSlotsFor(piece.slot);
       if (!childSlots) return null;
 
+      // V3 lesson-mode cap: refuse if children would be smaller than the
+      // configured minimum fraction. Keeps the workspace inside the set
+      // of states the scripted lesson knows how to recover from. During
+      // exploration mode, `maxFraction` is undefined and slicing is free.
+      if (options.maxFraction !== undefined) {
+        const childFraction = fractionForSlot(childSlots[0]);
+        if (fractionToNumber(childFraction) < fractionToNumber(options.maxFraction)) {
+          return null;
+        }
+      }
+
       const offsets = childOffsetsFor(piece.slot, {
         width: piece.width,
         height: piece.height,
@@ -279,10 +307,11 @@ export function useSandboxPieces(
           y: parent.y + offset.dy,
           width: dims.width,
           height: dims.height,
+          guestId: parent.guestId,
         };
       }
     },
-    [pieces, baseSize, nextId],
+    [pieces, baseSize, nextId, options.maxFraction],
   );
 
   const move = useCallback((pieceId: string, x: number, y: number) => {
@@ -290,6 +319,21 @@ export function useSandboxPieces(
       prev.map((p) => (p.id === pieceId ? { ...p, x, y, enterFromX: undefined } : p)),
     );
   }, []);
+
+  /**
+   * V3: assign or clear a piece's `guestId`. Pass `undefined` to clear
+   * (e.g., when a piece is dragged out of a `GuestBox` back onto the
+   * free table). "In a box" and "free" are mutually exclusive — there
+   * is no third state.
+   */
+  const setGuestId = useCallback(
+    (pieceId: string, guestId: string | undefined) => {
+      setPieces((prev) =>
+        prev.map((p) => (p.id === pieceId ? { ...p, guestId } : p)),
+      );
+    },
+    [],
+  );
 
   const remove = useCallback((pieceId: string) => {
     setPieces((prev) => prev.filter((p) => p.id !== pieceId));
@@ -371,6 +415,17 @@ export function useSandboxPieces(
   }, [initialPieces]);
 
   /**
+   * V3: reset the workspace to an explicit new piece set. Used for
+   * scene transitions where the new scene starts from a different
+   * arrangement than the lesson's original initialPieces (e.g., Scene
+   * 2 spawns 5 fresh pizzas, replacing whatever Scene 1 left behind).
+   */
+  const resetTo = useCallback((newInitial: SandboxPiece[]) => {
+    setPieces(newInitial);
+    idCounter.current = newInitial.length;
+  }, []);
+
+  /**
    * Pre-flight check: would the next addPizza() succeed? Two gates:
    *   1. Mass cap: current workspace mass must be ≤ `maxPizzas - 1`
    *      (so adding a fresh whole brings the table to at most
@@ -403,9 +458,11 @@ export function useSandboxPieces(
     pieces,
     slice,
     move,
+    setGuestId,
     remove,
     addPizza,
     reset,
+    resetTo,
     canAddPizza,
     /** Current effective pizza mass on the table (sum of fractions). */
     pizzaMass: workspaceMass(pieces),

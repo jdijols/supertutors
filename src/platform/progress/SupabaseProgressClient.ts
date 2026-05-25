@@ -5,6 +5,7 @@ import type {
   MasteryStatus,
   ProgressHandle,
   RecordAttemptInput,
+  SaveTrainingSampleInput,
   SessionOutcome,
 } from "./types";
 
@@ -141,5 +142,20 @@ export class SupabaseProgressClient implements ProgressHandle {
       referenceVideoShown: row.reference_video_shown,
       createdAt: row.created_at,
     }));
+  }
+
+  /**
+   * Persist a user-submitted landmark sample for future retraining batches.
+   * RLS gates the write to the authenticated user's own rows.
+   */
+  async saveTrainingSample(input: SaveTrainingSampleInput): Promise<void> {
+    const { error } = await supabase.from("training_samples").insert({
+      user_id: this.userId,
+      item_id: input.itemId,
+      predicted_item_id: input.predictedItemId ?? null,
+      landmarks: input.landmarks,
+      source: input.source ?? "user-correction",
+    });
+    if (error) throw new Error(`saveTrainingSample: ${error.message}`);
   }
 }

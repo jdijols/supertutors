@@ -135,3 +135,39 @@ function detectPattern(counts: PieceCounts, totalAreaUnits: number): TablePatter
 
   return "other";
 }
+
+/**
+ * V3: Per-guest derived state. Groups pieces by `guestId` and applies
+ * `deriveTableState` to each subset. Free pieces (no guestId) go into
+ * the `free` bucket. Used by the V3 lesson state machine to decide when
+ * each guest's portion matches the target for a given beat (e.g., "Maya's
+ * box has 2 wholes AND Theo's box has 2 wholes").
+ *
+ * See `docs/adr/0001-v3-manipulative-state-architecture.md` for the
+ * `guestId` field rationale.
+ */
+export function derivePerGuestTableState(
+  pieces: SandboxPiece[],
+  proximityGroups: ProximityGroup[] = [],
+): { byGuest: Record<string, TableState>; free: TableState } {
+  const grouped: Record<string, SandboxPiece[]> = {};
+  const free: SandboxPiece[] = [];
+
+  for (const piece of pieces) {
+    if (piece.guestId === undefined) {
+      free.push(piece);
+    } else {
+      (grouped[piece.guestId] ??= []).push(piece);
+    }
+  }
+
+  const byGuest: Record<string, TableState> = {};
+  for (const [guestId, guestPieces] of Object.entries(grouped)) {
+    byGuest[guestId] = deriveTableState(guestPieces, proximityGroups);
+  }
+
+  return {
+    byGuest,
+    free: deriveTableState(free, proximityGroups),
+  };
+}

@@ -306,6 +306,23 @@ export class OnnxSeqSignRecognizer implements SignRecognizer {
     };
   }
 
+  /**
+   * Returns a deep copy of the current input buffer as number[][] —
+   * the same 32×126 frames being fed to the model. Used by "Save my
+   * example" to send the live landmark sequence to Supabase for future
+   * retraining batches. Returns null until at least half the buffer has
+   * filled so we don't save degenerate captures.
+   */
+  getCurrentBuffer(): number[][] | null {
+    if (this.buffer.length < SEQ_LEN / 2) return null;
+    return this.buffer.map((frame) => Array.from(frame));
+  }
+
+  /** Returns the current top non-background predicted label, or null. */
+  getCurrentBestLabel(): string | null {
+    return this.bestLabel;
+  }
+
   reset(): void {
     this.passHoldCount = 0;
     this.buffer.length = 0;

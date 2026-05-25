@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { deriveTableState } from "./tableState";
+import { deriveTableState, derivePerGuestTableState } from "./tableState";
 import type { SandboxPiece } from "../scenes/table";
 
 function makePiece(overrides: Partial<SandboxPiece> & { fraction: SandboxPiece["fraction"] }): SandboxPiece {
@@ -115,5 +115,36 @@ describe("deriveTableState", () => {
     ];
     const s = deriveTableState([makePiece({ fraction: "1/4", id: "a" })], groups);
     expect(s.proximityGroups).toBe(groups);
+  });
+});
+
+describe("derivePerGuestTableState (V3)", () => {
+  it("groups pieces by guestId into separate buckets", () => {
+    const result = derivePerGuestTableState([
+      makePiece({ fraction: "1", id: "m1", guestId: "maya" }),
+      makePiece({ fraction: "1", id: "m2", guestId: "maya" }),
+      makePiece({ fraction: "1", id: "t1", guestId: "theo" }),
+      makePiece({ fraction: "1", id: "f1" }), // no guestId = free
+    ]);
+
+    expect(result.byGuest.maya.counts.whole).toBe(2);
+    expect(result.byGuest.theo.counts.whole).toBe(1);
+    expect(result.free.counts.whole).toBe(1);
+  });
+
+  it("each bucket's pattern is computed from its own subset, not the global pool", () => {
+    // Maya: 2 halves → pattern "twoHalves"
+    // Theo: 1 half + 2 quarters → pattern "oneHalfTwoQuarters"
+    // If buckets leaked into each other, neither pattern would match.
+    const result = derivePerGuestTableState([
+      makePiece({ fraction: "1/2", id: "mh1", guestId: "maya" }),
+      makePiece({ fraction: "1/2", id: "mh2", guestId: "maya" }),
+      makePiece({ fraction: "1/2", id: "th1", guestId: "theo" }),
+      makePiece({ fraction: "1/4", id: "tq1", guestId: "theo" }),
+      makePiece({ fraction: "1/4", id: "tq2", guestId: "theo" }),
+    ]);
+
+    expect(result.byGuest.maya.pattern).toBe("twoHalves");
+    expect(result.byGuest.theo.pattern).toBe("oneHalfTwoQuarters");
   });
 });

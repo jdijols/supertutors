@@ -104,9 +104,7 @@ function AslInner({ progress, onExit }: AslInnerProps) {
 
       {/* View switcher — overlays on top of the camera */}
       {viewMode === "practice" && <PracticeScreen progress={progress} />}
-      {viewMode === "grid" && (
-        <LetterGrid onEndSession={() => setViewMode("summary")} />
-      )}
+      {viewMode === "grid" && <LetterGrid />}
       {viewMode === "summary" && <SessionSummary onExit={onExit} />}
     </div>
   );

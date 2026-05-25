@@ -11,14 +11,22 @@ import {
  *
  * Four-quadrant grid: Handshape, Location, Movement, Palm Orientation.
  * When an observed sign is available (classifier returned a different
- * known class), shows comparison framing. Otherwise shows general guidance.
+ * known class), shows comparison framing.
+ *
+ * If `onSaveExample` is set, also renders a "I'm signing {target} — save
+ * my example" button. Captures the current 32-frame landmark buffer to
+ * Supabase so future model retraining batches incorporate user corrections.
  */
 export function HintCard({
   targetSign,
   observedSign,
+  onSaveExample,
+  saveState = "idle",
 }: {
   targetSign: Sign;
   observedSign?: Sign | null;
+  onSaveExample?: () => void;
+  saveState?: "idle" | "saving" | "saved" | "error";
 }) {
   const phon = targetSign.phonology;
 
@@ -85,6 +93,27 @@ export function HintCard({
           />
         </div>
 
+        {/* Save-my-example — user-correction capture for future retraining */}
+        {onSaveExample && (
+          <button
+            type="button"
+            onClick={onSaveExample}
+            disabled={saveState === "saving" || saveState === "saved"}
+            className="
+              mt-3 w-full py-2 rounded-2xl
+              border border-sb-border bg-sb-surface text-sb-ink
+              font-mono text-[11px] uppercase tracking-[0.18em]
+              hover:bg-sb-paper transition-colors duration-200
+              disabled:opacity-70 disabled:cursor-default
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-card
+            "
+          >
+            {saveState === "saving" && "Saving…"}
+            {saveState === "saved" && "✓ Saved — thanks!"}
+            {saveState === "error" && "Couldn't save — try again"}
+            {saveState === "idle" && `I'm signing ${targetSign.glyph} — save my example`}
+          </button>
+        )}
       </div>
     </div>
   );

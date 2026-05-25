@@ -8,7 +8,6 @@ import { HintCard } from "./HintCard";
 import { PassBeat } from "./PassBeat";
 import { PromptCard } from "./PromptCard";
 import { RecognitionHUD } from "./RecognitionHUD";
-import { SkipPill } from "./SkipPill";
 import { usePracticeLoop } from "./usePracticeLoop";
 
 interface PracticeScreenProps {
@@ -33,9 +32,13 @@ export function PracticeScreen({ progress }: PracticeScreenProps) {
   const { result, status, videoRef } = useHandLandmarks();
   const trainedSigns = getTrainedSigns();
 
-  const { recognizer, currentSign, canSkip, handleSkip } = usePracticeLoop({
-    progress,
-  });
+  const {
+    recognizer,
+    currentSign,
+    handleBackToGrid,
+    handleSaveExample,
+    savingExample,
+  } = usePracticeLoop({ progress });
 
   const attemptState = useAslStore((s) => s.attemptState);
   const hintShown = useAslStore((s) => s.hintShown);
@@ -72,11 +75,13 @@ export function PracticeScreen({ progress }: PracticeScreenProps) {
         </div>
       )}
 
-      {/* Prompt card — top center */}
+      {/* Prompt card — top center. Doubles as the "back to grid" affordance:
+          tap the card to return to the letter picker. */}
       <PromptCard
         sign={currentSign}
         current={promptIndex}
         total={trainedSigns.length}
+        onBack={handleBackToGrid}
       />
 
       {/* Drill banner — only when a confusion-pair drill is active.
@@ -122,21 +127,24 @@ export function PracticeScreen({ progress }: PracticeScreenProps) {
       </div>
 
       {/* Hint card — shown on fail/uncertain. observedSign drives the
-          "We're seeing K — for E…" comparison framing in HintCard. */}
+          "We're seeing K — for E…" comparison framing in HintCard.
+          onSaveExample lets the user flag a misprediction as training data. */}
       {hintShown &&
         (attemptState === "failing" || attemptState === "uncertain") && (
-          <HintCard targetSign={currentSign} observedSign={observedSign} />
+          <HintCard
+            targetSign={currentSign}
+            observedSign={observedSign}
+            onSaveExample={handleSaveExample}
+            saveState={savingExample}
+          />
         )}
-
-      {/* Skip pill — fades in 10s into a stuck letter */}
-      <SkipPill visible={canSkip && attemptState !== "passing"} onSkip={handleSkip} />
 
       {/* Pass beat — full screen celebration */}
       <PassBeat active={attemptState === "passing"} />
 
       {/* Demo hint — small text bottom-left showing keyboard shortcuts */}
       <div className="absolute bottom-3 left-3 z-10 font-mono text-[9px] uppercase tracking-[0.18em] text-white/40">
-        Demo: P=pass · F=fail · U=uncertain · S=skip · D=HUD
+        Demo: P=pass · F=fail · U=uncertain · D=HUD
       </div>
     </>
   );
