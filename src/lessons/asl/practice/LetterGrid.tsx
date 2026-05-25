@@ -19,9 +19,10 @@ const CONFUSION_PAIRS: { pair: [string, string]; label: string; tip: string }[] 
  * its current mastery state (mastered ✓ / attempted ◐ / untouched ○).
  * Tapping a tile enters practice mode for that letter.
  *
- * Also renders a "Confusion-pair drill" section if any of the model's
- * known-hard pairs (M/N, U/V, I/J, S/T) have at least one attempted letter
- * — surfaces dedicated drills for those.
+ * Visual language matches platform chrome: sb-card surfaces, sb-border,
+ * "active = dark" emphasis (mastered tiles use bg-sb-ink + white text,
+ * not basil-400 fills). basil-400 only appears as the semantic ✓ glyph,
+ * matching ActivityFeed's pass-icon usage.
  */
 export function LetterGrid({ onEndSession }: { onEndSession: () => void }) {
   const outcomes = useAslStore((s) => s.outcomes);
@@ -40,31 +41,31 @@ export function LetterGrid({ onEndSession }: { onEndSession: () => void }) {
   return (
     <div
       data-testid="letter-grid"
-      className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/55 backdrop-blur-sm p-4 sm:p-8"
+      className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-sb-ink/60 backdrop-blur-sm p-4 sm:p-8"
     >
       {/* Header card */}
       <div className="w-full max-w-3xl mb-4 sm:mb-6">
-        <div className="rounded-2xl bg-sb-card/95 backdrop-blur-md border border-sb-border shadow-xl shadow-black/30 px-5 py-4 flex items-center justify-between">
-          <div>
+        <div className="rounded-2xl bg-sb-card/95 backdrop-blur-sm border border-sb-border shadow-xl shadow-sb-ink/20 px-5 py-4 flex items-center justify-between gap-3">
+          <div className="min-w-0">
             <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-sb-muted">
               Practice — tap a letter
             </p>
             <p className="font-mono text-base sm:text-lg text-sb-ink mt-1">
-              <span className="text-sb-accent-deep">{masteredCount}</span>
-              {" mastered · "}
-              <span className="text-sb-ink">{attemptedCount}</span>
-              {" attempted · "}
+              <span className="font-bold text-sb-ink">{masteredCount}</span>
+              <span className="text-sb-muted">{" mastered · "}</span>
+              <span className="text-sb-accent-deep">{attemptedCount}</span>
+              <span className="text-sb-muted">{" tried · "}</span>
               <span className="text-sb-muted">
                 {letters.length - masteredCount - attemptedCount}
               </span>
-              {" to go"}
+              <span className="text-sb-muted">{" to go"}</span>
             </p>
           </div>
           <button
             type="button"
             onClick={onEndSession}
             className="
-              shrink-0 px-3 py-2 rounded-xl
+              shrink-0 px-3 py-2 rounded-2xl
               font-mono text-[10px] uppercase tracking-[0.18em]
               bg-sb-surface text-sb-ink border border-sb-border
               hover:bg-sb-paper transition-colors duration-200
@@ -93,7 +94,7 @@ export function LetterGrid({ onEndSession }: { onEndSession: () => void }) {
 
       {/* Confusion-pair drills */}
       <div className="w-full max-w-3xl mt-5">
-        <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/70 mb-2 px-1">
+        <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-sb-paper/80 mb-2 px-1">
           Tricky pairs — drill until you nail 4 in a row
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
@@ -127,9 +128,10 @@ function DrillCard({
       data-testid={`drill-card-${label.replace(/\s/g, "")}`}
       className="
         text-left rounded-2xl px-3 py-3
-        bg-sb-card/85 border border-sb-border
+        bg-sb-card/95 backdrop-blur-sm border border-sb-border
+        shadow-xl shadow-sb-ink/10
         hover:bg-sb-card hover:border-sb-ink transition-all duration-200
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-black
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-ink
       "
     >
       <p className="font-mono font-bold text-sb-ink text-base">{label}</p>
@@ -163,13 +165,13 @@ function LetterTile({
         flex flex-col items-center justify-center
         font-mono font-bold text-3xl sm:text-4xl
         border-2 transition-all duration-200
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-black
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-ink
         ${
           mastered
-            ? "bg-basil-400/90 border-basil-400 text-sb-ink shadow-lg shadow-basil-400/30 hover:bg-basil-400"
+            ? "bg-sb-ink border-sb-ink text-white shadow-xl shadow-sb-accent-deep/25 hover:bg-sb-ink/90"
             : attempted
-              ? "bg-sb-card/90 border-sb-accent text-sb-ink hover:bg-sb-card"
-              : "bg-sb-card/80 border-sb-border text-sb-ink hover:bg-sb-card hover:border-sb-ink"
+              ? "bg-sb-card border-sb-ink/40 text-sb-ink hover:border-sb-ink"
+              : "bg-sb-card/85 border-sb-border text-sb-ink hover:bg-sb-card hover:border-sb-ink"
         }
       `}
     >
@@ -177,7 +179,7 @@ function LetterTile({
       <span
         aria-hidden
         className={`mt-1 text-[10px] font-normal tracking-[0.18em] ${
-          mastered ? "text-sb-ink/70" : attempted ? "text-sb-muted" : "text-sb-muted/50"
+          mastered ? "text-basil-400" : attempted ? "text-sb-accent-deep" : "text-sb-muted/50"
         }`}
       >
         {mastered ? "✓" : attempted ? "◐" : "○"}

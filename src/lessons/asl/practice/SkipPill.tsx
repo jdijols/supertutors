@@ -4,8 +4,9 @@ import { useEffect } from "react";
  * SkipPill — fades in 10s after the user lands on a letter, giving them
  * an out when the model is being uncooperative. Keyboard shortcut: S.
  *
- * Visual: small pill at the bottom-right of the camera feed, sits above
- * the prompt area, semi-transparent so it doesn't dominate.
+ * Matches the chrome-button visual language (MuteToggle, ExitButton) —
+ * rounded-2xl, border-2 border-sb-ink, "active = dark" inversion,
+ * shadow-sb-accent-deep/25. Not a pill chip.
  */
 export function SkipPill({
   visible,
@@ -37,17 +38,18 @@ export function SkipPill({
       data-testid="skip-pill"
       className={`
         absolute bottom-6 right-6 z-20
-        px-4 py-2 rounded-full
-        bg-sb-ink/85 backdrop-blur-md text-white
+        px-4 py-3 rounded-2xl
+        border-2 border-sb-ink
+        bg-sb-ink text-white
         font-mono text-[11px] uppercase tracking-[0.18em]
-        border border-white/15 shadow-lg shadow-black/30
-        transition-all duration-300
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-black
+        shadow-xl shadow-sb-accent-deep/25
+        hover:bg-sb-ink/90 transition-all duration-200
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface
         ${visible ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-2 pointer-events-none"}
       `}
     >
       Skip for now →
-      <span className="ml-2 text-white/50">[S]</span>
+      <span className="ml-2 text-white/55">[S]</span>
     </button>
   );
 }

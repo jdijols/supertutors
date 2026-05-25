@@ -79,24 +79,30 @@ export function PracticeScreen({ progress }: PracticeScreenProps) {
         total={trainedSigns.length}
       />
 
-      {/* Drill banner — only when a confusion-pair drill is active */}
+      {/* Drill banner — only when a confusion-pair drill is active.
+          Matches PromptCard's surface (sb-card / rounded-2xl / sb-border)
+          rather than a pill chip, for consistency with the rest of the
+          platform chrome. */}
       {drill && (
         <div
           data-testid="drill-banner"
           className="absolute top-4 left-1/2 -translate-x-1/2 z-20 mt-20 sm:mt-24"
         >
-          <div className="px-4 py-2 rounded-full bg-sb-accent-deep text-white font-mono text-[11px] uppercase tracking-[0.18em] flex items-center gap-3 shadow-lg shadow-black/30">
-            <span>
-              Drill: {drill.pair[0]} vs {drill.pair[1]}
+          <div className="bg-sb-card/95 backdrop-blur-sm rounded-2xl border border-sb-border shadow-xl shadow-sb-ink/10 px-4 py-2 flex items-center gap-3">
+            <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-sb-muted">
+              Drill
             </span>
-            <span className="text-white/80">
+            <span className="font-mono text-sm font-bold text-sb-ink">
+              {drill.pair[0]} vs {drill.pair[1]}
+            </span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-sb-accent-deep">
               {drill.correctInARow}/{drill.goal}
             </span>
             <button
               type="button"
               onClick={cancelDrill}
               aria-label="Cancel drill"
-              className="text-white/70 hover:text-white text-base leading-none focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-sb-accent-deep rounded"
+              className="ml-1 w-6 h-6 rounded-full text-sb-muted hover:bg-sb-surface hover:text-sb-ink flex items-center justify-center text-base leading-none focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-card transition-colors duration-200"
             >
               ×
             </button>
