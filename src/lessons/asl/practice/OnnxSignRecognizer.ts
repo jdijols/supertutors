@@ -5,8 +5,12 @@
  *   ASL-ComputerVision/training/run_pipeline.sh
  *
  * Model I/O contract (from export_onnx.py):
- *   Input:  float_input  [1, 63]  float32  — 21 normalized landmarks × (x, y, z)
- *   Output: probabilities [1, 9]  float32  — 8 signs + BACKGROUND class
+ *   Input:  float_input  [1, 126]  float32  — 63 position + 63 velocity
+ *   Output: probabilities [1, 9]  float32   — 8 signs + BACKGROUND class
+ *
+ * Features built per frame:
+ *   position[63] = raw MediaPipe landmarks (x,y ∈ [0,1] image-relative, z ≈ depth)
+ *   velocity[63] = position[t] - position[t-1]  (zero on the first frame)
  *
  * The recognizer runs async inference on every frame but returns results
  * synchronously via a one-frame-latent pending-result queue. The 1-frame
@@ -38,34 +42,38 @@ interface LabelMap {
   feature_dim: number;
 }
 
-/** Normalize 21 MediaPipe Hands landmarks to match the training preprocessing. */
-function normalizeLandmarks(landmarks: NormalizedLandmark[]): Float32Array {
-  // Translate so wrist (landmark 0) is at origin
-  const wx = landmarks[0].x;
-  const wy = landmarks[0].y;
-  const wz = landmarks[0].z;
-
-  const translated = landmarks.map((lm) => ({
-    x: lm.x - wx,
-    y: lm.y - wy,
-    z: lm.z - wz,
-  }));
-
-  // Scale: distance from wrist to middle-finger MCP (landmark 9) = 1.0
-  const { x: mx, y: my, z: mz } = translated[9];
-  let refDist = Math.sqrt(mx * mx + my * my + mz * mz);
-  if (refDist < 1e-6) {
-    refDist = Math.max(...translated.map(({ x, y, z }) => Math.sqrt(x * x + y * y + z * z))) || 1;
-  }
-  const scale = 1.0 / refDist;
-
+/**
+ * Flatten 21 MediaPipe landmarks into 63 floats (raw, no normalization).
+ * Position info is intentionally preserved so the classifier can use
+ * "hand at forehead" vs "hand at chest" as a feature.
+ */
+function landmarksToFlat(landmarks: NormalizedLandmark[]): Float32Array {
   const flat = new Float32Array(63);
   for (let i = 0; i < 21; i++) {
-    flat[i * 3 + 0] = translated[i].x * scale;
-    flat[i * 3 + 1] = translated[i].y * scale;
-    flat[i * 3 + 2] = translated[i].z * scale;
+    flat[i * 3 + 0] = landmarks[i].x;
+    flat[i * 3 + 1] = landmarks[i].y;
+    flat[i * 3 + 2] = landmarks[i].z;
   }
   return flat;
+}
+
+/**
+ * Build the 126-element input: position concatenated with velocity.
+ * Velocity = current_position - previous_position. Zero on first frame.
+ */
+function buildFeatureVector(
+  position: Float32Array,
+  previousPosition: Float32Array | null
+): Float32Array {
+  const features = new Float32Array(126);
+  features.set(position, 0);
+  if (previousPosition) {
+    for (let i = 0; i < 63; i++) {
+      features[63 + i] = position[i] - previousPosition[i];
+    }
+  }
+  // else: velocity stays zero (Float32Array initializes to 0)
+  return features;
 }
 
 export class OnnxSignRecognizer implements SignRecognizer {
@@ -81,6 +89,9 @@ export class OnnxSignRecognizer implements SignRecognizer {
 
   /** Result resolved from the most-recent async inference cycle. */
   private pendingResult: RecognitionResult | null = null;
+
+  /** Previous frame's position for velocity computation. Null = first frame. */
+  private previousPosition: Float32Array | null = null;
 
   constructor() {
     void this.load();
@@ -106,12 +117,12 @@ export class OnnxSignRecognizer implements SignRecognizer {
     }
   }
 
-  private async runInference(flat: Float32Array): Promise<void> {
+  private async runInference(features: Float32Array): Promise<void> {
     if (!this.session || !this.labelMap) return;
 
     try {
       const ort = await import("onnxruntime-web");
-      const tensor = new ort.Tensor("float32", flat, [1, 63]);
+      const tensor = new ort.Tensor("float32", features, [1, 126]);
       const outputs = await this.session.run({ float_input: tensor });
 
       // skl2onnx: index 0 = predicted label, index 1 = probabilities map
@@ -173,6 +184,9 @@ export class OnnxSignRecognizer implements SignRecognizer {
     if (!landmarks || landmarks.length === 0) {
       this.passHoldCount = 0;
       this.probBuffer.length = 0;
+      // Reset velocity reference when hand disappears — otherwise re-entry
+      // would produce a huge spurious velocity spike.
+      this.previousPosition = null;
       if (this.lastEmittedKind !== "no_hand") {
         this.lastEmittedKind = "no_hand";
         this.pendingResult = null;
@@ -181,9 +195,13 @@ export class OnnxSignRecognizer implements SignRecognizer {
       return null;
     }
 
+    // Build 126-feature input: raw position + velocity from previous frame
+    const position = landmarksToFlat(landmarks[0]);
+    const features = buildFeatureVector(position, this.previousPosition);
+    this.previousPosition = position;
+
     // Fire inference async for the NEXT frame
-    const flat = normalizeLandmarks(landmarks[0]);
-    void this.runInference(flat);
+    void this.runInference(features);
 
     // Return the result from the PREVIOUS inference cycle
     const result = this.pendingResult;
@@ -283,6 +301,7 @@ export class OnnxSignRecognizer implements SignRecognizer {
     this.probBuffer.length = 0;
     this.lastEmittedKind = null;
     this.pendingResult = null;
+    this.previousPosition = null;
     delete (this as { _bestLabel?: string })._bestLabel;
     delete (this as { _bestProb?: number })._bestProb;
   }
