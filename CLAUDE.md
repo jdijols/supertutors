@@ -87,6 +87,22 @@ from any other project. Full catalogs in `~/.claude/CLAUDE.md`:
   contract is clear.
 - `/ce-frontend-design` for new lesson UI before coding.
 
+## Design System
+
+Always read [DESIGN.md](DESIGN.md) before making any visual or UI decision.
+All font choices, colors, spacing, radii, motion tokens, and component patterns
+are defined there. Do not deviate without explicit user approval. In QA mode,
+flag any code that contradicts a token in DESIGN.md.
+
+Key rules from DESIGN.md:
+- `font-mono` (Geist Mono) for all labels, chrome, headings — never `font-display` or `font-body`
+- `font-sans` (Inter) for prose, speech bubble text, and form inputs
+- `active = dark` rule: active/ON state → `bg-sb-ink text-white`; rest state → `bg-sb-paper text-sb-ink`
+- Chrome shadows: always `shadow-sb-accent-deep/25` (never `shadow-black`)
+- Focus rings: always `focus-visible:ring-2 focus-visible:ring-sb-accent` (not `focus:ring-*`)
+- Viewport: always `h-[100dvh]` (not `h-screen` or `h-[100vh]`)
+- **Do not use** `portal.*`, `tomato.*`, `Fredoka`, or `Nunito` — they are deprecated/unused
+
 ## Repo-specific gotchas
 
 - **Lesson stubs vs. shipped lessons.** `src/lessons/acutis/` and

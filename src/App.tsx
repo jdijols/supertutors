@@ -2,8 +2,10 @@ import { Outlet } from "react-router-dom";
 import { DemoBadge } from "@/components/DemoBadge";
 import { useDemoMode } from "@/lib/demoMode";
 import { useMutedSync } from "@/platform/audio/useMutedSync";
+import { AuthMount } from "@/platform/auth/AuthMount";
 import { ExitButton } from "@/platform/ui/ExitButton";
 import { MuteToggle } from "@/platform/ui/MuteToggle";
+import { UserMenu } from "@/platform/ui/UserMenu";
 
 export default function App() {
   const { enabled: demoMode } = useDemoMode();
@@ -11,10 +13,12 @@ export default function App() {
   useMutedSync();
   return (
     <div className="min-h-[100dvh] w-full">
+      <AuthMount />
       <Outlet />
-      {/* Global mute toggle — fixed top-right on every route. Rendered
-          outside the Outlet so it persists across transitions and sits
+      {/* Global chrome — fixed top-right on every route. Rendered
+          outside the Outlet so they persist across transitions and sit
           above overlays. */}
+      <UserMenu />
       <ExitButton />
       <MuteToggle />
       {demoMode && <DemoBadge />}

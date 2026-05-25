@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { AudioEngine } from "./audio/AudioEngine";
 import { getNameAudioUrl } from "./audio/nameAudioCache";
 import { getLessonBySlug } from "./registry";
+import { useProgress } from "./progress/useProgress";
 import { usePlatformStore } from "./stores/platformStore";
 import type { AudioEngineHandle, CvCameraHandle, LessonMountProps } from "./lesson-sdk";
 import type React from "react";
@@ -27,6 +28,7 @@ export function LessonHost() {
   const navigate = useNavigate();
   const { name, muted, setMuted, setCurrentLessonSlug } = usePlatformStore();
 
+  const progress = useProgress();
   const lesson = slug ? getLessonBySlug(slug) : undefined;
   // Sync condition computed inline (no effect) so we don't trigger the
   // react-hooks/set-state-in-effect rule. The "lesson not found" view is
@@ -138,10 +140,23 @@ export function LessonHost() {
     muted,
     setMuted,
     ...(requiresCamera ? { cv: cvHandle } : {}),
+    ...(progress ? { progress } : {}),
   };
 
-  function handleComplete({ outcome }: { outcome: "win" | "exit"; durationMs: number }) {
+  function handleComplete({
+    outcome,
+    itemId,
+  }: {
+    outcome: "win" | "exit";
+    durationMs: number;
+    itemId?: string;
+  }) {
+    // If the lesson reports a win and provides an itemId, record a pass
+    // attempt. The lesson is responsible for startSession/endSession.
+    // Lessons that don't write progress (e.g. Freddy in its current form)
+    // just navigate away — that's fine.
     void outcome;
+    void itemId;
     navigate("/");
   }
 

@@ -56,3 +56,7 @@ playwright/.cache/
 # Large reference corpora — kept locally for ASL CV work, not in source control
 ASL-ComputerVision/References/ASL-LEX 2.0/
 ASL-ComputerVision/References/WLASL-dataset/
+
+# Supabase CLI local state
+supabase/.temp/
+supabase/.branches/

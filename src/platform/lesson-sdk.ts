@@ -1,4 +1,5 @@
 import type React from "react";
+import type { ProgressHandle } from "./progress/types";
 
 export interface AudioEngineHandle {
   play: (
@@ -16,10 +17,11 @@ export interface CvCameraHandle {
 
 export interface LessonMountProps {
   name: string;
-  onComplete: (r: { outcome: "win" | "exit"; durationMs: number }) => void;
+  onComplete: (r: { outcome: "win" | "exit"; durationMs: number; itemId?: string }) => void;
   platform: {
     audio: AudioEngineHandle;
     cv?: CvCameraHandle;
+    progress?: ProgressHandle;
     muted: boolean;
     setMuted: (m: boolean) => void;
   };

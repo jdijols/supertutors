@@ -46,6 +46,8 @@ export function ComingSoonPosterCard({
   glyph,
   theme,
   ariaLabel,
+  available = false,
+  progress,
 }: {
   className?: string;
   onActivate?: () => void;
@@ -58,6 +60,10 @@ export function ComingSoonPosterCard({
   glyph: React.ReactNode;
   theme: PosterTheme;
   ariaLabel: string;
+  /** When true: hide Coming Soon ribbon, show "Start" affordance, bump glyph contrast. */
+  available?: boolean;
+  /** Optional progress overlay rendered inside the card's bottom area. */
+  progress?: { mastered: number; total: number };
 }) {
   const outlineStyle: React.CSSProperties = {
     WebkitTextStrokeWidth: "1px",
@@ -86,31 +92,37 @@ export function ComingSoonPosterCard({
         }}
       />
 
-      {/* Diagonal "COMING SOON" corner ribbon, top-right */}
-      <div
-        aria-hidden
-        className="absolute top-0 right-0 w-[180px] h-[180px] overflow-hidden pointer-events-none"
-      >
-        <div
-          className="absolute font-mono font-bold uppercase tracking-[0.28em] text-white text-[10px] sm:text-[11px] flex items-center justify-center"
-          style={{
-            background: theme.accent,
-            transform: "rotate(45deg)",
-            top: "32px",
-            right: "-44px",
-            width: "200px",
-            height: "26px",
-          }}
-        >
-          Coming Soon
-        </div>
-      </div>
-
-      <div className="relative h-full min-h-[420px] md:min-h-[520px]">
-        {/* Oversized background glyph — anchored right, faded */}
+      {/* Diagonal "COMING SOON" corner ribbon, top-right — hidden when card represents an available lesson. */}
+      {!available && (
         <div
           aria-hidden
-          className="absolute right-[-4%] sm:right-[-2%] bottom-[10%] w-[55%] h-[70%] flex items-center justify-center opacity-[0.18] transition-transform duration-500 ease-out group-hover:translate-y-[-4px]"
+          className="absolute top-0 right-0 w-[180px] h-[180px] overflow-hidden pointer-events-none"
+        >
+          <div
+            className="absolute font-mono font-bold uppercase tracking-[0.28em] text-white text-[10px] sm:text-[11px] flex items-center justify-center"
+            style={{
+              background: theme.accent,
+              transform: "rotate(45deg)",
+              top: "32px",
+              right: "-44px",
+              width: "200px",
+              height: "26px",
+            }}
+          >
+            Coming Soon
+          </div>
+        </div>
+      )}
+
+      <div className="relative h-full min-h-[420px] md:min-h-[520px]">
+        {/* Oversized background glyph — anchored right. Bump opacity for
+            available lessons so the glyph reads as character art, not
+            decoration. Coming-soon lessons stay faded to signal "not yet". */}
+        <div
+          aria-hidden
+          className={`absolute right-[-4%] sm:right-[-2%] bottom-[10%] w-[55%] h-[70%] flex items-center justify-center transition-transform duration-500 ease-out group-hover:translate-y-[-4px] ${
+            available ? "opacity-[0.35]" : "opacity-[0.18]"
+          }`}
           style={{ color: theme.glyphColor }}
         >
           {glyph}
@@ -142,17 +154,35 @@ export function ComingSoonPosterCard({
           </p>
         </div>
 
-        {/* Bottom meta strip */}
+        {/* Bottom meta strip — progress sits above the divider when present. */}
         <div className="absolute bottom-0 left-0 right-0 px-7 sm:px-10 md:px-12 pb-6 sm:pb-7 md:pb-8">
+          {progress && progress.total > 0 && (
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex-1 h-1 rounded-full bg-sb-ink/10 overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{
+                    width: `${Math.round((progress.mastered / progress.total) * 100)}%`,
+                    background: theme.accent,
+                  }}
+                />
+              </div>
+              <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-sb-muted whitespace-nowrap">
+                {progress.mastered}/{progress.total} mastered
+              </span>
+            </div>
+          )}
           <div className="flex items-center justify-between gap-4 border-t border-sb-ink/10 pt-4">
             <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-sb-muted">
               {metaStrip}
             </span>
             <span
               aria-hidden
-              className="font-mono text-[12px] uppercase tracking-[0.18em] text-sb-ink/60 inline-flex items-center gap-2 group-hover:gap-3 transition-[gap] duration-300"
+              className={`font-mono text-[12px] uppercase tracking-[0.18em] inline-flex items-center gap-2 group-hover:gap-3 transition-[gap] duration-300 ${
+                available ? "text-sb-ink" : "text-sb-ink/60"
+              }`}
             >
-              Preview
+              {available ? "Start" : "Preview"}
               <span>→</span>
             </span>
           </div>
