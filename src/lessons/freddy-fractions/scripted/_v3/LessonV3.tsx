@@ -10,7 +10,7 @@ import {
   type SandboxPiece,
 } from "../../scenes/table";
 import { derivePerGuestTableState } from "../tableState";
-import { SpeechBubble } from "../../scenes/world";
+import { CvToggle, SpeechBubble, ToolPicker } from "../../scenes/world";
 import { MCQ, type MCQOption } from "./MCQ";
 import { FractionInput } from "./FractionInput";
 import { MixedNumberDisplay } from "./MixedNumberDisplay";
@@ -522,12 +522,12 @@ function getLayout(width: number, height: number): SceneLayout {
 
   // Boxes — right side, right edge aligned to the mute-toggle right
   // edge (~20px from viewport right). Box width = 200, so box left =
-  // width - 220. Vertically centered on the counter; shifted up
-  // slightly so they don't crowd the bottom.
+  // width - 220. Shifted up further so the ToolPicker (bottom-right)
+  // and CvToggle (bottom-left) have clear room beneath the counter.
   const guests2X = Math.max(width - 220, 800);
   const guests2 = [
-    { id: "maya", label: "Maya", x: guests2X, y: counterTop + 20 },
-    { id: "theo", label: "Theo", x: guests2X, y: counterTop + 250 },
+    { id: "maya", label: "Maya", x: guests2X, y: counterTop - 30 },
+    { id: "theo", label: "Theo", x: guests2X, y: counterTop + 200 },
   ] as const;
 
   // 4-guest layout: 2×2 grid on the right, also right-edge-aligned.
@@ -536,10 +536,10 @@ function getLayout(width: number, height: number): SceneLayout {
   const guests4Col1X = Math.max(width - 350, 700);
   const guests4Col2X = Math.max(width - 180, 900);
   const guests4 = [
-    { id: "maya", label: "Maya", x: guests4Col1X, y: counterTop + 20 },
-    { id: "theo", label: "Theo", x: guests4Col2X, y: counterTop + 20 },
-    { id: "nonna", label: "Nonna", x: guests4Col1X, y: counterTop + 210 },
-    { id: "nico", label: "Nico", x: guests4Col2X, y: counterTop + 210 },
+    { id: "maya", label: "Maya", x: guests4Col1X, y: counterTop - 20 },
+    { id: "theo", label: "Theo", x: guests4Col2X, y: counterTop - 20 },
+    { id: "nonna", label: "Nonna", x: guests4Col1X, y: counterTop + 170 },
+    { id: "nico", label: "Nico", x: guests4Col2X, y: counterTop + 170 },
   ] as const;
 
   const scene1Positions = [
@@ -598,8 +598,7 @@ export interface LessonV3Props {
   cv?: CvCameraHandle;
 }
 
-export function LessonV3({ name, cv: _cv }: LessonV3Props) {
-  void _cv;
+export function LessonV3({ name, cv }: LessonV3Props) {
 
   const [stage, setStage] = useState<V3Stage>("beat_1_distribute_4");
   const [hint, setHint] = useState<string | undefined>(undefined);
@@ -832,6 +831,14 @@ export function LessonV3({ name, cv: _cv }: LessonV3Props) {
           onTap={handlePieceTap}
         />
       ))}
+
+      {/* Chrome: CvToggle bottom-left (self-positions to fixed bottom-
+          left + z-[60]), ToolPicker bottom-right (needs wrapper to
+          position). */}
+      {cv && <CvToggle cv={cv} />}
+      <div className="absolute bottom-4 right-4 z-30">
+        <ToolPicker />
+      </div>
 
       {/* Numeral overlay — appears during notation beats (Scene 3+) */}
       {config.numeralOverlay && (

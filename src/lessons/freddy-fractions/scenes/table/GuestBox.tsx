@@ -136,12 +136,13 @@ export const GuestBox = forwardRef<GuestBoxHandle, GuestBoxProps>(
             />
           ))}
         </div>
-        {/* Name label as a paper pill above the box — readable against
-            both the wood counter and the box background. */}
+        {/* Name label as a paper pill that overlaps the box top edge.
+            z-[1] keeps the label just above the box image — NOT above
+            sibling elements outside the box (like dragged pizzas). */}
         <div
           data-testid="guest-box-label"
-          className="absolute left-1/2 -translate-x-1/2 bg-sb-paper border-2 border-sb-ink rounded-full px-3 py-1 font-mono uppercase tracking-[0.14em] text-[11px] text-sb-ink shadow-lg shadow-sb-accent-deep/25 whitespace-nowrap z-10"
-          style={{ top: -14 }}
+          className="absolute left-1/2 -translate-x-1/2 bg-sb-paper border-2 border-sb-ink rounded-full px-3 py-1 font-mono uppercase tracking-[0.14em] text-[11px] text-sb-ink shadow-lg shadow-sb-accent-deep/25 whitespace-nowrap z-[1]"
+          style={{ top: -8 }}
         >
           {label}
         </div>
