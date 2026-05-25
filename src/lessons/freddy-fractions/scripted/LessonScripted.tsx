@@ -356,6 +356,7 @@ export function LessonScripted({ name, cv }: LessonScriptedProps) {
         onSlice={handleSlice}
         onAha={handleAha}
         onTableStateChange={setTableState}
+        scriptedMode={true}
         cv={cv}
       />
 

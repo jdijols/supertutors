@@ -424,6 +424,14 @@ export interface LessonTableProps {
    */
   onTableStateChange?: (state: TableState) => void;
   /**
+   * When true, hides workspace features the scripted lesson can't handle
+   * mid-flow: the AddPizza button (no random extra pizza mid-lesson) and
+   * the DeliveryBox (no customer to deliver to in v2 — Carlo and Marco
+   * are dialogue-only). The scripted lesson sets this true; sandbox /
+   * exploration / preview routes leave it false to preserve full UX.
+   */
+  scriptedMode?: boolean;
+  /**
    * Optional camera handle from the platform. When provided, the CV toggle
    * button and CV mode overlay render. URL sync (`?cv=true`) is the
    * platform's responsibility; this prop is the single source of truth
@@ -470,6 +478,7 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
       onAha,
       onWin,
       onTableStateChange,
+      scriptedMode = false,
       cv,
     },
     ref,
@@ -812,8 +821,10 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
           <ToolPicker visible />
         </div>
 
-        {/* Add-pizza button top-left (oven side). */}
-        <AddPizzaButton onAdd={handleAddPizza} disabled={cantAddMore} />
+        {/* Add-pizza button top-left (oven side). Hidden in scriptedMode so
+            the lesson doesn't have to handle a kid spawning an extra pizza
+            mid-arc — there's no v2 dialogue for that. */}
+        {!scriptedMode && <AddPizzaButton onAdd={handleAddPizza} disabled={cantAddMore} />}
 
         {/* Camera / hand-tracking toggle bottom-left — pairs visually
             with MuteToggle in the top-right (matching chrome pattern,
@@ -821,9 +832,11 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
             a camera handle (i.e. the lesson declared requires.camera). */}
         {cv && <CvToggle cv={cv} />}
 
-        {/* Delivery box right-side. Pulses when the table is too packed to
-            accept another pizza — signal "send a pizza away to make room." */}
-        <DeliveryBox ref={deliveryBoxRef} pulseHint={cantAddMore} />
+        {/* Delivery box right-side. Hidden in scriptedMode — Carlo and Marco
+            are dialogue-only in v2 (no guest sprites, no delivery target),
+            so the box has nothing to receive. Pulses when full in sandbox
+            mode to signal "send a pizza away to make room." */}
+        {!scriptedMode && <DeliveryBox ref={deliveryBoxRef} pulseHint={cantAddMore} />}
 
         {/* Pointer-following tool sprite. */}
         <ToolSprite toolMode={toolMode} />
