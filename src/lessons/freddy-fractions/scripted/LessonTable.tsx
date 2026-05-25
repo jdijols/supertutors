@@ -559,9 +559,24 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
       (id: string, x: number, y: number) => {
         const piece = pieces.find((p) => p.id === id);
         if (!piece) return;
-        const centerX = x + piece.width / 2;
-        const centerY = y + piece.height / 2;
-        if (deliveryBoxRef.current?.contains(centerX, centerY)) {
+        // Drop-detection uses overlap-area (≥20% of piece inside the box),
+        // not center-point. Center-only made the kid's drop feel like a
+        // miss whenever the visual overlap was obvious but the geometric
+        // center happened to land outside the box rect — particularly
+        // brutal with whole pizzas (256px) against the 252px box where
+        // most of the pizza could be visually inside but center outside.
+        // (x, y) are motion-value coords which equal viewport coords in
+        // this layout because the lesson container has zero viewport
+        // offset. If you ever add a header/sidebar/padding around the
+        // table, replace `{left:x, top:y, ...}` with the piece element's
+        // getBoundingClientRect to stay viewport-correct.
+        const pieceRect = {
+          left: x,
+          top: y,
+          right: x + piece.width,
+          bottom: y + piece.height,
+        };
+        if (deliveryBoxRef.current?.overlaps(pieceRect)) {
           // Fire delivery: trigger box animation then remove the piece.
           // The remove runs in parallel with the box animation so the
           // piece disappears immediately on drop (the box flying off

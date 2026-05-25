@@ -31,9 +31,25 @@ import { useTutorStore } from "../../store/tutorStore";
  * (Pixar/Duolingo cartoon style — see Journals/May-19-1838-freddy-world-locked-in.md).
  */
 
+export interface PieceRect {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+}
+
 export interface DeliveryBoxHandle {
-  /** True if (x, y) viewport coords are over the box's bounding rect. */
+  /** True if (x, y) viewport coords are over the box's bounding rect.
+   *  Used by during-drag hover indicators that only have a pointer
+   *  position to test against (not a full piece rect). */
   contains: (x: number, y: number) => boolean;
+  /** True if the given piece rect overlaps the box by at least `threshold`
+   *  fraction of the piece's area (default 0.20 = 20%). Use this for
+   *  drop-detection — it's much more forgiving than center-only checks
+   *  and matches how a kid perceives "the pizza is inside the box."
+   *  Coords are viewport-relative; piece rect should be the piece's
+   *  on-screen bounding rect. */
+  overlaps: (pieceRect: PieceRect, threshold?: number) => boolean;
   /** Trigger the receive → slide-off → replenish sequence. */
   receive: () => Promise<void>;
 }
@@ -117,6 +133,32 @@ export const DeliveryBox = forwardRef<DeliveryBoxHandle, DeliveryBoxProps>(
       );
     }, []);
 
+    const overlaps = useCallback(
+      (pieceRect: PieceRect, threshold: number = 0.2): boolean => {
+        const rect = boxRef.current?.getBoundingClientRect();
+        if (!rect) return false;
+        // Standard AABB overlap-area computation.
+        const overlapW = Math.max(
+          0,
+          Math.min(pieceRect.right, rect.right) -
+            Math.max(pieceRect.left, rect.left),
+        );
+        const overlapH = Math.max(
+          0,
+          Math.min(pieceRect.bottom, rect.bottom) -
+            Math.max(pieceRect.top, rect.top),
+        );
+        if (overlapW <= 0 || overlapH <= 0) return false;
+        const overlapArea = overlapW * overlapH;
+        const pieceArea =
+          (pieceRect.right - pieceRect.left) *
+          (pieceRect.bottom - pieceRect.top);
+        if (pieceArea <= 0) return false;
+        return overlapArea / pieceArea >= threshold;
+      },
+      [],
+    );
+
     const receive = useCallback(async () => {
       // 1. Close lid (image swap).
       setPhase("closed");
@@ -133,8 +175,8 @@ export const DeliveryBox = forwardRef<DeliveryBoxHandle, DeliveryBoxProps>(
 
     useImperativeHandle(
       ref,
-      () => ({ contains, receive }),
-      [contains, receive],
+      () => ({ contains, overlaps, receive }),
+      [contains, overlaps, receive],
     );
 
     // The glow / pulse animations — both apply to the outer wrapper. Glow
