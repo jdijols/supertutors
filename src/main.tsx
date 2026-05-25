@@ -1,16 +1,19 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import ReactDOM from "react-dom/client";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { RouterProvider, createBrowserRouter, Navigate } from "react-router-dom";
 import App from "@/App";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { LandingPage } from "@/modules/landing/LandingPage";
-import { LessonView } from "@/modules/lesson/LessonView";
-import { PizzaInScene } from "@/modules/preview/PizzaInScene";
-import { PizzaPreview } from "@/modules/preview/PizzaPreview";
-import { GuestPreview } from "@/modules/preview/GuestPreview";
-import { VoicePreview } from "@/modules/preview/VoicePreview";
-import { CvPreview } from "@/modules/preview/CvPreview";
+import { LandingPage } from "@/platform/landing/LandingPage";
+import { LessonHost } from "@/platform/LessonHost";
 import "@/styles/globals.css";
+
+// Preview routes are dev-only tooling — lazy-load so lesson/dialogue assets
+// don't inflate the main bundle.
+const PizzaInScene = lazy(() => import("@/lessons/freddy-fractions/previews/PizzaInScene").then((m) => ({ default: m.PizzaInScene })));
+const PizzaPreview = lazy(() => import("@/lessons/freddy-fractions/previews/PizzaPreview").then((m) => ({ default: m.PizzaPreview })));
+const GuestPreview = lazy(() => import("@/lessons/freddy-fractions/previews/GuestPreview").then((m) => ({ default: m.GuestPreview })));
+const VoicePreview = lazy(() => import("@/lessons/freddy-fractions/previews/VoicePreview").then((m) => ({ default: m.VoicePreview })));
+const CvPreview = lazy(() => import("@/platform/previews/CvPreview").then((m) => ({ default: m.CvPreview })));
 
 const router = createBrowserRouter([
   {
@@ -18,12 +21,13 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       { index: true, element: <LandingPage /> },
-      { path: "lesson", element: <LessonView /> },
-      { path: "preview/pizza", element: <PizzaPreview /> },
-      { path: "preview/scene", element: <PizzaInScene /> },
-      { path: "preview/guests", element: <GuestPreview /> },
-      { path: "preview/voice", element: <VoicePreview /> },
-      { path: "preview/cv", element: <CvPreview /> },
+      { path: "lessons/:slug", element: <LessonHost /> },
+      { path: "lesson", element: <Navigate to="/lessons/freddy-fractions" replace /> },
+      { path: "preview/pizza", element: <Suspense><PizzaPreview /></Suspense> },
+      { path: "preview/scene", element: <Suspense><PizzaInScene /></Suspense> },
+      { path: "preview/guests", element: <Suspense><GuestPreview /></Suspense> },
+      { path: "preview/voice", element: <Suspense><VoicePreview /></Suspense> },
+      { path: "preview/cv", element: <Suspense><CvPreview /></Suspense> },
     ],
   },
 ]);

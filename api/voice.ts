@@ -41,11 +41,12 @@ export default async function handler(req: Request): Promise<Response> {
     return new Response("Body must be JSON", { status: 415 });
   }
 
-  const nameResult = validateName(
+  const bodyObj =
     typeof body === "object" && body !== null
-      ? (body as Record<string, unknown>).name
-      : undefined,
-  );
+      ? (body as Record<string, unknown>)
+      : {};
+
+  const nameResult = validateName(bodyObj.name);
   if (!nameResult.ok) {
     return new Response(nameResult.reason, { status: nameResult.status });
   }
@@ -53,6 +54,7 @@ export default async function handler(req: Request): Promise<Response> {
   const envResult = validateEnv({
     apiKey: process.env.ELEVENLABS_API_KEY,
     voiceId: process.env.ELEVENLABS_VOICE_ID,
+    bodyVoiceId: typeof bodyObj.voiceId === "string" ? bodyObj.voiceId : undefined,
   });
   if (!envResult.ok) {
     return new Response(envResult.reason, { status: envResult.status });

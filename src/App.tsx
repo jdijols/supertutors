@@ -1,9 +1,9 @@
 import { Outlet } from "react-router-dom";
 import { DemoBadge } from "@/components/DemoBadge";
 import { useDemoMode } from "@/lib/demoMode";
-import { useMutedSync } from "@/modules/audio/useMutedSync";
-import { ExitButton } from "@/modules/ui/ExitButton";
-import { MuteToggle } from "@/modules/ui/MuteToggle";
+import { useMutedSync } from "@/platform/audio/useMutedSync";
+import { ExitButton } from "@/platform/ui/ExitButton";
+import { MuteToggle } from "@/platform/ui/MuteToggle";
 
 export default function App() {
   const { enabled: demoMode } = useDemoMode();

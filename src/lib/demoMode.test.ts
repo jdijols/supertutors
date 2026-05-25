@@ -12,16 +12,16 @@ describe("BEAT_TARGETS", () => {
     }
   });
 
-  it("key 6 maps to /lesson?beat=aha (the demo hero)", () => {
+  it("key 6 maps to /lessons/freddy-fractions?beat=aha (the demo hero)", () => {
     expect(BEAT_TARGETS[6]).toEqual({
-      path: "/lesson",
+      path: "/lessons/freddy-fractions",
       beatQuery: "aha",
       beat: "aha",
     });
   });
 
-  it("key 2 maps to /lesson with the skip-onboarding flag", () => {
-    expect(BEAT_TARGETS[2].path).toBe("/lesson");
+  it("key 2 maps to /lessons/freddy-fractions with the skip-onboarding flag", () => {
+    expect(BEAT_TARGETS[2].path).toBe("/lessons/freddy-fractions");
     expect(BEAT_TARGETS[2].beatQuery).toBe("skip=true");
   });
 });
@@ -32,22 +32,22 @@ describe("buildBeatUrl", () => {
   });
 
   it("appends ?beat=<value> when beatQuery is a plain string", () => {
-    expect(buildBeatUrl(BEAT_TARGETS[6])).toBe("/lesson?beat=aha");
-    expect(buildBeatUrl(BEAT_TARGETS[7])).toBe("/lesson?beat=check");
+    expect(buildBeatUrl(BEAT_TARGETS[6])).toBe("/lessons/freddy-fractions?beat=aha");
+    expect(buildBeatUrl(BEAT_TARGETS[7])).toBe("/lessons/freddy-fractions?beat=check");
   });
 
   it("treats a beatQuery containing '=' as a raw query string", () => {
-    expect(buildBeatUrl(BEAT_TARGETS[2])).toBe("/lesson?skip=true");
+    expect(buildBeatUrl(BEAT_TARGETS[2])).toBe("/lessons/freddy-fractions?skip=true");
   });
 
   it("URL-encodes the beat query", () => {
     expect(
       buildBeatUrl({
-        path: "/lesson",
+        path: "/lessons/freddy-fractions",
         beatQuery: "weird value",
         beat: "splash",
       }),
-    ).toBe("/lesson?beat=weird%20value");
+    ).toBe("/lessons/freddy-fractions?beat=weird%20value");
   });
 });
 

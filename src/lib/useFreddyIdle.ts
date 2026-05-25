@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useAppStore, type FreddyDisplay } from "@/store/appStore";
+import { useTutorStore, type FreddyDisplay } from "@/lessons/freddy-fractions/store/tutorStore";
 
 const IDLE_TRIGGER_MS = 20_000;
 const IDLE_DURATION_MS = 10_000;
@@ -28,18 +28,26 @@ const IDLE_DURATION_MS = 10_000;
  *     planned restore (the new state wins).
  */
 export function useFreddyIdle({ enabled = true }: { enabled?: boolean } = {}) {
-  const freddy = useAppStore((s) => s.freddy);
-  const setFreddy = useAppStore((s) => s.setFreddy);
+  const freddy = useTutorStore((s) => s.freddy);
+  const setFreddy = useTutorStore((s) => s.setFreddy);
 
   // Latest freddy snapshot — kept in a ref so the tick interval can read
   // it without subscribing (and tearing down on every Freddy change).
+  // Sync happens in a layout effect (not during render) so React 19's
+  // react-hooks/refs rule stays happy.
   const freddyRef = useRef(freddy);
-  freddyRef.current = freddy;
+  useEffect(() => {
+    freddyRef.current = freddy;
+  }, [freddy]);
 
-  // Timestamp of Freddy's last state change. The watcher effect bumps
-  // this whenever the store's freddy slice changes from outside the hook;
-  // the tick reads it to decide whether the idle threshold has elapsed.
-  const lastChangeAtRef = useRef(Date.now());
+  // Timestamp of Freddy's last state change. Initialized lazily on mount
+  // (not during render — Date.now() in useRef tripped react-hooks/purity).
+  const lastChangeAtRef = useRef(0);
+  useEffect(() => {
+    if (lastChangeAtRef.current === 0) {
+      lastChangeAtRef.current = Date.now();
+    }
+  }, []);
 
   // True while we're currently overriding to the thinking pose. Prevents
   // re-triggering on every tick during the 10s window.

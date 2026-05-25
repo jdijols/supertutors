@@ -1,0 +1,25 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Claude Code local settings (machine-specific, not for sharing)
+.claude/settings.local.json
+.claude/sessions/
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS junk
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local

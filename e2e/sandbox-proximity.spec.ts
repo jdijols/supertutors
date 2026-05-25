@@ -26,7 +26,7 @@ test.describe("sandbox proximity detection", () => {
   test("slice → drag close → equal cluster indicator appears", async ({
     page,
   }) => {
-    await page.goto("/lesson?skip=true");
+    await page.goto("/lessons/freddy-fractions?skip=true");
 
     const pieces = page.locator("[data-piece-id]");
     await expect(pieces).toHaveCount(1);
