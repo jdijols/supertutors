@@ -25,7 +25,7 @@ interface DarkPageHeaderProps {
  */
 export function DarkPageHeader({ rightSlot }: DarkPageHeaderProps) {
   return (
-    <header className="flex items-center justify-between gap-4 px-6 sm:px-8 md:px-12 lg:px-16 py-4 sm:py-5 md:py-6 shrink-0 border-b border-white/10">
+    <header className="flex items-center justify-between gap-4 px-6 sm:px-8 md:px-12 lg:px-16 py-2 sm:py-2.5 md:py-3 shrink-0 border-b border-white/10">
       <Link
         to="/"
         aria-label="Back to SuperTutors home"
