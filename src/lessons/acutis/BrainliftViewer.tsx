@@ -1,12 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { LaurelMark } from "@/platform/landing/LaurelMark";
+import { DarkPageHeader } from "@/platform/ui/DarkPageHeader";
 
 interface BrainliftViewerProps {
   markdown: string;
-  title: string;
 }
 
 /**
@@ -101,8 +99,7 @@ function useTransientPulse(duration = 2000): [boolean, () => void] {
   return [active, () => setActive(true)];
 }
 
-export function BrainliftViewer({ markdown, title }: BrainliftViewerProps) {
-  const navigate = useNavigate();
+export function BrainliftViewer({ markdown }: BrainliftViewerProps) {
   const [mode, setMode] = useState<"rendered" | "raw">("rendered");
   const [copied, flashCopied] = useTransientPulse();
   const [downloaded, flashDownloaded] = useTransientPulse();
@@ -165,101 +162,83 @@ export function BrainliftViewer({ markdown, title }: BrainliftViewerProps) {
 
   return (
     <div className="flex flex-col h-[100dvh] bg-sb-ink text-sb-paper-soft">
-      {/* Top bar — brand mark + back nav left, viewer controls right.
-          App.tsx skips its global fixed chrome on /lessons/acutis.
-          No Mute (no audio on this surface) and no Exit pill (back
-          arrow is the iPad-conventional navigation affordance here). */}
-      <header className="flex items-center justify-between gap-4 px-6 sm:px-8 py-3 shrink-0 border-b border-white/10">
-        <div className="flex items-center gap-3">
-          <LaurelMark className="w-11 h-11 shrink-0" variant="onDark" title="SuperTutors" />
-          <button
-            type="button"
-            onClick={() => navigate("/")}
-            aria-label="Back to SuperTutors home"
-            data-cursor-pointing
-            className={`${iconButtonBase} ${iconButtonIdle}`}
-          >
-            <BackArrowIcon />
-          </button>
-          {/* Filename label — literal mixed-case mono so users know
-              exactly which file they're copying or downloading. No
-              uppercase / tracking treatment here; that's reserved for
-              editorial eyebrows. This is identification, not chrome. */}
-          <span className="font-mono text-[14px] sm:text-[15px] text-sb-paper/80 truncate">
-            {title}
-          </span>
-        </div>
+      {/* Shared dark-surface chrome from DarkPageHeader: laurel mark
+          (acts as back-to-home), then a right-slot of viewer-specific
+          controls followed by the global UserMenu + MuteToggle pair.
+          Same component as /workflow — this page just slots in more. */}
+      <DarkPageHeader
+        rightSlot={
+          <>
+            {/* Expand all / Collapse all — only meaningful in Rendered mode
+                since Raw shows the literal markdown source. */}
+            {mode === "rendered" && (
+              <button
+                type="button"
+                onClick={toggleAll}
+                aria-label={lastBulk === "expanded" ? "Collapse all sections" : "Expand all sections"}
+                data-cursor-pointing
+                className="h-11 px-4 rounded-xl border border-white/15 bg-white/5 font-mono text-xs uppercase tracking-[0.16em] whitespace-nowrap text-sb-paper/70 hover:text-sb-paper hover:bg-white/[0.08] transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-ink"
+              >
+                {lastBulk === "expanded" ? "Collapse all" : "Expand all"}
+              </button>
+            )}
 
-        <div className="flex items-center gap-3">
-          {/* Expand all / Collapse all — only meaningful in Rendered mode
-              since Raw shows the literal markdown source. */}
-          {mode === "rendered" && (
+            {/* Rendered / Raw toggle */}
+            <div
+              role="group"
+              aria-label="View mode"
+              className="inline-flex rounded-xl border border-white/15 bg-white/5 p-1"
+            >
+              <button
+                onClick={() => setMode("rendered")}
+                aria-pressed={mode === "rendered"}
+                className={[
+                  "px-4 py-2 rounded-lg font-mono text-xs uppercase tracking-[0.16em] transition-colors duration-200",
+                  "focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-ink",
+                  mode === "rendered"
+                    ? "bg-sb-paper text-sb-ink"
+                    : "text-sb-paper/60 hover:text-sb-paper",
+                ].join(" ")}
+              >
+                Rendered
+              </button>
+              <button
+                onClick={() => setMode("raw")}
+                aria-pressed={mode === "raw"}
+                className={[
+                  "px-4 py-2 rounded-lg font-mono text-xs uppercase tracking-[0.16em] transition-colors duration-200",
+                  "focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-ink",
+                  mode === "raw"
+                    ? "bg-sb-paper text-sb-ink"
+                    : "text-sb-paper/60 hover:text-sb-paper",
+                ].join(" ")}
+              >
+                Raw
+              </button>
+            </div>
+
             <button
-              type="button"
-              onClick={toggleAll}
-              aria-label={lastBulk === "expanded" ? "Collapse all sections" : "Expand all sections"}
+              onClick={handleCopy}
+              aria-label={copied ? "Copied to clipboard" : "Copy markdown to clipboard"}
               data-cursor-pointing
-              className="h-11 px-4 rounded-xl border border-white/15 bg-white/5 font-mono text-xs uppercase tracking-[0.16em] text-sb-paper/70 hover:text-sb-paper hover:bg-white/[0.08] transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-ink"
+              data-state={copied ? "success" : "idle"}
+              className={`${iconButtonBase} ${copied ? iconButtonSuccess : iconButtonIdle}`}
             >
-              {lastBulk === "expanded" ? "Collapse all" : "Expand all"}
+              {copied ? <CheckIcon /> : <CopyIcon />}
             </button>
-          )}
 
-          {/* Rendered / Raw toggle */}
-          <div
-            role="group"
-            aria-label="View mode"
-            className="inline-flex rounded-xl border border-white/15 bg-white/5 p-1"
-          >
             <button
-              onClick={() => setMode("rendered")}
-              aria-pressed={mode === "rendered"}
-              className={[
-                "px-4 py-2 rounded-lg font-mono text-xs uppercase tracking-[0.16em] transition-colors duration-200",
-                "focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-ink",
-                mode === "rendered"
-                  ? "bg-sb-paper text-sb-ink"
-                  : "text-sb-paper/60 hover:text-sb-paper",
-              ].join(" ")}
+              onClick={handleDownload}
+              aria-label={downloaded ? "Downloaded markdown file" : "Download markdown file"}
+              data-cursor-pointing
+              data-state={downloaded ? "success" : "idle"}
+              className={`${iconButtonBase} ${downloaded ? iconButtonSuccess : iconButtonIdle}`}
             >
-              Rendered
+              {downloaded ? <CheckIcon /> : <DownloadIcon />}
             </button>
-            <button
-              onClick={() => setMode("raw")}
-              aria-pressed={mode === "raw"}
-              className={[
-                "px-4 py-2 rounded-lg font-mono text-xs uppercase tracking-[0.16em] transition-colors duration-200",
-                "focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-ink",
-                mode === "raw"
-                  ? "bg-sb-paper text-sb-ink"
-                  : "text-sb-paper/60 hover:text-sb-paper",
-              ].join(" ")}
-            >
-              Raw
-            </button>
-          </div>
-
-          <button
-            onClick={handleCopy}
-            aria-label={copied ? "Copied to clipboard" : "Copy markdown to clipboard"}
-            data-cursor-pointing
-            data-state={copied ? "success" : "idle"}
-            className={`${iconButtonBase} ${copied ? iconButtonSuccess : iconButtonIdle}`}
-          >
-            {copied ? <CheckIcon /> : <CopyIcon />}
-          </button>
-
-          <button
-            onClick={handleDownload}
-            aria-label={downloaded ? "Downloaded markdown file" : "Download markdown file"}
-            data-cursor-pointing
-            data-state={downloaded ? "success" : "idle"}
-            className={`${iconButtonBase} ${downloaded ? iconButtonSuccess : iconButtonIdle}`}
-          >
-            {downloaded ? <CheckIcon /> : <DownloadIcon />}
-          </button>
-        </div>
-      </header>
+          </>
+        }
+      />
 
       {/* Visually hidden live region — screen readers announce action
           completion without disrupting sighted users. */}
@@ -299,25 +278,6 @@ export function BrainliftViewer({ markdown, title }: BrainliftViewerProps) {
 }
 
 /* --- Icons (Lucide-style, inline SVG so no extra dependency) --- */
-
-function BackArrowIcon() {
-  return (
-    <svg
-      aria-hidden
-      viewBox="0 0 24 24"
-      width="20"
-      height="20"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M19 12H5" />
-      <path d="M12 19l-7-7 7-7" />
-    </svg>
-  );
-}
 
 function CopyIcon() {
   return (
