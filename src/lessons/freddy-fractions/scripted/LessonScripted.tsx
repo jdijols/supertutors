@@ -468,18 +468,23 @@ export function LessonScripted({ name, cv, onContinue }: LessonScriptedProps) {
         </div>
       )}
 
-      {/* Chrome affordance — small "skip to lesson" link in the top-right
-          for kids who want to advance before V2's natural completion.
-          Only renders when onContinue is wired (i.e., the first-time
-          sequential flow). */}
+      {/* Skip Lesson button — bottom-center, mirrors the Start lesson
+          button in LessonExploration so kids see one consistent CTA in
+          the same place across phases. Only renders when onContinue is
+          wired (i.e., the first-time sequential flow). */}
       {onContinue && stage !== "done" && (
-        <button
-          type="button"
-          onClick={onContinue}
-          className="absolute top-4 right-4 sm:top-6 sm:right-[6rem] z-50 px-4 py-2 rounded-full border border-sb-ink/30 bg-sb-paper/60 backdrop-blur-sm font-mono text-[11px] uppercase tracking-[0.18em] text-sb-ink/70 hover:text-sb-ink hover:bg-sb-paper hover:border-sb-ink/60 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface"
-        >
-          Skip to lesson →
-        </button>
+        <div className="absolute inset-x-0 bottom-8 z-40 grid place-items-center pointer-events-none">
+          <motion.button
+            type="button"
+            onClick={onContinue}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.92 }}
+            transition={{ type: "spring", stiffness: 600, damping: 22 }}
+            className="pointer-events-auto px-6 py-3 rounded-full bg-sb-ink text-sb-paper text-lg font-semibold shadow-xl shadow-sb-accent-deep/25 border-2 border-sb-paper hover:bg-sb-ink/90 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface cursor-pointer"
+          >
+            Skip lesson →
+          </motion.button>
+        </div>
       )}
     </>
   );

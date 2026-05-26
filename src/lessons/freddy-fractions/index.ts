@@ -1,4 +1,5 @@
 import type { LessonModule } from "@/platform/lesson-sdk";
+import { FREDDY_CATALOG } from "./catalog";
 
 export const freddyFractionsLesson: LessonModule = {
   slug: "freddy-fractions",
@@ -7,7 +8,28 @@ export const freddyFractionsLesson: LessonModule = {
     tutorName: "Freddy",
     subject: "Fractions",
     audience: "Grade 3",
-    estimatedMinutes: 6,
+    estimatedMinutes: 10,
+    details: {
+      eyebrowNumber: 1,
+      titleLines: [
+        { text: "Learn" },
+        { text: "FRACTION", outline: true },
+        { text: "EQUIVALENCE", outline: true },
+      ],
+      subtitle: {
+        prefix: "with",
+        emphasis: "Freddy Fractions",
+        trail: "at SuperSlice Pizza.",
+      },
+      metaLabel: "Pizza · Slicer · Glove",
+      catalog: FREDDY_CATALOG.map((item) => ({
+        id: item.id,
+        label: item.label,
+        description: item.description,
+      })),
+      primaryCta: { label: "Continue lesson", lessonMode: "v3" },
+      secondaryCta: { label: "Explore sandbox", lessonMode: "scripted" },
+    },
   },
   load: async () => {
     const { FreddyMount } = await import("./Mount");

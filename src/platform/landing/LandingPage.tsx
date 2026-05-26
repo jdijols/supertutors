@@ -4,17 +4,17 @@ import { useNavigate } from "react-router-dom";
 import { AboutCard } from "./AboutCard";
 import { BrainliftCard } from "./BrainliftCard";
 import { FreddyPosterCard } from "./FreddyPosterCard";
-import { LessonDetailsView, type LessonCatalogItem } from "./LessonDetailsView";
+import { LessonDetailsView } from "./LessonDetailsView";
 import { SuperTutorsLockup } from "./SuperTutorsLockup";
 import { ASLPosterCard } from "@/lessons/asl/ASLPosterCard";
-import { TRAINED_SIGNS } from "@/lessons/asl/vocab";
-import { FREDDY_CATALOG } from "@/lessons/freddy-fractions/catalog";
 import { SignInButton } from "@/platform/auth/SignInButton";
 import { SignInDialog } from "@/platform/auth/SignInDialog";
 import { useAuth } from "@/platform/auth/useAuth";
+import { getLessonBySlug } from "@/platform/registry";
 import { useProgress } from "@/platform/progress/useProgress";
 import { MuteToggle } from "@/platform/ui/MuteToggle";
 import { UserMenu } from "@/platform/ui/UserMenu";
+import type { LessonDetailsCopy } from "@/platform/lesson-sdk";
 import type { MasteryEntry } from "@/platform/progress/types";
 
 // Entrance animation tokens — header rises as one unit, cards cascade
@@ -41,22 +41,19 @@ const cardItemVariants = {
   },
 };
 
-// Lesson catalogs — drive denominators + by-item grids in the details
-// view. ASL = 26 letters + 8 word signs (34 items). Freddy = 5 V3
-// assessment beats (count halves / write ½ / name quarter / count
-// quarters / write ¼).
-const ASL_CATALOG: LessonCatalogItem[] = TRAINED_SIGNS.map((s) => ({
-  id: s.id,
-  label: s.glyph,
-}));
-
-const FREDDY_CATALOG_ITEMS: LessonCatalogItem[] = FREDDY_CATALOG.map((c) => ({
-  id: c.id,
-  label: c.label,
-  description: c.description,
-}));
-
 type LessonSlug = "asl" | "freddy-fractions";
+
+/** Render the subtitle from its data parts. The emphasis span gets the
+ *  ink-toned weight, matching the original inline JSX. */
+function renderSubtitle(s: LessonDetailsCopy["subtitle"]) {
+  return (
+    <>
+      {s.prefix ? `${s.prefix} ` : null}
+      <span className="text-sb-ink font-medium">{s.emphasis}</span>{" "}
+      {s.trail}
+    </>
+  );
+}
 
 export function LandingPage() {
   const navigate = useNavigate();
@@ -120,6 +117,13 @@ export function LandingPage() {
     if (expandedSlug === "freddy-fractions") return freddyMastery;
     return [];
   }, [expandedSlug, aslMastery, freddyMastery]);
+
+  // Pull the lesson module so the details view can read all its display
+  // copy from one place instead of LandingPage hardcoding it.
+  const expandedLesson = useMemo(
+    () => (expandedSlug ? getLessonBySlug(expandedSlug) : undefined),
+    [expandedSlug],
+  );
 
   return (
     <main
@@ -210,75 +214,69 @@ export function LandingPage() {
         </motion.div>
 
         {/* Expanded details — layered over the grid, animated via
-            shared layoutId. */}
+            shared layoutId. All copy + catalog comes from the lesson
+            module's `meta.details`; LandingPage just wires events. */}
         <AnimatePresence>
-          {expandedSlug && (
+          {expandedSlug && expandedLesson?.meta.details && (
             <motion.div
               layoutId={`lesson-card-${expandedSlug}`}
               className="absolute inset-0 z-50"
             >
-              {expandedSlug === "asl" ? (
-                <LessonDetailsView
-                  slug="asl"
-                  eyebrow="Lesson 02"
-                  durationLabel="~15 min"
-                  titleLines={[
-                    { text: "Learn" },
-                    { text: "AMERICAN", outline: true },
-                    { text: "SIGN LANGUAGE", outline: true },
-                  ]}
-                  subtitle={
-                    <>
-                      with <span className="text-sb-ink font-medium">Sage</span>
-                      {" "}and your camera right at home.
-                    </>
-                  }
-                  mastery={masteryForExpanded}
-                  catalog={ASL_CATALOG}
-                  metaLabel="Camera · Hand · Sign"
-                  onClose={() => setExpandedSlug(null)}
-                  primaryCta={{
-                    label: "Continue lesson",
-                    onClick: () => startLesson("asl"),
-                  }}
-                />
-              ) : (
-                // Freddy returning-user details view exposes both stages:
-                // primary CTA jumps into the structured V3 curriculum;
-                // secondary "Explore" reopens the V2 sandbox without
-                // forcing auto-advance.
-                <LessonDetailsView
-                  slug="freddy-fractions"
-                  eyebrow="Lesson 01"
-                  durationLabel="~10 min"
-                  titleLines={[
-                    { text: "Learn" },
-                    { text: "FRACTION", outline: true },
-                    { text: "EQUIVALENCE", outline: true },
-                  ]}
-                  subtitle={
-                    <>
-                      with{" "}
-                      <span className="text-sb-ink font-medium">
-                        Freddy Fractions
-                      </span>{" "}
-                      at SuperSlice Pizza.
-                    </>
-                  }
-                  mastery={masteryForExpanded}
-                  catalog={FREDDY_CATALOG_ITEMS}
-                  metaLabel="Pizza · Slicer · Glove"
-                  onClose={() => setExpandedSlug(null)}
-                  primaryCta={{
-                    label: "Continue lesson",
-                    onClick: () => startLesson("freddy-fractions", "v3"),
-                  }}
-                  secondaryCta={{
-                    label: "Explore sandbox",
-                    onClick: () => startLesson("freddy-fractions", "scripted"),
-                  }}
-                />
-              )}
+              <LessonDetailsView
+                slug={expandedSlug}
+                eyebrow={`Lesson ${String(
+                  expandedLesson.meta.details.eyebrowNumber,
+                ).padStart(2, "0")}`}
+                durationLabel={`~${expandedLesson.meta.estimatedMinutes} min`}
+                titleLines={expandedLesson.meta.details.titleLines}
+                subtitle={renderSubtitle(expandedLesson.meta.details.subtitle)}
+                mastery={masteryForExpanded}
+                catalog={expandedLesson.meta.details.catalog}
+                metaLabel={expandedLesson.meta.details.metaLabel}
+                onClose={() => setExpandedSlug(null)}
+                primaryCta={{
+                  label: expandedLesson.meta.details.primaryCta.label,
+                  onClick: () =>
+                    startLesson(
+                      expandedSlug,
+                      expandedLesson.meta.details!.primaryCta.lessonMode as
+                        | "v3"
+                        | "scripted"
+                        | undefined,
+                    ),
+                }}
+                secondaryCta={
+                  expandedLesson.meta.details.secondaryCta
+                    ? {
+                        label:
+                          expandedLesson.meta.details.secondaryCta.label,
+                        onClick: () =>
+                          startLesson(
+                            expandedSlug,
+                            expandedLesson.meta.details!.secondaryCta!
+                              .lessonMode as
+                              | "v3"
+                              | "scripted"
+                              | undefined,
+                          ),
+                      }
+                    : undefined
+                }
+                onItemSelect={
+                  // Only ASL supports per-item deep-link today; its
+                  // practice loop is grid-driven so a focused item maps
+                  // 1:1 onto a screen. Freddy's V3 is sequential so
+                  // jumping to a single beat isn't meaningful.
+                  expandedSlug === "asl"
+                    ? (itemId) => {
+                        setExpandedSlug(null);
+                        navigate(
+                          `/lessons/asl?focus=${encodeURIComponent(itemId)}`,
+                        );
+                      }
+                    : undefined
+                }
+              />
             </motion.div>
           )}
         </AnimatePresence>
