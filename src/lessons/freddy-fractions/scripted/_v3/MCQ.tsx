@@ -79,6 +79,7 @@ export function MCQ<T = string>({
       </p>
       <div
         data-testid="mcq-options"
+        data-cursor-pointing
         role="group"
         aria-label="Answer choices"
         className="flex flex-wrap gap-2"

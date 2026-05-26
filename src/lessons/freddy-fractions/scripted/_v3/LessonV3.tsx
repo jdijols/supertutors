@@ -877,7 +877,6 @@ export function LessonV3({ name, cv, progress, sessionId }: LessonV3Props) {
       className="absolute inset-0 z-[25]"
       data-testid="lesson-v3"
       data-stage={stage}
-      data-cursor-pointing
     >
       {/* Guest boxes — rendered FIRST so free pizzas paint above them
           when a kid drags a pizza over a box (DOM order = paint order
@@ -985,6 +984,7 @@ export function LessonV3({ name, cv, progress, sessionId }: LessonV3Props) {
                 <button
                   type="button"
                   data-testid="lesson-v3-continue"
+                  data-cursor-pointing
                   onClick={handleContinue}
                   className="self-start px-5 py-2 rounded-full bg-sb-ink text-sb-paper font-mono uppercase tracking-[0.14em] text-sm shadow-xl shadow-sb-accent-deep/25 hover:bg-sb-ink/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface cursor-pointer transition-colors duration-200"
                 >
@@ -1020,6 +1020,7 @@ export function LessonV3({ name, cv, progress, sessionId }: LessonV3Props) {
             <motion.button
               type="button"
               data-testid="lesson-v3-play-again"
+              data-cursor-pointing
               onClick={handlePlayAgain}
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.92 }}
