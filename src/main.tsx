@@ -15,6 +15,7 @@ const PizzaPreview = lazy(() => import("@/lessons/freddy-fractions/previews/Pizz
 const GuestPreview = lazy(() => import("@/lessons/freddy-fractions/previews/GuestPreview").then((m) => ({ default: m.GuestPreview })));
 const VoicePreview = lazy(() => import("@/lessons/freddy-fractions/previews/VoicePreview").then((m) => ({ default: m.VoicePreview })));
 const CvPreview = lazy(() => import("@/platform/previews/CvPreview").then((m) => ({ default: m.CvPreview })));
+const OgImagePage = lazy(() => import("@/platform/og/OgImagePage").then((m) => ({ default: m.OgImagePage })));
 
 const router = createBrowserRouter([
   {
@@ -30,6 +31,7 @@ const router = createBrowserRouter([
       { path: "preview/guests", element: <Suspense><GuestPreview /></Suspense> },
       { path: "preview/voice", element: <Suspense><VoicePreview /></Suspense> },
       { path: "preview/cv", element: <Suspense><CvPreview /></Suspense> },
+      { path: "og-image", element: <Suspense><OgImagePage /></Suspense> },
     ],
   },
 ]);
