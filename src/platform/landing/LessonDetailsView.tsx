@@ -103,7 +103,7 @@ export function LessonDetailsView({
   const lessonBg =
     slug === "asl"
       ? "radial-gradient(ellipse at 75% 80%, #D5E5F2 0%, #BFD5EB 50%, #EAF3FA 100%)"
-      : "radial-gradient(ellipse_at_75%_80%,#F1E5D0_0%,#EFE7DA_50%,#F5F2EC_100%)";
+      : "radial-gradient(ellipse at 75% 80%, #F1E5D0 0%, #EFE7DA 50%, #F5F2EC 100%)";
 
   return (
     <div
