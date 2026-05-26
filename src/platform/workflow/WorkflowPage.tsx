@@ -1,7 +1,4 @@
-import { Link } from "react-router-dom";
-import { LaurelMark } from "@/platform/landing/LaurelMark";
-import { MuteToggle } from "@/platform/ui/MuteToggle";
-import { UserMenu } from "@/platform/ui/UserMenu";
+import { DarkPageHeader } from "@/platform/ui/DarkPageHeader";
 
 /**
  * WorkflowPage — Jason's "how I build" artifact, linked from the
@@ -12,23 +9,7 @@ import { UserMenu } from "@/platform/ui/UserMenu";
 export function WorkflowPage() {
   return (
     <main className="min-h-[100dvh] w-full bg-sb-ink text-sb-paper-soft antialiased flex flex-col">
-      <header className="flex items-center justify-between gap-4 px-6 sm:px-8 md:px-12 lg:px-16 py-4 sm:py-5 md:py-6 shrink-0 border-b border-white/10">
-        <Link
-          to="/"
-          className="group flex items-center gap-3 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-ink"
-          aria-label="Back to SuperTutors home"
-        >
-          <LaurelMark className="w-11 h-11 shrink-0" variant="onDark" title="SuperTutors" />
-          <span className="font-mono text-[12px] uppercase tracking-[0.22em] text-sb-paper/60 group-hover:text-sb-paper transition-colors duration-200 inline-flex items-center gap-2 group-hover:gap-3">
-            <span aria-hidden>←</span>
-            Back
-          </span>
-        </Link>
-        <div className="flex items-center gap-3 sm:gap-4">
-          <UserMenu inline />
-          <MuteToggle inline surface="dark" />
-        </div>
-      </header>
+      <DarkPageHeader />
 
       <article className="flex-1 px-6 sm:px-8 md:px-12 lg:px-16 py-10 sm:py-12 md:py-16 max-w-[1080px] w-full mx-auto">
         <div className="flex items-center gap-2 mb-6">

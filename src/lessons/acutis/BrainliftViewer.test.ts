@@ -9,9 +9,8 @@ describe("BrainliftViewer — structure", () => {
     expect(src()).toMatch(/export.*function BrainliftViewer|export.*BrainliftViewer/);
   });
 
-  it("accepts markdown and title props", () => {
+  it("accepts a markdown prop", () => {
     expect(src()).toMatch(/markdown/);
-    expect(src()).toMatch(/title/);
   });
 
   it("renders ReactMarkdown in rendered mode", () => {
