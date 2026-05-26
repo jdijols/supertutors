@@ -61,7 +61,7 @@ function wrapHeadingsAtLevel(nodes: AstNode[], level: number): AstNode[] {
       const wrappedInner = wrapHeadingsAtLevel(sectionContent, level + 1);
       result.push({
         type: "details",
-        data: { hName: "details" },
+        data: { hName: "details", hProperties: { open: true } },
         children: [
           {
             type: "summary",
@@ -107,9 +107,10 @@ export function BrainliftViewer({ markdown }: BrainliftViewerProps) {
   // Bulk toggle state for Expand all / Collapse all. Tracks the most
   // recent bulk action, not live DOM state — that keeps the button
   // predictable even when the user clicks individual sections between
-  // bulk actions.
+  // bulk actions. Initial state matches the AST default (details are
+  // emitted open) so the button reads "Collapse all" on first paint.
   const articleRef = useRef<HTMLElement>(null);
-  const [lastBulk, setLastBulk] = useState<"collapsed" | "expanded">("collapsed");
+  const [lastBulk, setLastBulk] = useState<"collapsed" | "expanded">("expanded");
 
   function toggleAll() {
     const next = lastBulk === "expanded" ? "collapsed" : "expanded";
