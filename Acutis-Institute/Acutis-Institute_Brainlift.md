@@ -1,4 +1,5 @@
-# Brainlift: The Saint Carlo Acutis Institute, Superbuilders' Catholic Vertical
+# The Saint Carlo Acutis Institute
+Superbuilders' Catholic Vertical
 
 ## Owners
 
@@ -10,14 +11,14 @@
 
 ## Purpose
 
-- **Primary Purpose:** To produce a Brainlift demonstrating domain expertise in the founding of **Acutis Institute**, an independent, AI-native, Catholic learning community under the patronage of Saint Carlo Acutis (the first millennial saint, popularly called the "patron of the Internet" for his teenage web work cataloging Eucharistic miracles), designed as the **Catholic-formation specialized school** in the Timeback platform's portfolio. This Brainlift positions Acutis alongside Alpha School, Alpha High, Alpha Anywhere, Texas Sports Academy, GT School, NextGen Academy, Montessorium, Nova Academy, Prequel, Unbound Academy, The Novatio School, and learn + earn as the first **values-identity segment** Timeback has hosted, applying Alpha's documented per-student passion-alignment motivation theory to the largest values-coherent K-12 cohort on Earth. The ultimate vision is a Catholic-formation school category with physical micro-campuses and a federation of replicated schools; the entry path is a phased launch beginning with a Catholic homeschool cohort partnership in Austin for the 2026–2027 academic year.
+- **Primary Purpose:** Demonstrate domain expertise in founding **Acutis Institute** — an independent, AI-native, Catholic learning community on the Timeback platform under the patronage of Saint Carlo Acutis. Position Acutis as the first **values-identity segment** in the Timeback portfolio, applying Alpha's per-student passion-alignment theory to the largest values-coherent K-12 cohort on Earth. Enter via a Catholic homeschool cohort partnership in Austin for the 2026–2027 academic year; long-term vision is a federated Catholic-formation school category.
 - **Out of Scope:**
   - Building K-12 platform technology from scratch (Acutis runs on the Timeback platform)
   - Diocesan ownership (Acutis is a 501(c)(3) lay apostolate under Canon 803 §3)
   - Competing with Chesterton Schools Network, NAPCIS, or Regina Academies (classical-only Catholic networks operate a different curriculum lane)
   - Launching a physical micro-campus in v1.0 (Phase 1 is a homeschool cohort partnership; the physical campus is Phase 2)
   - Custom hardware, manipulatives, or core academic curriculum delivery (delivered via the Timeback academic engine)
-  - Using "Catholic School" without Canon 803 §3 recognition ("Institute" / "rooted in Catholic tradition" / "faithful to the Magisterium" until and unless the bishop issues a decree)
+  - Using "Catholic School" branding before the bishop's Canon 803 §3 decree (Acutis brands as "Institute" or "rooted in Catholic tradition" until recognition issues)
 - **Ask (phased):**
   - **Phase 1 (pilot, 6–9 months):** Timeback platform license for 10–15 founding Austin Catholic homeschool families, with rolling expansion. Guides-program observership for our Virtue Curriculum Lead. Introductions to the adjacent Catholic donor, parent, and school-operator network. One Patrick Skinner ride-along with a founding family.
   - **Phase 2 (campus, conditional on Phase 1 outcomes):** Full platform partnership parallel to NextGen Academy, Texas Sports Academy, and Montessorium. Co-marketing support for the first Austin physical micro-campus.
@@ -40,118 +41,112 @@
 
 ## Critical Open Question
 
-The structural fit of Acutis on the Timeback platform depends on one question that primary-source research could not resolve: **how flexible is Timeback's academic engine on theologically-sensitive curriculum content?** Three subject areas in a Catholic K-12 curriculum intersect with Catholic teaching in ways that may require content overrides: history (the Reformation, the Crusades, the Church's role in Western civilization), life sciences (evolution framed within Catholic intellectual tradition, the framing of human dignity), and human anthropology (gender and sexuality under *Theology of the Body*). Three structural options are possible:
+**How flexible is Timeback's academic engine on theologically-sensitive curriculum content?** Three Catholic K-12 subject areas may require overrides: history (Reformation, Crusades), life sciences (evolution, human dignity), and anthropology (*Theology of the Body*). Three structural options:
 
-1. **Override:** Timeback accepts curriculum-content overrides per partner school, the way Montessorium overlays Montessori materials alongside the Timeback engine. Acutis customizes the content sequence to Catholic standards.
-2. **Layer:** Timeback's morning content stays as-is for math, reading, and STEM; Catholic-specific subjects (theology, Church history, philosophy, Catholic anthropology) are taught in the skill-building afternoon block or as a content overlay running parallel to Timeback.
-3. **Hard incompatibility:** Timeback's academic engine cannot accept theological overrides, and Acutis cannot use it for any subject where Catholic teaching differs from the default content sequence.
+1. **Override:** Timeback accepts per-school content overrides (the Montessorium pattern). Acutis customizes the sequence to Catholic standards.
+2. **Layer:** Timeback's morning stays as-is; Catholic-specific subjects (theology, Church history, philosophy, anthropology) run in the afternoon block or a parallel overlay.
+3. **Hard incompatibility:** Timeback cannot accept theological overrides; Acutis re-scopes the entire engagement.
 
-The answer determines how Acutis scopes Phase 2 (physical micro-campus) and the addressable subject surface for the Timeback license in Phase 1. **This is the highest-priority question**, and Acutis would prefer Option 1 (override), can operate fully on Option 2 (layer, following the Montessorium hybrid pattern), and would re-scope the entire engagement under Option 3.
+Acutis prefers Option 1, operates fully on Option 2, re-scopes under Option 3.
 
 ## DOK 4 — Spiky POVs
 
 ### SPOV1 — Catholic as Timeback's first values-identity segment
 
-Timeback's portfolio is currently differentiated by *interest segments* (Alpha = general; Texas Sports Academy = sports; NextGen Academy = gaming; GT School = gifted; Montessorium = Montessori method; plus Alpha High, Alpha Anywhere, Nova, Prequel, Unbound, Novatio, learn + earn). Acutis introduces the first **values-identity segment** to the portfolio: Catholic families, who self-select into Catholic-identity schools at densities no interest segment matches, and who already self-select *out* of secular schooling at scale (~3.4M US Catholic homeschoolers, 2x parochial enrollment). This is the next dimension of specialization Timeback can host, not a dimension it currently serves. Liemandt's stated TAM of "1 billion students over the next 20 years" requires reaching identity-coherent cohorts at scale; the Catholic cohort is the largest such cohort globally (1.422B adherents, 17.8% of humanity, single largest religious denomination on Earth).
+Timeback's portfolio is currently segmented by interest (sports, gifted, gaming, Montessori); Acutis introduces the first **values-identity segment** — Catholic families, the largest identity-coherent cohort on Earth at 1.422B.
 
-**Solution:** Position Acutis as the **Catholic-formation specialized school** on the Timeback platform, structurally parallel to how Montessorium overlays the Montessori method or Texas Sports Academy themes the skill-building afternoon around athletics. Same Timeback academic engine, same Guides model, themed skill-building afternoon (sacramental life, virtue formation, Catholic project work, Carlo-style web evangelization capstones). Superbuilders extracts platform fees; Acutis funds via tuition + endowment + Catholic philanthropic capital (Knights of Columbus, Catholic foundations, lay philanthropists); zero diocesan liability on the platform.
+**Solution:** Position Acutis as the Catholic-formation specialized school on Timeback, structurally parallel to Montessorium — same academic engine, themed skill-building afternoon (sacramental life, virtue formation, Carlo-style web evangelization), funded by Catholic philanthropy with zero diocesan liability.
 
 #### Supporting Research
 
-Agenzia Fides, *Vatican Catholic Church Statistics 2024*: 1.422B global Catholics, 17.8% of humanity, the single largest religious denomination [Agenzia Fides](https://www.fides.org/en/news/75542-VATICAN_CATHOLIC_CHURCH_STATISTICS_2024). Joe Liemandt on Colossus: stated TAM of 1 billion students over the next 20 years via the Timeback platform [Colossus](https://colossus.com/article/joe-liemandt-class-dismissed/). 2 Hour Learning portfolio listing on [2hourlearning.com](https://2hourlearning.com): Alpha, Alpha High, Alpha Anywhere, TSA, GT, NextGen, Nova, Prequel, Unbound, Novatio, Montessorium, learn + earn. Alpha School on Timeback as "Shopify for schools": *"His vision is to scale this revolution globally with the Timeback platform, a 'Shopify for schools' that empowers entrepreneurs"* [Alpha School](https://alpha.school/the-future-of-education-joe-liemandts-vision-for-alpha-school/).
+1.422B global Catholics, 17.8% of humanity — the single largest religious denomination [Agenzia Fides](https://www.fides.org/en/news/75542-VATICAN_CATHOLIC_CHURCH_STATISTICS_2024). Liemandt's TAM: 1 billion students over 20 years via Timeback, framed as "Shopify for schools" [Colossus](https://colossus.com/article/joe-liemandt-class-dismissed/), [Alpha School](https://alpha.school/the-future-of-education-joe-liemandts-vision-for-alpha-school/). Current Timeback portfolio: Alpha, Alpha High, Alpha Anywhere, TSA, GT, NextGen, Nova, Prequel, Unbound, Novatio, Montessorium, learn + earn [2hourlearning.com](https://2hourlearning.com).
 
 ### SPOV2 — Two-layer motivation (passion alignment + cohort coherence)
 
-Alpha's motivation theory works at two layers, and Acutis applies both to a richer curriculum surface than any other Timeback school.
+Alpha's per-student passion alignment maps directly onto a Catholic curriculum surface no other Timeback school carries — gen-ed taught through Catholic passions, Catholic instruction taught through each kid's passions, plus per-cohort values-identity coherence no interest segment can replicate.
 
-**Layer 1 (per-student passion alignment, both directions):** Alpha's documented theory (the Timeback engine personalizes content to each student's interests) runs in two directions inside a Catholic school. **(A) Gen-ed taught through Catholic passions:** a kid drawn to Gothic architecture learns geometry through cathedral plans; a kid into Gregorian chant learns fractions through rhythmic structure; a kid into philosophy learns Latin through Aquinas. **(B) Catholic religious instruction taught through each kid's unique passions:** a sports-loving kid learns temperance through how elite athletes handle adversity; a music-loving kid learns the structure of the Mass through Bach's *B Minor Mass*; a coder learns the relational structure of the Trinity through analogous patterns. Alpha's verbatim examples (*"A Swiftie might learn World War I through a 'Taylor Swift drama' analogy"*; *"A fifth-grader who loves soccer may practice fractions by calculating goal-shot ratios"*) prove the formula on gen-ed; Acutis extends the same formula to the additional Catholic religious-instruction curriculum no other Timeback school teaches.
-
-**Layer 2 (per-cohort values-identity coherence, the new dimension Acutis introduces):** Catholic families share moral, theological, and virtue-formation commitments densely enough that the entire enrolled cohort is values-aligned. Hardy (2022) confirms internalized religious motivation positively predicts adolescent prosocial behavior and well-being via the SDT autonomy-competence-relatedness axes. Cohort coherence lowers acquisition cost, raises retention, and gives the school an identity-coherent community no interest-segment school can replicate.
-
-**Solution:** Layer 1 personalization applied to both gen-ed and Catholic religious instruction via Timeback, plus a **Motivation Architecture** mapped to the seven classical virtues (morning Timeback sprints framed as acts of fortitude offered up; afternoon projects framed as the corporal and spiritual works of mercy; daily Your-Saint-Today micro-curriculum). Student capstones follow Carlo Acutis's own model: ship public web catalogs of saints' lives or Eucharistic miracles. Outcome metric: cohort well-being (Hardy 2022 SDT instruments) measured against Alpha cohort baselines after year one.
+**Solution:** Apply passion-alignment to both gen-ed and religious instruction via Timeback, and wrap the day in a **Motivation Architecture** mapped to the seven classical virtues, with capstones modeled on Carlo Acutis's own web evangelization. Outcome metric: cohort well-being (Hardy 2022 SDT instruments) vs. Alpha cohort baselines after year one.
 
 #### Supporting Research
 
-Alpha School, "From 'I hate school' to 'can we skip summer?' Alpha's motivation formula": *"Motivation isn't fluff. It's the engine of retention and accelerated mastery"*; per-student passion-alignment examples (Taylor Swift, soccer, fashion) [Alpha motivation blog](https://alpha.school/blog/from-i-hate-school-to-can-we-skip-summer-alphas-motivation-formula/). Hardy, Nelson et al. (2022): internalized religious motivation positively predicts adolescent prosocial behavior and well-being via the SDT autonomy-competence-relatedness axes [PDF](https://selfdeterminationtheory.org/wp-content/uploads/2024/09/2022_HardyNelsonEtAl_AdolescentReligious.pdf). Brambilla & Assor (2020): intrinsic religious orientation correlates with life satisfaction; extrinsic with depression. Internalization, not affiliation, is the design variable [PDF](https://selfdeterminationtheory.org/wp-content/uploads/2020/10/2020_BrambillaAssor_UnderstandingReligion.pdf). Bloom (1984), *The 2 Sigma Problem*: mastery-learning plus tutoring outperforms conventional teaching by 2 standard deviations and explicitly identifies motivation as the unresolved variable beyond 1:1 instruction [PDF](https://gwern.net/doc/psychology/1984-bloom.pdf).
+Alpha: *"Motivation isn't fluff. It's the engine of retention and accelerated mastery"* — passion-alignment examples (Taylor Swift, soccer) [Alpha motivation blog](https://alpha.school/blog/from-i-hate-school-to-can-we-skip-summer-alphas-motivation-formula/). Hardy (2022): internalized religious motivation predicts adolescent prosocial behavior and well-being via SDT axes [PDF](https://selfdeterminationtheory.org/wp-content/uploads/2024/09/2022_HardyNelsonEtAl_AdolescentReligious.pdf). Brambilla & Assor (2020): internalization, not affiliation, is the design variable [PDF](https://selfdeterminationtheory.org/wp-content/uploads/2020/10/2020_BrambillaAssor_UnderstandingReligion.pdf). Bloom (1984): tutored mastery outperforms by 2σ; motivation is the unresolved variable [PDF](https://gwern.net/doc/psychology/1984-bloom.pdf).
 
 ### SPOV3 — Catholic K-12 supply-side bifurcation
 
-The Catholic K-12 market is the largest underserved values-identity segment, and the parochial system structurally cannot capture it. Catholic homeschool enrollment (~3.4M) now exceeds parochial (~1.7M) 2:1 and is growing; Brooklyn closed 7 schools in 2025; roughly 40 US dioceses are in abuse-settlement bankruptcy; Sacramento's all-girls academy lost 25% of enrollment in 5 years. Catholic parents who want rigorous, faithful, AI-aware education face a hollowed-out parochial system and a thriving but pedagogically conservative classical movement. The AI-native Catholic-formation specialized school lane is empty.
+Catholic homeschool enrollment now exceeds parochial 2:1, the diocesan model is structurally failing (Brooklyn closed 7 schools in 2025, ~40 dioceses in abuse-settlement bankruptcy), and the AI-native Catholic-formation lane is empty.
 
-**Solution:** Launch Acutis in three phases. **Phase 1 (Q3 2026):** Catholic homeschool cohort partnership in greater Austin, 10–15 founding families using the Timeback platform with an Acutis Catholic-themed personalization overlay, parent-as-Guide. Funnel: existing Kolbe, Mater Amabilis, and Seton families plus classical-school waitlist families. **Phase 2 (Q3 2027):** Asset-light Austin physical micro-campus, 15–30 students, grades 6–9, drawn from the Phase 1 cohort plus parochial-dissatisfied professional families. **Phase 3 (Q3 2029+):** Federate using the Chesterton Schools Network playbook: each replicated micro-campus a separate 501(c)(3), shared curriculum and brand.
+**Solution:** Launch in three phases — **Phase 1 (Q3 2026)** Austin homeschool cohort on Timeback (10–15 founding families, funnel via Kolbe / Mater Amabilis / Seton networks); **Phase 2 (Q3 2027)** asset-light Austin micro-campus, grades 6–9; **Phase 3 (Q3 2029+)** Chesterton-style federation, each campus its own 501(c)(3).
 
 #### Supporting Research
 
-Brendan Hodge in *The Pillar* (2024): 11% of newly ordained priests were homeschooled vs. 43% from Catholic elementary schools; the practicing-Catholic signal has migrated [The Pillar](https://www.pillarcatholic.com/p/homeschool-and-the-churchs-future). NCEA (2024–25): 1.68M students across 5,852 Catholic schools, 18% on school choice (+5% YoY) [NCEA](https://ncea.org/NCEA/NCEA/How_We_Serve/News/Press_Releases/Catholic-Schools-by-the-Numbers-New-Data-Reveals-Trends-in-Enrollment-Staffing-and-Demographics.aspx). Chesterton Schools Network grew from 1 academy in 2008 to 70+ schools across 30 states and 10 countries by 2025 [Chesterton Schools Network](https://chestertonschoolsnetwork.org/news/chesterton-schools-network-wins-2025-1-million-yass-prize).
+*The Pillar* (2024): 11% of newly ordained priests homeschooled vs. 43% from Catholic elementary — the practicing-Catholic signal has migrated [The Pillar](https://www.pillarcatholic.com/p/homeschool-and-the-churchs-future). NCEA (2024–25): 1.68M students, 5,852 schools, 18% on school choice (+5% YoY) [NCEA](https://ncea.org/NCEA/NCEA/How_We_Serve/News/Press_Releases/Catholic-Schools-by-the-Numbers-New-Data-Reveals-Trends-in-Enrollment-Staffing-and-Demographics.aspx). Chesterton: 1 → 70+ schools in 18 years across 30 states and 10 countries [Chesterton Schools Network](https://chestertonschoolsnetwork.org/news/chesterton-schools-network-wins-2025-1-million-yass-prize).
 
 ### SPOV4 — Lay apostolate is the operational successor
 
-Operating as an independent lay apostolate is a feature, not a workaround. Canon 803 §3 permits a 501(c)(3) lay apostolate to operate fully Catholic without diocesan ownership; the case-study record spans 50+ years and four scaling tiers: Holy Angels (1973, single school), Avalon and Everest (recent single school, bishop-recognized), Chesterton Schools Network (~70 schools), Regnum Christi / Semper Altius (154 schools across 19 countries). Diocesan ownership creates bureaucratic latency, financial entanglement, and slowest-bishop technology adoption, all incompatible with Timeback's iteration cadence.
+Operating as an independent lay apostolate under Canon 803 §3 is a feature, not a workaround — the case-study record spans 50 years and four scaling tiers, from Holy Angels (1973) to Regnum Christi's 154 schools across 19 countries.
 
-**Solution:** Incorporate as **The Saint Carlo Acutis Institute** (Delaware 501(c)(3)) with a self-perpetuating lay board; brand publicly as **Acutis Institute**; pursue NAPCIS accreditation in Phase 2 for the Magisterium-fidelity guardrail; engage the Diocese of Austin proactively but operate independently. Mirror Chesterton's federation model for Phase 3: each replicated micro-campus its own 501(c)(3), shared curriculum and brand.
+**Solution:** Incorporate as **The Saint Carlo Acutis Institute** (Delaware 501(c)(3)) with a self-perpetuating lay board, pursue NAPCIS accreditation in Phase 2 for the Magisterium-fidelity guardrail, and federate Phase 3 on Chesterton's per-campus 501(c)(3) playbook.
 
 #### Supporting Research
 
-Code of Canon Law, Canons 793–821 (Vatican, 1983): Canon 803 §1 requires bishop *recognition*, not diocesan *ownership* [Vatican](https://www.vatican.va/archive/cod-iuris-canonici/eng/documents/cic_lib3-cann793-821_en.html). NAPCIS Accreditation Standards require annual Profession of Faith and Oath of Fidelity to the Magisterium; 87 schools, 12,800 students, 34 states, merging into Cardinal Newman Society 2026 [NAPCIS](https://napcis.org/about/). Holy Angels Academy (Louisville, 1973) is the longest-running independent Catholic school in the USA, lay-led, archdiocese-recognized but not owned [Holy Angels Academy](https://www.holyangelslouisville.com/history/).
+Canon 803 §1 requires bishop *recognition*, not diocesan *ownership* [Vatican](https://www.vatican.va/archive/cod-iuris-canonici/eng/documents/cic_lib3-cann793-821_en.html). NAPCIS: annual Profession of Faith and Oath of Fidelity to the Magisterium; 87 schools, 12,800 students, 34 states [NAPCIS](https://napcis.org/about/). Holy Angels Academy (Louisville, 1973): longest-running independent Catholic school in the USA, lay-led, archdiocese-recognized but not owned [Holy Angels Academy](https://www.holyangelslouisville.com/history/).
 
 ### SPOV5 — Launch inside the Magnifica humanitas window
 
-Acutis must launch inside the *Magnifica humanitas* reception window, or compete as a follower. Pope Leo XIV's first encyclical (*Magnifica Humanitas: On the Protection of Human Dignity in the Age of AI*, published May 25, 2026 on the 135th anniversary of *Rerum Novarum*) is the Catholic Church's first formal entry into AI ethics, co-presented at the Vatican with Anthropic co-founder Christopher Olah. Its first 12 months will define the durable Catholic engagement frame for AI the way *Rerum Novarum* defined Catholic engagement with industrialization for a century. A learning community launching inside the window inherits the alignment frame at founding; a later entrant competes against incumbents who already own it.
+Acutis must launch inside the *Magnifica humanitas* reception window or compete as a follower — the encyclical will define Catholic engagement with AI for the next century the way *Rerum Novarum* did for industrialization. Three signals tighten the window: Saint Carlo Acutis canonized September 2025 by the same Pope Leo XIV who publishes *Magnifica humanitas* eight months later; post-COVID institutional collapse; Gen Z's two-decade religious decline paused at 55% (Pew, Dec 2025) while Catholic cultural energy compounds.
 
-**Three convergent signals tighten the window:** (1) Saint Carlo Acutis canonized September 7, 2025 by Pope Leo XIV (first millennial saint, first canonized programmer, only saint whose lived biography maps to an AI-native curriculum); (2) post-COVID trust collapsed in secular institutions (Edelman 2022/2023) while the Catholic Church won *Brooklyn v. Cuomo* on Eucharist access (Nov 2020); (3) Pew (Dec 2025) documents Gen Z's two-decade religious decline paused at 55% while qualitative urban-male Catholic conversion accelerates (*Free Press*, *Word on Fire*, *The Pillar*). Tocqueville foresaw this structural reordering in *Democracy in America* Vol. II (1840).
-
-**Solution:** Launch Phase 1 of the Acutis pilot in the **2026–2027 academic year**: founding Catholic homeschool cohort onboards summer 2026, Catholic-themed personalization overlay on Timeback live August/September. Brand launch tied to the *Magnifica humanitas* publication window and Saint Carlo Acutis's feast day (October 12). Phase 2 physical micro-campus opens Q3 2027.
+**Solution:** Onboard the Phase 1 cohort in summer 2026 with the Catholic overlay live by September; brand launch tied to *Magnifica humanitas* and Carlo Acutis's feast day (October 12). Phase 2 micro-campus opens Q3 2027.
 
 #### Supporting Research
 
-Vatican News: *Magnifica humanitas* signed May 15, 2026, published May 25 [Vatican News](https://www.vaticannews.va/en/pope/news/2026-05/pope-leo-xiv-first-encyclical-magnifica-humanitas.html). America Magazine (May 18, 2026): Anthropic co-founder Christopher Olah at the Vatican press conference [America Magazine](https://www.americamagazine.org/vatican-dispatch/2026/05/18/pope-leo-encyclical-artifical-intelligence-anthropic/). Vatican.va canonization homily of Pope Leo XIV (Sept 7, 2025) [Vatican.va homily](https://www.vatican.va/content/leo-xiv/en/homilies/2025/documents/20250907-omelia-frassati-acutis.html). Pew Research, "Is There a Religious Revival Among Young US Adults?" (Dec 8, 2025): Gen Z affiliation 55%, stable from 57% in 2020 [Pew Research](https://www.pewresearch.org/religion/2025/12/08/religion-holds-steady-in-america/). *Roman Catholic Diocese of Brooklyn v. Cuomo*, 592 U.S. 14 (Nov 25, 2020): Justice Barrett's first major vote, first Eucharist-access SCOTUS injunction [SCOTUS opinion](https://www.supremecourt.gov/opinions/20pdf/20a87_4g15.pdf). Tocqueville, *Democracy in America* Vol. II, Part I, Ch. VI (1840), Reeve translation: "our posterity will tend more and more to a single division into two parts: some relinquishing Christianity entirely, and others returning to the bosom of the Church of Rome" [Project Gutenberg](https://www.gutenberg.org/files/816/816-h/816-h.htm).
+*Magnifica humanitas* signed May 15, 2026 (135th anniversary of *Rerum Novarum*), published May 25 [Vatican News](https://www.vaticannews.va/en/pope/news/2026-05/pope-leo-xiv-first-encyclical-magnifica-humanitas.html); co-presented at the Vatican with Anthropic co-founder Christopher Olah [America Magazine](https://www.americamagazine.org/vatican-dispatch/2026/05/18/pope-leo-encyclical-artifical-intelligence-anthropic/). Carlo Acutis canonized Sept 7, 2025 by Pope Leo XIV [Vatican.va homily](https://www.vatican.va/content/leo-xiv/en/homilies/2025/documents/20250907-omelia-frassati-acutis.html). Pew (Dec 2025): Gen Z religious affiliation 55%, decline paused [Pew Research](https://www.pewresearch.org/religion/2025/12/08/religion-holds-steady-in-america/). *Brooklyn v. Cuomo* (Nov 25, 2020): first Eucharist-access SCOTUS injunction [SCOTUS opinion](https://www.supremecourt.gov/opinions/20pdf/20a87_4g15.pdf). Tocqueville (1840) predicted the structure: "our posterity will tend more and more to a single division into two parts: some relinquishing Christianity entirely, and others returning to the bosom of the Church of Rome" [Project Gutenberg](https://www.gutenberg.org/files/816/816-h/816-h.htm).
 
 ## DOK 3 — Insights
 
 ### Insight 1 — Values-identity is Timeback's second specialization dimension
 
-Timeback's portfolio differentiation has so far been by *interest segments* (sports, gifted, gaming, Montessori method, general). The Catholic cohort is the largest *values-identity segment* the platform has not yet hosted; serving it extends Timeback's specialization logic from a single dimension (interest) into a second dimension (values-identity) without changing the underlying academic engine. Liemandt's billion-student TAM is reachable only by addressing identity-coherent cohorts at scale, and the Catholic cohort is the largest such cohort globally.
+Timeback's portfolio currently differentiates by *interest segments* (sports, gifted, gaming, Montessori). The Catholic cohort is the largest *values-identity segment* the platform has not hosted — and the only one large enough to make Liemandt's billion-student TAM tractable.
 
 #### Connections
 
-- **Source Connection:** Based on Category 3.3 (Timeback Ecosystem: 2hourlearning.com portfolio, Maples on Timeback as Shopify for schools, Liemandt billion-student TAM, Vatican Catholic demographics) and Category 2.1 (Self-Determination Theory: Ryan/Deci and Hardy 2022 establishing the empirical density of internalized religious motivation).
-- **SPOV Connection:** Directly grounds SPOV1 (the values-identity segment thesis); connects to SPOV2 (Layer 2 cohort coherence) and SPOV5 (the timing window for entry).
+- **Source Connection:** Category 3.3 (Timeback Ecosystem) + Category 2.1 (Self-Determination Theory).
+- **SPOV Connection:** Grounds SPOV1; connects to SPOV2 and SPOV5.
 
 ### Insight 2 — Catholic virtue formation + SDT empirical bridge
 
-Catholic virtue formation is the only educational tradition that has industrialized the production of internalized motivation at scale for a thousand years, and Self-Determination Theory just gave us the empirical instruments to measure it. The seven classical virtues are a 2,000-year operational playbook for converting transcendent values into daily habits via prayer rhythms, sacramental life, and works of mercy. Hardy (2022) confirms in SDT terms what Aquinas argued in *Summa Theologiae* II-II: internalized religious motivation predicts measurable adolescent outcomes through the same autonomy-competence-relatedness mechanisms Alpha exploits via per-student passion alignment.
+Catholic virtue formation is the only educational tradition to industrialize internalized motivation at scale for a thousand years. Hardy (2022) confirms in SDT terms what Aquinas argued in *Summa Theologiae* II-II: internalized religious motivation predicts measurable adolescent outcomes via the same autonomy-competence-relatedness mechanisms Alpha exploits.
 
 #### Connections
 
-- **Source Connection:** Based on Category 2.1 (SDT: Ryan/Deci, Hardy, Brambilla/Assor) synthesized through Category 2.3 (Classical & Theological Foundations).
-- **SPOV Connection:** Directly grounds SPOV2 (Layer 2 motivation); supports SPOV1 by establishing the Catholic values-identity segment as empirically distinct from Timeback's existing interest segments.
+- **Source Connection:** Category 2.1 (SDT) + Category 2.3 (Classical & Theological Foundations).
+- **SPOV Connection:** Grounds SPOV2; supports SPOV1.
 
 ### Insight 3 — Independent lay apostolate is the operational successor
 
-The Catholic K-12 supply side is bifurcating: the diocesan model is failing, the independent lay apostolate is the operational successor, and the AI-native Catholic-formation specialized school lane is empty. Catholic homeschool enrollment exceeds parochial 2:1; Chesterton Network grew 1→70+ schools in 18 years; NAPCIS accredits 87 independent schools; diocesan closures accelerate (Brooklyn 7 in 2025, ~40 dioceses in bankruptcy). *The Pillar* finds 11% of newly ordained priests came from homeschool vs. 43% from Catholic elementary. The practicing-Catholic signal has migrated. What remains is the AI-native lane, which the Phase 1 homeschool cohort partnership is designed to enter at the lowest possible CapEx.
+The Catholic K-12 supply side is bifurcating: diocesan is failing, independent lay apostolates are the operational successor, and the AI-native lane is empty. The practicing-Catholic signal has migrated — *The Pillar* finds 11% of newly ordained priests came from homeschool vs. 43% from Catholic elementary — and the Phase 1 cohort is the lowest-CapEx entry.
 
 #### Connections
 
-- **Source Connection:** Based on Category 1.1 (Enrollment & Trends), Category 1.2 (Independent Networks), Category 1.3 (Parochial Strain).
-- **SPOV Connection:** Grounds SPOV3 (market gap and phased solution) and SPOV4 (lay apostolate structure) simultaneously.
+- **Source Connection:** Categories 1.1, 1.2, and 1.3.
+- **SPOV Connection:** Grounds SPOV3 and SPOV4.
 
 ### Insight 4 — Canon 803 §3 is a revoke-proof permission slip
 
-Canon 803 §3's bishop-recognition gate is not a bureaucratic obstacle; it is a permission slip the diocese cannot revoke from a non-owned institution, and the operational case-study record spans 50+ years and four scaling tiers. Holy Angels Academy (1973) proves the multi-decade single-school tier; Avalon and Everest the recent single-school tier with bishop recognition; Chesterton the federated network (~70); Regnum Christi/Semper Altius the global federation (154 schools, 19 countries). Each is a 501(c)(3) with a self-perpetuating lay board, no diocesan subsidy, voluntary doctrinal alignment.
+Canon 803 §3 is a permission slip the diocese cannot revoke from a non-owned institution. Four scaling tiers prove the model: Holy Angels (1973, single school), Avalon/Everest (recent, bishop-recognized), Chesterton (~70 schools), Regnum Christi (154 across 19 countries) — each a 501(c)(3) with a self-perpetuating lay board.
 
 #### Connections
 
-- **Source Connection:** Based on Category 1.2 (Independent Networks) and the verbatim Canon 803 text in Category 2.3.
-- **SPOV Connection:** Grounds SPOV4 (operating structure); removes the "but won't the diocese stop you?" objection from SPOV1 (Timeback portfolio fit) and SPOV3 (market solution).
+- **Source Connection:** Category 1.2 (Independent Networks) + Canon 803 text in Category 2.3.
+- **SPOV Connection:** Grounds SPOV4; neutralizes the diocesan-objection risk to SPOV1 and SPOV3.
 
 ### Insight 5 — Magnifica humanitas is the launch window
 
-*Magnifica humanitas* is the Catholic Church's first formal entry into AI ethics, and the encyclical's first-year reception is the launch window for AI-native Catholic education. Published on the 135th anniversary of *Rerum Novarum* (which defined Catholic engagement with the industrial economy for the following century), *Magnifica humanitas* is designed to do for AI what its 1891 predecessor did for industrialization: define the durable Catholic engagement frame for the next century. Acting inside that window is itself an exercise of prudence as Aquinas defined it (*Summa Theologiae* II-II Q.47): applying universal principles to particular changing circumstances. A learning community launching inside the reception window inherits the alignment frame at founding; one launching after it competes against incumbents who already own it.
+*Magnifica humanitas* is the Catholic Church's first formal entry into AI ethics — published on the 135th anniversary of *Rerum Novarum* to do for AI what 1891 did for industrialization. A school launching inside that reception window inherits the alignment frame at founding; one launching after it competes against incumbents who already own it.
 
 #### Connections
 
-- **Source Connection:** Based on Category 3.1 (Magnifica humanitas & Carlo Acutis Canonization) and Category 2.3 (Classical & Theological Foundations, specifically Aquinas's prudence framework grounding action inside alignment windows).
-- **SPOV Connection:** Grounds SPOV5 (timing); gives SPOV2 (motivation) explicit papal alignment.
+- **Source Connection:** Category 3.1 (Magnifica humanitas & Carlo Acutis Canonization) + Category 2.3 (Aquinas on prudence).
+- **SPOV Connection:** Grounds SPOV5; gives SPOV2 explicit papal alignment.
 
 ## Experts
 
@@ -216,14 +211,14 @@ Canon 803 §3's bishop-recognition gate is not a bureaucratic obstacle; it is a 
       - 1,683,506 PK-12 students across 5,852 Catholic schools (2024–25).
       - 18% of students on school choice programs, up ~5% YoY.
       - Aggregate parochial + private + independent.
-    - **DOK 2 - Summary:** School-choice tailwind is real and accelerating. Acutis can capture voucher-eligible families from day one if Texas school choice expansion advances in 2026.
+    - **DOK 2 - Summary:** School-choice tailwind is real and accelerating, giving Acutis a Day 1 path to voucher-eligible families.
   - **Source 2: Brendan Hodge, "Homeschool and the Church's Future," The Pillar (2024)**
     - **URL:** [pillarcatholic.com](https://www.pillarcatholic.com/p/homeschool-and-the-churchs-future)
     - **DOK 1 - Facts:**
       - 11% of newly ordained Catholic priests were homeschooled.
       - 43% came from Catholic elementary schools.
       - Homeschool cohort over-indexes on vocations by ~3x its population share.
-    - **DOK 2 - Summary:** The practicing-Catholic signal has migrated from parochial to homeschool. Acutis's Phase 1 funnel target is the Catholic homeschool cohort wanting institutional structure without diocesan ownership.
+    - **DOK 2 - Summary:** The practicing-Catholic signal has migrated from parochial to homeschool — that's Acutis's Phase 1 funnel.
 - **Category 1.2: Independent Catholic Networks**
   - **Source 1: Chesterton Schools Network, 2025 Yass Prize announcement**
     - **URL:** [chestertonschoolsnetwork.org](https://chestertonschoolsnetwork.org/news/chesterton-schools-network-wins-2025-1-million-yass-prize)
@@ -256,14 +251,14 @@ Canon 803 §3's bishop-recognition gate is not a bureaucratic obstacle; it is a 
       - SDT identifies three universal psychological needs: autonomy, competence, relatedness.
       - Intrinsic motivation requires all three.
       - Published in American Psychologist 55(1).
-    - **DOK 2 - Summary:** Load-bearing empirical frame for SPOV2 Layer 2. Internalized religious values satisfy autonomy + relatedness uniquely well: autonomy via interior assent to virtue, relatedness via communion with the Mystical Body.
+    - **DOK 2 - Summary:** Load-bearing empirical frame for SPOV2 — internalized religious values satisfy autonomy and relatedness uniquely well.
   - **Source 2: Hardy, Nelson et al. (2022), Adolescent Religious Motivation: A SDT Approach**
     - **URL:** [selfdeterminationtheory.org](https://selfdeterminationtheory.org/wp-content/uploads/2024/09/2022_HardyNelsonEtAl_AdolescentReligious.pdf)
     - **DOK 1 - Facts:**
       - Internalized religious motivation positively predicts adolescent prosocial behavior and well-being.
       - Negatively predicts antisocial behavior and mental illness.
       - International Journal for the Psychology of Religion 32(1).
-    - **DOK 2 - Summary:** Empirical bridge between Catholic virtue formation and measurable adolescent outcomes. Provides the outcome instruments for SPOV2 Layer 2.
+    - **DOK 2 - Summary:** Empirical bridge between Catholic virtue formation and measurable adolescent outcomes; supplies the outcome instruments for SPOV2.
 - **Category 2.2: Mastery & Cognitive Architecture**
   - **Source 1: Bloom (1984), The 2 Sigma Problem**
     - **URL:** [gwern.net/doc/psychology/1984-bloom](https://gwern.net/doc/psychology/1984-bloom.pdf)
@@ -278,7 +273,7 @@ Canon 803 §3's bishop-recognition gate is not a bureaucratic obstacle; it is a 
     - **DOK 1 - Facts:**
       - "Prudence applies universal principles to the particular conclusions of practical matters."
       - Cardinal virtue that operationalizes the other virtues.
-    - **DOK 2 - Summary:** Aquinas's prudence framework (applying universal principles to particular changing circumstances) grounds two load-bearing Acutis claims: the SPOV5 thesis that timing the launch to the *Magnifica humanitas* reception window is itself a prudential discipline, and the curriculum claim that Catholic afternoon project work is explicit prudence-training (students apply timeless Catholic principles to live AI engineering challenges).
+    - **DOK 2 - Summary:** Aquinas's prudence framework grounds two Acutis claims: timing the launch to *Magnifica humanitas* is itself a prudential discipline, and afternoon project work is explicit prudence-training.
   - **Source 2: Code of Canon Law, Canons 793–821 (Vatican 1983)**
     - **URL:** [vatican.va/archive/cod-iuris-canonici](https://www.vatican.va/archive/cod-iuris-canonici/eng/documents/cic_lib3-cann793-821_en.html)
     - **DOK 1 - Facts:**
@@ -310,7 +305,7 @@ Canon 803 §3's bishop-recognition gate is not a bureaucratic obstacle; it is a 
       - Canonization date: September 7, 2025.
       - Canonizer: Pope Leo XIV (Francis died April 21, 2025 before the planned April 27 ceremony).
       - Quote: "In front of the sun, you get a tan. In front of the Eucharist, you become a saint!"
-    - **DOK 2 - Summary:** Patron saint of Acutis Institute is canonized by the same Pope who publishes Magnifica humanitas eight months later: a single pontificate authors both Acutis's patronage and the AI-and-human-dignity encyclical.
+    - **DOK 2 - Summary:** Acutis's patron saint and the AI-and-human-dignity encyclical share a single pontificate, eight months apart.
 - **Category 3.2: Cultural & Trust Trends**
   - **Source 1: Tocqueville, Democracy in America Vol. II, Part I, Ch. VI (1840)**
     - **URL:** [gutenberg.org](https://www.gutenberg.org/files/816/816-h/816-h.htm)
@@ -318,13 +313,13 @@ Canon 803 §3's bishop-recognition gate is not a bureaucratic obstacle; it is a 
       - Reeve translation, 1840 (Vol. II, not Vol. I 1835).
       - Verbatim: "our posterity will tend more and more to a single division into two parts: some relinquishing Christianity entirely, and others returning to the bosom of the Church of Rome."
       - Tocqueville argues democratic minds seek unified religious authority.
-    - **DOK 2 - Summary:** The structural conditions Tocqueville identified are precisely the post-COVID, post-institutional-collapse conditions the West now occupies. Tocqueville did not predict timing; he predicted structure.
+    - **DOK 2 - Summary:** Tocqueville predicted structure, not timing — and the post-COVID West fits the structure he described.
   - **Source 2: Pew Research Center, "Is There a Religious Revival Among Young US Adults?" (Dec 2025)**
     - **URL:** [pewresearch.org](https://www.pewresearch.org/religion/2025/12/08/religion-holds-steady-in-america/)
     - **DOK 1 - Facts:**
       - 55% of young adults born 1995–2002 identify with a religion (vs. 57% in 2020).
       - Two-decade Gen Z decline has paused, not reversed.
-    - **DOK 2 - Summary:** Load-bearing source for the honest SPOV5 framing: Gen Z decline has paused while Catholicism produces disproportionate cultural energy (Free Press, Word on Fire, Pillar).
+    - **DOK 2 - Summary:** Gen Z decline has paused while Catholicism produces disproportionate cultural energy — the honest base case for SPOV5.
 - **Category 3.3: Timeback Ecosystem**
   - **Source 1: 2 Hour Learning (Timeback platform) portfolio**
     - **URL:** [2hourlearning.com](https://2hourlearning.com)
@@ -339,14 +334,14 @@ Canon 803 §3's bishop-recognition gate is not a bureaucratic obstacle; it is a 
       - Verbatim: "Motivation isn't fluff. It's the engine of retention and accelerated mastery."
       - Per-student passion examples: "A Swiftie might learn World War I through a 'Taylor Swift drama' analogy."
       - "A fifth-grader who loves soccer may practice fractions by calculating goal-shot ratios."
-    - **DOK 2 - Summary:** Primary-source confirmation that Alpha's motivation theory is per-student passion alignment via AI-personalized content. SPOV2 Layer 1 maps this pattern directly onto Catholic-themed content for Catholic kids.
+    - **DOK 2 - Summary:** Primary-source confirmation that Alpha's motivation theory is per-student passion alignment — the pattern SPOV2 maps onto Catholic content.
   - **Source 3: Alpha School, "Joe Liemandt's vision for Alpha School"**
     - **URL:** [alpha.school/the-future-of-education-joe-liemandts-vision-for-alpha-school](https://alpha.school/the-future-of-education-joe-liemandts-vision-for-alpha-school/)
     - **DOK 1 - Facts:**
       - Timeback positioned as "Shopify for schools" that empowers entrepreneurs to launch specialized schools.
       - Timeback described as "the tech operating system of the future of school."
       - Liemandt's TAM: 1 billion students over 20 years.
-    - **DOK 2 - Summary:** Primary-source confirmation of Timeback's platform-for-entrepreneurs framing. Acutis is one such entrepreneur-founded specialized school: the Catholic-formation segment.
+    - **DOK 2 - Summary:** Primary-source confirmation of Timeback's platform-for-entrepreneurs framing — Acutis is the Catholic-formation segment.
   - **Source 4: Mike Maples Jr., "Superbuilders are a Startup's X-Factor" (Medium, July 2024)**
     - **URL:** [medium.com/@m2jr](https://medium.com/@m2jr/superbuilders-are-a-startups-x-factor-da582f5c7e8d)
     - **DOK 1 - Facts:**
@@ -359,4 +354,5 @@ Canon 803 §3's bishop-recognition gate is not a bureaucratic obstacle; it is a 
       - 1.422B global Catholics (2024).
       - 17.8% of world population.
       - Distribution: 47.7% Americas, 20.3% Africa, 20.1% Europe, 11.0% Asia, 0.9% Oceania.
-    - **DOK 2 - Summary:** Structural math for SPOV1: Liemandt's "1 billion students" TAM is reachable only by addressing identity-coherent cohorts at scale, and the Catholic cohort is the largest such cohort globally.
+    - **DOK 2 - Summary:** Structural math for SPOV1 — the Catholic cohort is the largest identity-coherent cohort on Earth.
+
