@@ -3,10 +3,7 @@ import { BrainliftViewer } from "./BrainliftViewer";
 
 export function AcutisMount() {
   return (
-    <BrainliftViewer
-      markdown={brainliftMd}
-      title="Acutis-Institute_Brainlift.md"
-    />
+    <BrainliftViewer markdown={brainliftMd} />
   );
 }
 
