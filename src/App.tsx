@@ -19,7 +19,8 @@ export default function App() {
   // Routes that compose chrome inline in their own header row. We skip
   // the global fixed-positioned chrome on these to avoid double-render.
   const onAcutis = location.pathname === "/lessons/acutis";
-  const inlineChrome = onLanding || onAcutis;
+  const onWorkflow = location.pathname === "/workflow";
+  const inlineChrome = onLanding || onAcutis || onWorkflow;
 
   return (
     <div className="min-h-[100dvh] w-full">

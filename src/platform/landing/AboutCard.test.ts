@@ -9,6 +9,25 @@ describe("AboutCard — DESIGN.md compliance", () => {
     expect(src).toMatch(/export.*AboutCard/);
   });
 
+  it("accepts onActivate and className props", () => {
+    expect(src).toMatch(/onActivate/);
+    expect(src).toMatch(/className/);
+  });
+
+  it("renders as a motion.button so the whole card is clickable", () => {
+    expect(src).toMatch(/motion\.button/);
+  });
+
+  it("uses poster card spring stiffness 380 damping 26 (DESIGN.md §Motion)", () => {
+    expect(src).toMatch(/stiffness.*380|380.*stiffness/);
+    expect(src).toMatch(/damping.*26|26.*damping/);
+  });
+
+  it("uses poster card hover lift (y: -3) and tap scale (0.995)", () => {
+    expect(src).toMatch(/y:\s*-3/);
+    expect(src).toMatch(/scale:\s*0\.995/);
+  });
+
   it("has ABOUT eyebrow text", () => {
     expect(src).toMatch(/ABOUT/i);
   });
@@ -29,7 +48,13 @@ describe("AboutCard — DESIGN.md compliance", () => {
     expect(src).not.toMatch(/\bfont-display\b/);
   });
 
-  it("has SuperBuilders footer attribution", () => {
-    expect(src).toMatch(/SuperBuilders/i);
+  it("has a Jason Dijols LinkedIn link that stops propagation", () => {
+    expect(src).toMatch(/Jason Dijols/);
+    expect(src).toMatch(/linkedin\.com\/in\/jasondijols/);
+    expect(src).toMatch(/stopPropagation/);
+  });
+
+  it("shows the How I build affordance as visual-only (parent button handles nav)", () => {
+    expect(src).toMatch(/How I build/);
   });
 });

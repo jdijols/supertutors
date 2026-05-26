@@ -5,6 +5,7 @@ import App from "@/App";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { LandingPage } from "@/platform/landing/LandingPage";
 import { LessonHost } from "@/platform/LessonHost";
+import { WorkflowPage } from "@/platform/workflow/WorkflowPage";
 import "@/styles/globals.css";
 
 // Preview routes are dev-only tooling — lazy-load so lesson/dialogue assets
@@ -21,6 +22,7 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       { index: true, element: <LandingPage /> },
+      { path: "workflow", element: <WorkflowPage /> },
       { path: "lessons/:slug", element: <LessonHost /> },
       { path: "lesson", element: <Navigate to="/lessons/freddy-fractions" replace /> },
       { path: "preview/pizza", element: <Suspense><PizzaPreview /></Suspense> },

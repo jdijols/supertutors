@@ -40,35 +40,43 @@ export function FreddyPosterCard({
         className="absolute inset-0 opacity-[0.025] mix-blend-multiply"
         style={{
           backgroundImage:
-            "repeating-linear-gradient(45deg, #1A1A1A 0 1px, transparent 1px 8px)",
+            "repeating-linear-gradient(135deg, #1A1A1A 0 1px, transparent 1px 8px)",
         }}
       />
 
       <div className="relative h-full min-h-[280px] md:min-h-[340px]">
         <div className="absolute top-7 sm:top-9 md:top-10 left-7 sm:left-10 md:left-12 right-7 sm:right-10 md:right-12 flex items-center justify-between">
-          <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-sb-accent-deep">
-            Lesson 01
+          <span className="flex items-center gap-2">
+            <span className="h-px w-6 bg-sb-accent-deep/60" aria-hidden />
+            <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-sb-accent-deep">
+              Lesson 01
+            </span>
           </span>
           <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-sb-muted">
-            ~5 min
+            ~10 min
           </span>
         </div>
 
+        {/* Soft halo behind Freddy — gives presence without grounding
+            his feet (which now extend well below the hairline). */}
         <div
           aria-hidden
-          className="absolute right-[2%] sm:right-[4%] bottom-[80px] sm:bottom-[88px] md:bottom-[96px] w-[50%] h-[35%] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(26,26,26,0.10)_0%,rgba(26,26,26,0)_70%)]"
+          className="absolute right-[10%] sm:right-[12%] md:right-[14%] top-[25%] w-[40%] h-[72%] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(26,26,26,0.08)_0%,rgba(26,26,26,0)_70%)]"
         />
         <img
           src="/lessons/freddy-fractions/images/characters/freddy/facing-student-excited-open.png"
           alt="Freddy Fractions"
-          className="absolute right-[-2%] sm:right-0 md:right-[2%] bottom-[78px] sm:bottom-[88px] md:bottom-[96px] h-[72%] max-h-[440px] w-auto max-w-[50%] sm:max-w-[52%] md:max-w-[52%] lg:max-w-[55%] object-contain object-bottom drop-shadow-[0_24px_36px_rgba(26,26,26,0.25)] transition-transform duration-500 ease-out group-hover:translate-y-[-4px]"
+          className="absolute right-[8%] sm:right-[10%] md:right-[12%] -bottom-[132px] sm:-bottom-[142px] md:-bottom-[152px] h-[138%] max-h-[660px] w-auto max-w-[52%] sm:max-w-[50%] md:max-w-[48%] lg:max-w-[52%] object-contain object-bottom drop-shadow-[0_24px_36px_rgba(26,26,26,0.25)] transition-transform duration-500 ease-out group-hover:translate-y-[-4px]"
         />
 
-        <div className="absolute left-7 sm:left-10 md:left-12 top-1/2 -translate-y-1/2 max-w-[44%] sm:max-w-[44%] md:max-w-[42%] lg:max-w-[58%]">
-          <h2 className="font-mono font-bold leading-[0.95] tracking-[-0.02em] text-sb-ink text-[28px] sm:text-[36px] md:text-[40px] lg:text-[60px]">
+        <div className="absolute left-7 sm:left-10 md:left-12 top-1/2 -translate-y-1/2 max-w-[50%] sm:max-w-[50%] md:max-w-[48%] lg:max-w-[62%]">
+          <h2 className="font-mono font-bold leading-[0.95] tracking-normal text-sb-ink text-[28px] sm:text-[36px] md:text-[40px] lg:text-[60px]">
             <span className="block">Learn</span>
             <span className="block" style={outlineStyle}>
-              FRACTIONS
+              FRACTION
+            </span>
+            <span className="block" style={outlineStyle}>
+              EQUIVALENCE
             </span>
           </h2>
           <p className="mt-3 text-[13px] sm:text-[14px] lg:text-[15px] text-sb-muted">

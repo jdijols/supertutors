@@ -31,9 +31,22 @@ describe("BrainliftCard — DESIGN.md compliance", () => {
     expect(src).toMatch(/BRAINLIFT/i);
   });
 
-  it("uses parchment gradient background", () => {
-    expect(src).toMatch(/radial-gradient/);
-    expect(src).toMatch(/F5EFE2|EFE7DA|E8DECC/);
+  it("uses the extended Saint Carlo Acutis Institute name", () => {
+    expect(src).toMatch(/Saint Carlo/);
+    expect(src).toMatch(/Acutis/);
+    expect(src).toMatch(/INSTITUTE/);
+  });
+
+  it("renders the Carlo Acutis portrait", () => {
+    expect(src).toMatch(/\/lessons\/acutis\/images\/carlo-acutis\.png/);
+  });
+
+  it("uses a linear gradient to transition from paper into the portrait", () => {
+    expect(src).toMatch(/linear-gradient\(to right/);
+  });
+
+  it("uses a light paper surface to contrast the dark AboutCard", () => {
+    expect(src).toMatch(/bg-sb-paper-soft|#F5F2EC/);
   });
 
   it("does not use deprecated font-display (DESIGN.md §Typography)", () => {

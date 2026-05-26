@@ -40,39 +40,50 @@ export function ASLPosterCard({
         className="absolute inset-0 opacity-[0.025] mix-blend-multiply"
         style={{
           backgroundImage:
-            "repeating-linear-gradient(45deg, #1A1A1A 0 1px, transparent 1px 8px)",
+            "repeating-linear-gradient(135deg, #1A1A1A 0 1px, transparent 1px 8px)",
         }}
       />
 
-      {/* Background sign hand glyph — anchored right */}
+      {/* Soft halo behind Sage — same character-presence treatment
+          as Freddy. Her feet extend below the hairline. */}
       <div
         aria-hidden
-        className="absolute right-[-4%] sm:right-[-2%] bottom-[10%] w-[55%] h-[70%] flex items-center justify-center opacity-[0.35] transition-transform duration-500 ease-out group-hover:translate-y-[-4px] text-[#1A2237]"
-      >
-        <SignHandGlyph />
-      </div>
+        className="absolute right-[4.5%] sm:right-[6.5%] md:right-[8.5%] top-[28%] w-[44%] h-[76%] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(26,34,55,0.10)_0%,rgba(26,34,55,0)_70%)]"
+      />
+      <img
+        src="/lessons/asl/images/characters/sage/saluting-start.png"
+        alt="Sage"
+        className="absolute right-[2.5%] sm:right-[4.5%] md:right-[6.5%] -bottom-[171px] sm:-bottom-[181px] md:-bottom-[200px] h-[152%] max-h-[726px] w-auto max-w-[57%] sm:max-w-[55%] md:max-w-[53%] lg:max-w-[57%] object-contain object-bottom drop-shadow-[0_24px_36px_rgba(26,34,55,0.25)] transition-transform duration-500 ease-out group-hover:translate-y-[-4px]"
+      />
 
       <div className="relative h-full min-h-[280px] md:min-h-[340px]">
         {/* Eyebrow row */}
         <div className="absolute top-7 sm:top-9 md:top-10 left-7 sm:left-10 md:left-12 right-7 sm:right-10 md:right-12 flex items-center justify-between">
-          <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-[#1A2237]">
-            Lesson 02
+          <span className="flex items-center gap-2">
+            <span className="h-px w-6 bg-[#1A2237]/60" aria-hidden />
+            <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-[#1A2237]">
+              Lesson 02
+            </span>
           </span>
           <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-sb-muted">
-            ~3 min
+            ~15 min
           </span>
         </div>
 
         {/* Title block */}
-        <div className="absolute left-7 sm:left-10 md:left-12 top-1/2 -translate-y-1/2 max-w-[50%] sm:max-w-[48%]">
-          <h2 className="font-mono font-bold leading-[0.95] tracking-[-0.02em] text-sb-ink text-[28px] sm:text-[36px] md:text-[40px] lg:text-[60px]">
+        <div className="absolute left-7 sm:left-10 md:left-12 top-1/2 -translate-y-1/2 max-w-[58%] sm:max-w-[58%] md:max-w-[56%] lg:max-w-[65%]">
+          <h2 className="font-mono font-bold leading-[0.95] tracking-normal text-sb-ink text-[28px] sm:text-[36px] md:text-[40px] lg:text-[60px]">
             <span className="block">Learn</span>
             <span className="block" style={outlineStyle}>
-              SIGNS
+              AMERICAN
+            </span>
+            <span className="block" style={outlineStyle}>
+              SIGN LANGUAGE
             </span>
           </h2>
           <p className="mt-3 text-[13px] sm:text-[14px] lg:text-[15px] text-sb-muted">
-            with your camera at home.
+            with <span className="text-sb-ink font-medium">Sage</span> and your
+            camera right at home.
           </p>
         </div>
 
@@ -93,27 +104,5 @@ export function ASLPosterCard({
         </div>
       </div>
     </motion.button>
-  );
-}
-
-function SignHandGlyph() {
-  return (
-    <svg
-      viewBox="0 0 200 200"
-      width="100%"
-      height="100%"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <path d="M60 110 Q60 80 75 70 L75 50 Q75 35 90 35 Q105 35 105 50 L105 75" />
-      <path d="M105 75 L105 35 Q105 20 118 20 Q131 20 131 35 L131 80" />
-      <path d="M131 80 L131 30 Q131 17 144 17 Q157 17 157 30 L157 85" />
-      <path d="M157 85 L157 40 Q157 27 170 27 Q183 27 183 40 L183 100 Q183 145 150 170 Q120 188 95 180 Q70 172 60 150 Q52 135 60 110" />
-      <path d="M60 130 Q40 130 35 145 Q30 160 45 168" />
-    </svg>
   );
 }
