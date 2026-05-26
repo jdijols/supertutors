@@ -18,9 +18,12 @@ export default function App() {
 
   // Routes that compose chrome inline in their own header row. We skip
   // the global fixed-positioned chrome on these to avoid double-render.
+  // /og-image is the offline OG-image rasterization route — chrome must
+  // never render there or it shows up in the shared social card.
   const onAcutis = location.pathname === "/lessons/acutis";
   const onWorkflow = location.pathname === "/workflow";
-  const inlineChrome = onLanding || onAcutis || onWorkflow;
+  const onOgImage = location.pathname === "/og-image";
+  const inlineChrome = onLanding || onAcutis || onWorkflow || onOgImage;
 
   return (
     <div className="min-h-[100dvh] w-full">

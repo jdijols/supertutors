@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "postbuild": "node scripts/generate-route-meta.mjs",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
@@ -20,6 +21,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "generate-voice": "node --env-file=.env.local scripts/generate-voice.ts",
+    "og:generate": "node scripts/generate-og-image.mjs",
     "extract-dialogue": "echo 'TODO: implement dialogue extraction from Stately export into dialogue.json'"
   },
   "repository": {
