@@ -18,6 +18,7 @@ import {
   NameInputOverlay,
   RestaurantScene,
   SpeechBubble,
+  ToolCursorLayer,
 } from "./scenes/world";
 import type { LessonMountProps } from "@/platform/lesson-sdk";
 
@@ -141,6 +142,12 @@ export function FreddyMount({ name: propName, onComplete: _onComplete, platform 
 
   return (
     <main className="relative w-screen h-[100dvh] overflow-hidden bg-sb-surface select-none [-webkit-touch-callout:none]">
+      {/* Always-on custom cursor for the whole Freddy lesson — hides the
+          OS pointer and renders the tool-aware sprite (glove/cutter)
+          plus the pointing-glove swap over data-cursor-pointing elements.
+          Mounted at the Mount level so the cursor stays correct across
+          Explore → V2 → V3 without each phase having to re-wire it. */}
+      <ToolCursorLayer />
       <RestaurantScene>
         <div className="absolute left-[12px] bottom-0 z-10 pointer-events-none">
           <FreddyCharacter

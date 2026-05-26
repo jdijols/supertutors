@@ -25,6 +25,7 @@ export function NumberBar({ open, onDigit, onDelete, label }: NumberBarProps) {
   return (
     <motion.div
       data-testid="number-bar"
+      data-cursor-pointing
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 12 }}

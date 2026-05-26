@@ -12,7 +12,6 @@ import {
   CvToggle,
   DeliveryBox,
   ToolPicker,
-  ToolSprite,
   type DeliveryBoxHandle,
 } from "../scenes/world";
 import {
@@ -754,20 +753,9 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
       }
     }, [proximityGroups, piecesById, onWin]);
 
-    // Tool-driven cursor classes on documentElement + body (the ToolSprite
-    // also follows the pointer via JS). See SandboxPreview's earlier
-    // comment for the three-layer redundancy rationale.
-    const toolClassName = toolMode === "cutter" ? "tool-cutter" : "tool-glove";
-
-    useEffect(() => {
-      document.documentElement.classList.add(toolClassName);
-      document.body.classList.add(toolClassName);
-      return () => {
-        document.documentElement.classList.remove(toolClassName);
-        document.body.classList.remove(toolClassName);
-      };
-    }, [toolClassName]);
-
+    // Tool-driven custom cursor (body class + sprite) is now owned by
+    // ToolCursorLayer mounted at FreddyMount level, so it stays active
+    // across Explore → V2 → V3 without each phase re-wiring it.
     const piecesDraggable = toolMode === "glove";
 
     return (
@@ -852,9 +840,6 @@ export const LessonTable = forwardRef<LessonTableHandle, LessonTableProps>(
             so the box has nothing to receive. Pulses when full in sandbox
             mode to signal "send a pizza away to make room." */}
         {!scriptedMode && <DeliveryBox ref={deliveryBoxRef} pulseHint={cantAddMore} />}
-
-        {/* Pointer-following tool sprite. */}
-        <ToolSprite toolMode={toolMode} />
 
         {/* Hero animations — render in-table by default; parents that
             drive their own (state-machine-backed) can opt out. */}
