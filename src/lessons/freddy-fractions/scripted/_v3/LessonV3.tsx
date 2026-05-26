@@ -17,7 +17,9 @@ import { FractionInput } from "./FractionInput";
 import { MixedNumberDisplay } from "./MixedNumberDisplay";
 import type { CvCameraHandle } from "@/platform/lesson-sdk";
 import type { ProgressHandle } from "@/platform/progress/types";
+import { audioEngine } from "../../audioSingleton";
 import { V3_STAGE_TO_ITEM } from "../../catalog";
+import { useTutorStore } from "../../store/tutorStore";
 
 /**
  * LessonV3 — V3 Synthesis-port lesson host.
@@ -607,6 +609,8 @@ export interface LessonV3Props {
 
 export function LessonV3({ name, cv, progress, sessionId }: LessonV3Props) {
 
+  const setFreddy = useTutorStore((s) => s.setFreddy);
+
   const [stage, setStage] = useState<V3Stage>("beat_1_distribute_4");
   const [hint, setHint] = useState<string | undefined>(undefined);
   const [fractionRetryCount, setFractionRetryCount] = useState(0);
@@ -677,6 +681,33 @@ export function LessonV3({ name, cv, progress, sessionId }: LessonV3Props) {
     setHint(undefined);
     setFractionRetryCount(0);
   }, [stage]);
+
+  // Voice playback — fires when stage changes, IF the stage has a speech
+  // line and the bubble isn't currently showing a wrong-answer hint.
+  // Mirrors speaking state to tutorStore so FreddyCharacter's mouth
+  // animates (Freddy is rendered by Mount.tsx, not by this component).
+  // Lines live in tutor/dialogue.json under `v3_<stage>` keys; the
+  // audio engine + generate-voice script discover them via that file.
+  useEffect(() => {
+    audioEngine.stop();
+    setFreddy({ speaking: false });
+
+    if (hint || !config.speech) return;
+
+    const dialogueKey = `v3_${stage}`;
+    void audioEngine.play({
+      dialogueKey,
+      name,
+      onSpeakingChange: (speaking) => setFreddy({ speaking }),
+      onDone: () => setFreddy({ speaking: false }),
+    });
+
+    return () => {
+      audioEngine.stop();
+      setFreddy({ speaking: false });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stage, name, hint]);
 
   // Auto-advance for narration beats
   useEffect(() => {
