@@ -377,18 +377,28 @@ transition={{ type: "spring", stiffness: 380, damping: 26 }}
 
 ## Surface-Dependent State Inversions
 
-The `active = dark` rule is about **maximum contrast with the page background**, not a fixed color.
+Two categories of toggle exist, with different state-indication rules:
+
+### Utility chrome — icon-only state (no color inversion)
+
+`MuteToggle`, `CvToggle`. These flip preferences that don't change what's on screen — audio on/off, camera on/off. State is conveyed entirely by the icon swap (speaker with waves vs. with X; camera vs. camera with slash). Background, border, and shadow stay constant across active and rest. Reads as quiet, ambient utility.
+
+| Surface | Page bg | Active state | Rest state |
+|---------|---------|--------------|------------|
+| Light or dark | any | `bg-sb-paper text-sb-ink` | `bg-sb-paper text-sb-ink hover:bg-sb-paper-deep` |
+
+### Functional toggles — `active = dark` (color inversion)
+
+`ToolPicker` (which tool is equipped), correct/incorrect feedback states inside the lesson world. These need maximum visibility of current state because gameplay or pedagogy depends on it. The `active = dark` rule applies: active background contrasts maximally with the page background.
 
 | Surface | Page bg | Active state | Rest state |
 |---------|---------|--------------|------------|
 | Light (lesson, modal) | `sb-surface` / `sb-card` | `bg-sb-ink text-white` | `bg-sb-paper text-sb-ink` |
 | Dark (landing page) | `sb-ink` | `bg-sb-paper text-sb-ink` | `bg-sb-paper text-sb-ink` |
 
-On the dark landing page both active and rest use `bg-sb-paper` — the icon (speaker waves vs. muted X) carries the semantic distinction.
+**Implementation pattern:** Utility-chrome buttons (`MuteToggle`) accept a `surface?: "light" | "dark"` prop (default `"light"`) — `surface` only affects the focus-ring offset color, not the state styling. `App.tsx` detects `location.pathname === "/"` and passes `surface="dark"` on the landing route. `UserMenu` detects the surface internally via its existing `useLocation` hook.
 
-**Implementation pattern:** Chrome buttons that render on multiple surfaces accept a `surface?: "light" | "dark"` prop (default `"light"`). `App.tsx` detects `location.pathname === "/"` and passes `surface="dark"` on the landing route. `UserMenu` detects the surface internally via its existing `useLocation` hook.
-
-**Focus ring offsets** follow the same rule: `ring-offset-sb-surface` on light, `ring-offset-sb-ink` on dark.
+**Focus ring offsets** follow the surface rule: `ring-offset-sb-surface` on light, `ring-offset-sb-ink` on dark.
 
 ---
 
@@ -508,3 +518,4 @@ The following are defined in `tailwind.config.js` but are **not active in produc
 | 2026-05-25 | Fredoka + Nunito not adopted | Neither font is loaded in index.html; both are placeholders from early design exploration. Geist Mono covers all display needs |
 | 2026-05-25 | DESIGN.md created | Extracted all active design tokens from live production code. Audited stale tokens (portal, tomato, Fredoka, Nunito, TutorCard) — marked deprecated, not removed |
 | 2026-05-26 | Landing inverted to dark surface; carousel → bento grid | Editorial ink-on-dark feel signals "SuperBuilders standalone platform." 4-card simultaneous view removes carousel hide-and-reveal. AboutModal removed (AboutCard inline). Acutis promoted from ComingSoonMount to BrainliftViewer. `active = dark` rule extended to surface-dependent inversions. |
+| 2026-05-26 | MuteToggle + CvToggle: state via icon swap only, no color inversion | The two are utility chrome (audio on/off, camera on/off) — preferences, not mode changes. The icon already carries the state unambiguously (speaker+X, camera+slash). Removing the color flip makes the chrome read as quiet ambient utility rather than a reactive mode switch. `active = dark` still applies to `ToolPicker` (gameplay-critical tool selection) and lesson-world feedback states. |

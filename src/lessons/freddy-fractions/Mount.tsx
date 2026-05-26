@@ -38,7 +38,26 @@ export function FreddyMount({ name: propName, onComplete: _onComplete, platform 
   const [responseShown, setResponseShown] = useState(false);
   const [onboardingDone, setOnboardingDone] = useState(skipImmediately || !!propName);
   const [explorationDone, setExplorationDone] = useState(skipToScriptedImmediately || skipToV3Immediately);
+  const [scriptedDone, setScriptedDone] = useState(false);
   const [nameInputPulsing, setNameInputPulsing] = useState(false);
+
+  // Progress session — started once when signed-in, shared by V2 and V3
+  // so the whole lesson sitting rolls up to a single LessonSession.
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  useEffect(() => {
+    if (!platform.progress) return;
+    platform.progress
+      .startSession("freddy-fractions")
+      .then(setSessionId)
+      .catch(console.error);
+    return () => {
+      // Best-effort end on unmount. Idempotent server-side.
+      if (sessionId) {
+        void platform.progress?.endSession(sessionId, "exit");
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [platform.progress]);
 
   // name is the live value — propName updates when platformStore changes
   const name = propName || null;
@@ -167,10 +186,26 @@ export function FreddyMount({ name: propName, onComplete: _onComplete, platform 
           <LessonMachineRoot name={name} platform={platform} />
         ) : null
       ) : explorationDone && name ? (
-        skipToV3 ? (
-          <LessonV3 name={name} cv={platform.cv} />
+        // Lesson stage routing:
+        // - skipToV3 (?lesson=v3): straight to V3, no V2.
+        // - skipToScripted (?lesson=scripted): V2 only, no auto-advance.
+        // - default (no URL param): V2 with a "Continue to lesson →"
+        //   affordance that advances into V3 in-place. First-time
+        //   learners flow through both; returning learners arrive here
+        //   with the URL param set by the landing details view.
+        skipToV3 || scriptedDone ? (
+          <LessonV3
+            name={name}
+            cv={platform.cv}
+            progress={platform.progress}
+            sessionId={sessionId}
+          />
         ) : (
-          <LessonScripted name={name} cv={platform.cv} />
+          <LessonScripted
+            name={name}
+            cv={platform.cv}
+            onContinue={skipToScripted ? undefined : () => setScriptedDone(true)}
+          />
         )
       ) : (
         <LessonExploration

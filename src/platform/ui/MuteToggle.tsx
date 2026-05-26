@@ -14,18 +14,11 @@ export function MuteToggle({
   const muted = usePlatformStore((s) => s.muted);
   const toggle = usePlatformStore((s) => s.toggleMute);
 
-  // On dark (ink) surfaces the "active = bg-sb-ink" rule would make the
-  // button invisible. Invert: active on dark → bg-sb-paper text-sb-ink.
-  const activeClass =
-    surface === "dark"
-      ? "bg-sb-paper text-sb-ink"
-      : "bg-sb-ink text-white";
-
-  const restClass =
-    surface === "dark"
-      ? "bg-sb-paper text-sb-ink hover:bg-sb-paper-deep"
-      : "bg-sb-paper text-sb-ink hover:bg-sb-paper-deep";
-
+  // Utility chrome: state is conveyed by the icon swap only (speaker
+  // with waves vs. speaker with X). Background, border, and shadow
+  // stay constant across muted/unmuted so the toggle reads as a quiet
+  // preference rather than a mode flip. `surface` only changes the
+  // focus-ring offset so the ring is visible against either page bg.
   const offsetClass =
     surface === "dark" ? "focus-visible:ring-offset-sb-ink" : "focus-visible:ring-offset-sb-surface";
 
@@ -47,9 +40,9 @@ export function MuteToggle({
         rounded-2xl border-2 border-sb-ink
         shadow-xl shadow-sb-accent-deep/25
         flex items-center justify-center cursor-pointer
+        bg-sb-paper text-sb-ink hover:bg-sb-paper-deep
         transition-colors duration-200
         focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 ${offsetClass}
-        ${muted ? restClass : activeClass}
       `}
     >
       {muted ? <SpeakerMutedIcon /> : <SpeakerOnIcon />}

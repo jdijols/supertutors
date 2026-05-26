@@ -5,8 +5,9 @@ import type { CvCameraHandle } from "@/platform/lesson-sdk";
  * CvToggle — fixed-position computer-vision (hand-tracking) mode toggle.
  *
  * Pinned bottom-left so it mirrors MuteToggle's top-right placement. The
- * visual pattern is identical to MuteToggle — warm paper card at rest,
- * solid ink when active — so the two read as a matching pair of chrome
+ * visual pattern is identical to MuteToggle — warm paper card across
+ * both states, state conveyed only by the icon swap (camera vs.
+ * camera+slash). The two read as a matching pair of utility chrome
  * controls (one for audio, one for camera).
  *
  * Pulled out of the ToolPicker (where it lived as a third icon) because
@@ -51,13 +52,9 @@ export function CvToggle({ cv }: CvToggleProps) {
         rounded-2xl border-2 border-sb-ink
         shadow-xl shadow-sb-accent-deep/25
         flex items-center justify-center cursor-pointer
+        bg-sb-paper text-sb-ink hover:bg-sb-paper-deep
         transition-colors duration-200
         focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface
-        ${
-          cvMode
-            ? "bg-sb-ink text-white"
-            : "bg-sb-paper text-sb-ink hover:bg-sb-paper-deep"
-        }
       `}
     >
       {cvMode ? <CameraOnIcon /> : <CameraOffIcon />}

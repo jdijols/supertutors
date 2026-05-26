@@ -1,6 +1,8 @@
 import { supabase } from "@/lib/supabase";
+import { computeMasteryStatus, MASTERY_LOOKBACK } from "./mastery";
 import type {
   Attempt,
+  AttemptResult,
   MasteryEntry,
   MasteryStatus,
   ProgressHandle,
@@ -61,30 +63,46 @@ export class SupabaseProgressClient implements ProgressHandle {
 
     if (attemptError) throw new Error(`recordAttempt: ${attemptError.message}`);
 
-    // 2. Upsert mastery (application-code rollup)
-    const { data: existing } = await supabase
-      .from("mastery")
-      .select("pass_count, fail_count")
-      .eq("user_id", this.userId)
-      .eq("item_id", input.itemId)
-      .maybeSingle();
+    // 2. Load current mastery + recent attempts for the rule engine.
+    //    Done in parallel — they don't depend on each other and the rule
+    //    needs both (existing status for sticky check, recent results
+    //    for window/streak rules).
+    const [existingResp, recentResp] = await Promise.all([
+      supabase
+        .from("mastery")
+        .select("status, pass_count, fail_count")
+        .eq("user_id", this.userId)
+        .eq("item_id", input.itemId)
+        .maybeSingle(),
+      supabase
+        .from("attempts")
+        .select("result")
+        .eq("user_id", this.userId)
+        .eq("item_id", input.itemId)
+        .order("created_at", { ascending: false })
+        .limit(MASTERY_LOOKBACK),
+    ]);
 
+    if (recentResp.error)
+      throw new Error(`recordAttempt history: ${recentResp.error.message}`);
+
+    const existing = existingResp.data;
     const passCount =
       (existing?.pass_count ?? 0) + (input.result === "pass" ? 1 : 0);
     const failCount =
       (existing?.fail_count ?? 0) + (input.result === "fail" ? 1 : 0);
 
-    let status: MasteryStatus;
-    if (input.result === "skip") {
-      status = "needs_practice";
-    } else if (passCount >= 3) {
-      status = "mastered";
-    } else if (passCount > 0 || failCount > 0) {
-      status = "practicing";
-    } else {
-      status = "not_started";
-    }
+    const recentResults = (recentResp.data ?? []).map(
+      (row) => row.result as AttemptResult,
+    );
 
+    const status = computeMasteryStatus(
+      input.itemId,
+      recentResults,
+      (existing?.status as MasteryStatus | undefined) ?? null,
+    );
+
+    // 3. Upsert mastery
     const { error: masteryError } = await supabase.from("mastery").upsert(
       {
         user_id: this.userId,

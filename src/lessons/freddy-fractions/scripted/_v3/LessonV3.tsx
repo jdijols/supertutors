@@ -16,6 +16,8 @@ import { MCQ, type MCQOption } from "./MCQ";
 import { FractionInput } from "./FractionInput";
 import { MixedNumberDisplay } from "./MixedNumberDisplay";
 import type { CvCameraHandle } from "@/platform/lesson-sdk";
+import type { ProgressHandle } from "@/platform/progress/types";
+import { V3_STAGE_TO_ITEM } from "../../catalog";
 
 /**
  * LessonV3 — V3 Synthesis-port lesson host.
@@ -597,9 +599,13 @@ function buildScenePieces(
 export interface LessonV3Props {
   name: string;
   cv?: CvCameraHandle;
+  /** Progress handle from the platform — undefined when signed-out. */
+  progress?: ProgressHandle;
+  /** Active session id. Required for recordAttempt to land. */
+  sessionId?: string | null;
 }
 
-export function LessonV3({ name, cv }: LessonV3Props) {
+export function LessonV3({ name, cv, progress, sessionId }: LessonV3Props) {
 
   const [stage, setStage] = useState<V3Stage>("beat_1_distribute_4");
   const [hint, setHint] = useState<string | undefined>(undefined);
@@ -756,21 +762,36 @@ export function LessonV3({ name, cv }: LessonV3Props) {
     [guestsToRender],
   );
 
+  // Helper: fire-and-forget recordAttempt for the current stage. Only
+  // assessment beats (those mapped in V3_STAGE_TO_ITEM) produce mastery
+  // entries — branch beats and narration don't.
+  const recordStageAttempt = useCallback(
+    (result: "pass" | "fail") => {
+      if (!progress || !sessionId) return;
+      const itemId = V3_STAGE_TO_ITEM[stage];
+      if (!itemId) return;
+      void progress.recordAttempt({ sessionId, itemId, result });
+    },
+    [progress, sessionId, stage],
+  );
+
   const handleMCAnswer = useCallback(
     (value: string) => {
       setHint(undefined);
+      recordStageAttempt("pass");
       const nextStage = config.nextByValue?.[value] ?? config.next;
       setStage(nextStage);
     },
-    [config.next, config.nextByValue],
+    [config.next, config.nextByValue, recordStageAttempt],
   );
 
   const handleMCWrong = useCallback(
     (_value: string) => {
       void _value;
+      recordStageAttempt("fail");
       if (config.mc?.hintOnWrong) setHint(config.mc.hintOnWrong);
     },
-    [config.mc],
+    [config.mc, recordStageAttempt],
   );
 
   const handleFractionAnswer = useCallback(
@@ -778,21 +799,23 @@ export function LessonV3({ name, cv }: LessonV3Props) {
       void _num;
       void _den;
       setHint(undefined);
+      recordStageAttempt("pass");
       setStage(config.next);
     },
-    [config.next],
+    [config.next, recordStageAttempt],
   );
 
   const handleFractionWrong = useCallback(
     (_num: number, _den: number) => {
       void _num;
       void _den;
+      recordStageAttempt("fail");
       if (config.fractionInput?.hintOnWrong) {
         setHint(config.fractionInput.hintOnWrong);
       }
       setFractionRetryCount((c) => c + 1);
     },
-    [config.fractionInput],
+    [config.fractionInput, recordStageAttempt],
   );
 
   const handleContinue = useCallback(() => {

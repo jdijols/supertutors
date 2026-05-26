@@ -41,6 +41,10 @@ export interface LessonScriptedProps {
   name: string;
   /** Camera handle from the platform — threaded through to LessonTable. */
   cv?: CvCameraHandle;
+  /** Callback to advance to V3 (the structured lesson). When provided,
+   * a "Continue to lesson →" affordance is rendered so the learner can
+   * leave the sandbox when they're ready. */
+  onContinue?: () => void;
 }
 
 type Stage =
@@ -153,7 +157,7 @@ const TOOL_BY_STAGE: Partial<Record<Stage, "cutter" | "glove">> = {
   done: "glove",
 };
 
-export function LessonScripted({ name, cv }: LessonScriptedProps) {
+export function LessonScripted({ name, cv, onContinue }: LessonScriptedProps) {
   const setFreddy = useTutorStore((s) => s.setFreddy);
   const setSpotlight = useTutorStore((s) => s.setSpotlight);
   const setToolMode = useTutorStore((s) => s.setToolMode);
@@ -414,7 +418,9 @@ export function LessonScripted({ name, cv }: LessonScriptedProps) {
 
       {/* Lesson-complete card — fades in once the closing line finishes
           and stage settles into `done`. Gives the kid a clear "you made it"
-          beat plus a Play again affordance so they're not stranded. */}
+          beat plus a Play again affordance so they're not stranded.
+          When onContinue is wired, a primary "Continue to lesson" CTA is
+          added so first-time learners flow from sandbox → structured V3. */}
       {stage === "done" && (
         <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 grid place-items-center z-40 pointer-events-none">
           <motion.div
@@ -429,22 +435,51 @@ export function LessonScripted({ name, cv }: LessonScriptedProps) {
             <div className="text-base text-sb-ink/70 mb-5">
               2/4 = 1/2 🍕
             </div>
-            <motion.button
-              type="button"
-              data-testid="lesson-play-again"
-              onClick={() => {
-                const target = `/lessons/freddy-fractions?lesson=scripted${name ? `&name=${encodeURIComponent(name)}` : ""}`;
-                window.location.href = target;
-              }}
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.92 }}
-              transition={{ type: "spring", stiffness: 600, damping: 22 }}
-              className="px-6 py-3 rounded-full bg-sb-ink text-sb-paper text-lg font-semibold shadow-xl shadow-sb-accent-deep/25 border-2 border-sb-paper hover:bg-sb-ink/90 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface cursor-pointer"
-            >
-              Play again →
-            </motion.button>
+            <div className="flex items-center justify-center gap-3 flex-wrap">
+              <motion.button
+                type="button"
+                data-testid="lesson-play-again"
+                onClick={() => {
+                  const target = `/lessons/freddy-fractions?lesson=scripted${name ? `&name=${encodeURIComponent(name)}` : ""}`;
+                  window.location.href = target;
+                }}
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.92 }}
+                transition={{ type: "spring", stiffness: 600, damping: 22 }}
+                className="px-5 py-3 rounded-full bg-sb-paper-deep text-sb-ink text-base font-semibold border-2 border-sb-ink hover:bg-sb-paper-deep/80 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface cursor-pointer"
+              >
+                Play again
+              </motion.button>
+              {onContinue && (
+                <motion.button
+                  type="button"
+                  data-testid="lesson-continue-to-v3"
+                  onClick={onContinue}
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.92 }}
+                  transition={{ type: "spring", stiffness: 600, damping: 22 }}
+                  className="px-6 py-3 rounded-full bg-sb-ink text-sb-paper text-lg font-semibold shadow-xl shadow-sb-accent-deep/25 border-2 border-sb-paper hover:bg-sb-ink/90 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface cursor-pointer"
+                >
+                  Continue to lesson →
+                </motion.button>
+              )}
+            </div>
           </motion.div>
         </div>
+      )}
+
+      {/* Chrome affordance — small "skip to lesson" link in the top-right
+          for kids who want to advance before V2's natural completion.
+          Only renders when onContinue is wired (i.e., the first-time
+          sequential flow). */}
+      {onContinue && stage !== "done" && (
+        <button
+          type="button"
+          onClick={onContinue}
+          className="absolute top-4 right-4 sm:top-6 sm:right-[6rem] z-50 px-4 py-2 rounded-full border border-sb-ink/30 bg-sb-paper/60 backdrop-blur-sm font-mono text-[11px] uppercase tracking-[0.18em] text-sb-ink/70 hover:text-sb-ink hover:bg-sb-paper hover:border-sb-ink/60 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface"
+        >
+          Skip to lesson →
+        </button>
       )}
     </>
   );

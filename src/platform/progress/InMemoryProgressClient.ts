@@ -1,3 +1,4 @@
+import { computeMasteryStatus, MASTERY_LOOKBACK } from "./mastery";
 import type {
   Attempt,
   LessonSession,
@@ -61,7 +62,6 @@ export class InMemoryProgressClient implements ProgressHandle {
     };
     this.attempts.push(attempt);
 
-    // Update mastery
     const key = `${this.userId}:${input.itemId}`;
     const existing = this.mastery.get(key) ?? {
       userId: this.userId,
@@ -76,14 +76,20 @@ export class InMemoryProgressClient implements ProgressHandle {
     if (input.result === "fail") existing.failCount++;
     existing.lastPracticedAt = new Date().toISOString();
 
-    // Derive status
-    if (input.result === "skip") {
-      existing.status = "needs_practice";
-    } else if (existing.passCount >= 3) {
-      existing.status = "mastered";
-    } else if (existing.passCount > 0 || existing.failCount > 0) {
-      existing.status = "practicing";
-    }
+    // Compute status from the recent attempt history (newest first).
+    // Pull last MASTERY_LOOKBACK attempts for this (user, item) — the
+    // newly-pushed attempt is the most recent so it's included.
+    const recentResults = this.attempts
+      .filter((a) => a.userId === this.userId && a.itemId === input.itemId)
+      .slice(-MASTERY_LOOKBACK)
+      .reverse()
+      .map((a) => a.result);
+
+    existing.status = computeMasteryStatus(
+      input.itemId,
+      recentResults,
+      existing.status === "not_started" ? null : existing.status,
+    );
 
     this.mastery.set(key, existing);
   }

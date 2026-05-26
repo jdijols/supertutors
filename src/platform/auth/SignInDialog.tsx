@@ -64,6 +64,7 @@ export function SignInDialog({
   useEffect(() => {
     if (open) {
       setMounted(true);
+      setTab("sign-in");
       const id = setTimeout(() => setVisible(true), 0);
       return () => clearTimeout(id);
     }
