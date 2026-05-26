@@ -22,28 +22,21 @@ export default {
             "--tw-prose-quote-borders": theme("colors.sb.accent-deep"),
             "--tw-prose-counters": theme("colors.sb.paper-soft"),
             "--tw-prose-hr": "rgb(255 255 255 / 0.1)",
-            // <details> / <summary> styling — Notion-like toggles.
+            // <details> / <summary> styling — clean, minimal toggles.
+            // No border, no background; the chevron + bold summary text
+            // are the entire affordance. Hover on summary gives a faint
+            // wash so click target is still discoverable.
             details: {
-              marginTop: "1rem",
-              marginBottom: "1rem",
-              border: "1px solid rgb(255 255 255 / 0.1)",
-              borderRadius: "0.75rem",
-              background: "rgb(255 255 255 / 0.02)",
-              overflow: "hidden",
-              transition: "background-color 200ms",
+              marginTop: "0.25rem",
+              marginBottom: "0.25rem",
             },
-            "details[open]": {
-              background: "rgb(255 255 255 / 0.03)",
-            },
-            // Nested details — slightly less visual weight to imply hierarchy.
-            "details details": {
-              border: "1px solid rgb(255 255 255 / 0.08)",
-              background: "rgb(255 255 255 / 0.015)",
-            },
+            // Nested details — no special treatment; the indent from the
+            // parent's open-state padding handles hierarchy on its own.
+            "details details": {},
             summary: {
               cursor: "pointer",
               listStyle: "none",
-              padding: "0.75rem 1rem",
+              padding: "0.5rem 0",
               fontFamily: theme("fontFamily.mono").join(", "),
               fontSize: "0.9rem",
               fontWeight: "600",
@@ -52,11 +45,10 @@ export default {
               alignItems: "center",
               gap: "0.5rem",
               userSelect: "none",
-              transition: "color 200ms, background-color 200ms",
+              transition: "color 200ms",
             },
             "summary:hover": {
               color: theme("colors.white"),
-              backgroundColor: "rgb(255 255 255 / 0.04)",
             },
             "summary::-webkit-details-marker": { display: "none" },
             "summary::marker": { content: '""' },
@@ -76,13 +68,14 @@ export default {
             "details[open] > summary::before": {
               transform: "rotate(90deg)",
             },
-            // Inner content padding — only when open.
+            // Inner content padding — only when open. Flat horizontal
+            // alignment with the summary; small bottom breathing room.
             "details[open] > *:not(summary)": {
-              padding: "0 1rem 0.75rem",
+              padding: "0 0 0.5rem",
             },
             "details[open] > details": {
               padding: "0",
-              margin: "0.5rem 1rem 0.75rem 1rem",
+              margin: "0.25rem 0 0.5rem 1rem",
             },
             // Section name inside <summary><b>...</b></summary> should pop.
             "summary b, summary strong": {
