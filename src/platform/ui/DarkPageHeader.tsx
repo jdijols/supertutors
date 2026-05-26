@@ -2,7 +2,6 @@ import { type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { LaurelMark } from "@/platform/landing/LaurelMark";
-import { MuteToggle } from "@/platform/ui/MuteToggle";
 import { UserMenu } from "@/platform/ui/UserMenu";
 
 interface DarkPageHeaderProps {
@@ -45,7 +44,6 @@ export function DarkPageHeader({ rightSlot }: DarkPageHeaderProps) {
       <div className="flex items-center gap-3 sm:gap-4">
         {rightSlot}
         <UserMenu inline />
-        <MuteToggle inline surface="dark" />
       </div>
     </header>
   );
