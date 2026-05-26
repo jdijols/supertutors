@@ -1,15 +1,9 @@
 import { useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
+import type { LessonCatalogItem } from "@/platform/lesson-sdk";
 import type { MasteryEntry } from "@/platform/progress/types";
 
-export interface LessonCatalogItem {
-  /** Stable item ID matching the `items` table, e.g. "asl:A". */
-  id: string;
-  /** Display glyph or short label rendered inside the pill. */
-  label: string;
-  /** Optional long-form description — surfaces as the pill tooltip. */
-  description?: string;
-}
+export type { LessonCatalogItem };
 
 export interface LessonCTA {
   /** Button label, e.g. "Start lesson". */
@@ -35,13 +29,18 @@ interface LessonDetailsViewProps {
   catalog: LessonCatalogItem[];
   /** Meta strip text, e.g. "Camera · Hand · Sign". */
   metaLabel: string;
-  /** Called when the user dismisses the view (×, Esc, backdrop click). */
+  /** Called when the user dismisses the view (× button or Esc key). */
   onClose: () => void;
   /** Primary CTA (e.g. "Start lesson"). */
   primaryCta: LessonCTA;
   /** Optional secondary CTA (e.g. "Explore sandbox") rendered to the
    * left of the primary, in a quieter visual treatment. */
   secondaryCta?: LessonCTA;
+  /** When provided, by-item pills become clickable buttons that call
+   *  this with the item's id. Used by lessons whose practice loop can
+   *  accept a specific item (e.g. ASL letter grid). Omit for sequential
+   *  lessons where jumping to a single item isn't meaningful. */
+  onItemSelect?: (itemId: string) => void;
 }
 
 const OUTLINE_STYLE: React.CSSProperties = {
@@ -71,6 +70,7 @@ export function LessonDetailsView({
   onClose,
   primaryCta,
   secondaryCta,
+  onItemSelect,
 }: LessonDetailsViewProps) {
   // Close on Escape.
   useEffect(() => {
@@ -223,6 +223,9 @@ export function LessonDetailsView({
                       label={item.label}
                       description={item.description}
                       status={m?.status ?? "not_started"}
+                      onSelect={
+                        onItemSelect ? () => onItemSelect(item.id) : undefined
+                      }
                     />
                   );
                 })}
@@ -281,10 +284,12 @@ function ItemPill({
   label,
   description,
   status,
+  onSelect,
 }: {
   label: string;
   description?: string;
   status: MasteryEntry["status"];
+  onSelect?: () => void;
 }) {
   const styles: Record<MasteryEntry["status"], string> = {
     mastered: "bg-sb-ink text-white border-sb-ink",
@@ -292,12 +297,35 @@ function ItemPill({
     needs_practice: "bg-sb-paper-soft text-sb-muted border-sb-ink/20",
     not_started: "bg-transparent text-sb-ink/40 border-sb-ink/10",
   };
+  // Longer glyphs (word signs like "THANK YOU", "FRIEND") get a smaller
+  // font + tighter leading so they fit the square pill without overflow.
+  const fontSize =
+    label.length >= 7
+      ? "text-[9px] sm:text-[10px] leading-tight"
+      : label.length >= 4
+      ? "text-[11px] sm:text-[12px] leading-tight"
+      : "text-[14px] sm:text-[15px]";
   const statusLabel = status.replace("_", " ");
+  const titleAttr = description
+    ? `${description} — ${statusLabel}`
+    : `${label} — ${statusLabel}`;
+  const baseCls = `aspect-square rounded-xl border flex items-center justify-center text-center px-1 font-mono font-bold break-words ${fontSize} ${styles[status]}`;
+
+  if (onSelect) {
+    return (
+      <button
+        type="button"
+        onClick={onSelect}
+        title={titleAttr}
+        aria-label={titleAttr}
+        className={`${baseCls} cursor-pointer transition-transform duration-150 hover:scale-[1.04] hover:border-sb-ink/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface`}
+      >
+        {label}
+      </button>
+    );
+  }
   return (
-    <div
-      className={`aspect-square rounded-xl border flex items-center justify-center font-mono font-bold text-[14px] sm:text-[15px] ${styles[status]}`}
-      title={description ? `${description} — ${statusLabel}` : `${label} — ${statusLabel}`}
-    >
+    <div className={baseCls} title={titleAttr}>
       {label}
     </div>
   );

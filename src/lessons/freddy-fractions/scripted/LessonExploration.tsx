@@ -463,7 +463,7 @@ export function LessonExploration({
             transition={{ type: "spring", stiffness: 600, damping: 22 }}
             className="pointer-events-auto px-6 py-3 rounded-full bg-sb-ink text-sb-paper text-lg font-semibold shadow-xl shadow-sb-accent-deep/25 border-2 border-sb-paper hover:bg-sb-ink/90 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sb-accent focus-visible:ring-offset-2 focus-visible:ring-offset-sb-surface cursor-pointer"
           >
-            Start lesson (beta) →
+            Start lesson →
           </motion.button>
         </div>
       )}

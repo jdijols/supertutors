@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { HandTracker, useHandLandmarks } from "@/platform/cv/HandTracker";
 import type { LessonMountProps } from "@/platform/lesson-sdk";
 import { useAslStore } from "./store/aslStore";
@@ -6,7 +7,7 @@ import { CameraGate } from "./practice/CameraGate";
 import { LetterGrid } from "./practice/LetterGrid";
 import { PracticeScreen } from "./practice/PracticeScreen";
 import { SessionSummary } from "./practice/SessionSummary";
-import { getTrainedSigns } from "./vocab";
+import { getSignById, getTrainedSigns } from "./vocab";
 
 /**
  * AslMount — top-level ASL lesson component.
@@ -19,15 +20,28 @@ import { getTrainedSigns } from "./vocab";
  */
 export function AslMount(props: LessonMountProps) {
   const reset = useAslStore((s) => s.reset);
+  const selectSign = useAslStore((s) => s.selectSign);
   const setSessionId = useAslStore((s) => s.setSessionId);
   const sessionId = useAslStore((s) => s.sessionId);
+  const [searchParams, setSearchParams] = useSearchParams();
   // eslint-disable-next-line react-hooks/purity -- performance.now() is safe here; ref initialization is effectively synchronous on mount
   const startTimeRef = useRef<number>(performance.now());
 
-  // Reset store on mount
+  // Reset store on mount. If the URL carries `?focus=asl:<id>` (set by
+  // a by-item pill click on the landing details card), jump straight
+  // into practice for that sign, then strip the param so a manual back
+  // → forward doesn't re-trigger.
   useEffect(() => {
     reset();
     startTimeRef.current = performance.now();
+    const focusId = searchParams.get("focus");
+    if (focusId && getSignById(focusId)) {
+      selectSign(focusId);
+      const next = new URLSearchParams(searchParams);
+      next.delete("focus");
+      setSearchParams(next, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reset]);
 
   // Start a progress session when signed in
